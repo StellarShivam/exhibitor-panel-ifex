@@ -64,7 +64,7 @@ export default function OverviewAppView() {
       <Grid container spacing={3}>
         <Grid xs={12} md={4}>
           <AppWelcome
-            title={`Welcome back 👋 \n ${eventData?.state?.fullName}`}
+            title={`Welcome back 👋 \n `}
             description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
             img={
               <Image

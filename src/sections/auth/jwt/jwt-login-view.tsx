@@ -78,7 +78,7 @@ export default function JwtLoginView() {
 
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 3 }}>
-      <Typography variant="h4">Sign in to IFEX Exhibitor Panel</Typography>
+      <Typography variant="h4">Sign in to UPITS Exhibitor Panel</Typography>
 
       {/* <Stack direction="row" spacing={0.5}>
         <Typography variant="body2">New user?</Typography>

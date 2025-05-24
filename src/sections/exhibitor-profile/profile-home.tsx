@@ -198,7 +198,7 @@ export default function ProfileHome({ info, posts }: Props) {
                 }}
               >
                 {info.about ||
-                  'No description available No description available No description available No description available                                                     '}
+                  'Your company profile is currently missing a description. To enhance visibility and credibility, please go to Edit Profile and update the "About Your Company" section. A clear description helps visitors understand your business, services, and values—making a strong first impression and building trust with potential clients and partners.                                                  '}
               </Box>
             </Box>
           </Grid>

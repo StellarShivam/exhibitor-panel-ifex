@@ -91,7 +91,7 @@ export function useGetExhibitorProformaInvoice(eventID: number) {
 
   const memoizedValue = useMemo(
     () => ({
-      proforma: (data?.exhibitorDetails?.proforma?.data) || {},
+      proforma: (data) || {},
       proformaLoading: isLoading,
      proformaError: error,
       proformaValidating: isValidating,

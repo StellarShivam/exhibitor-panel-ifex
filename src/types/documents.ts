@@ -52,3 +52,8 @@ export interface IRemoveUploadRequest {
     }[];
   };
 }
+export interface IExhibitorProformaInvoice {
+  exhibitorId: number;
+  eventId: number;
+  proformaInvoice: string;
+}

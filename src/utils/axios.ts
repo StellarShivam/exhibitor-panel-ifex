@@ -128,6 +128,7 @@ export const apiEndpoints = {
   },
   documentsUpload: {
     listing: '/exhibitor/document?eventId=',
+    proforma: 'exhibitorDocumentData/',
   },
   event: {
     listing: '/exhibitorDetails',

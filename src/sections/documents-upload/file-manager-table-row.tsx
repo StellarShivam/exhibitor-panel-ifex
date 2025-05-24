@@ -29,7 +29,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 import { IFileManager } from 'src/types/file';
 
-import { IProcessedDocument } from 'src/types/documents';
+import { IExhibitorProformaInvoice, IProcessedDocument } from 'src/types/documents';
 import FileManagerShareDialog from './file-manager-share-dialog';
 import FileManagerFileDetails from './file-manager-file-details';
 import FileManagerNewFolderDialog from './file-manager-new-folder-dialog';
@@ -37,23 +37,24 @@ import FileManagerNewFolderDialog from './file-manager-new-folder-dialog';
 // ----------------------------------------------------------------------
 
 type Props = {
-  row: IProcessedDocument;
-  selected: boolean;
-  onSelectRow: VoidFunction;
-  onDeleteRow: VoidFunction;
-  onUploadSuccess: (documentId: string, files: File[]) => void;
+  row: IExhibitorProformaInvoice;
+  // selected: boolean;
+  // onSelectRow: VoidFunction;
+  // onDeleteRow: VoidFunction;
+  // onUploadSuccess: (documentId: string, files: File[]) => void;
 };
 
 export default function FileManagerTableRow({
   row,
-  selected,
-  onSelectRow,
-  onDeleteRow,
-  onUploadSuccess,
+  // selected,
+  // onSelectRow,
+  // onDeleteRow,
+  // onUploadSuccess,
 }: Props) {
   const theme = useTheme();
 
-  const { name, size, type, createdAt } = row;
+  // const { name, size, type, createdAt } = row;
+  const { proformaInvoice } = row;
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -71,21 +72,16 @@ export default function FileManagerTableRow({
 
   const popover = usePopover();
 
-  const handleChangeInvite = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setInviteEmail(event.target.value);
-  }, []);
+  // const handleChangeInvite = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setInviteEmail(event.target.value);
+  // }, []);
 
-  const handleClick = useDoubleClick({
-    click: () => {
-      details.onTrue();
-    },
-    doubleClick: () => console.info('DOUBLE CLICK'),
-  });
+  // const handleClick = 
 
-  const handleCopy = useCallback(() => {
-    enqueueSnackbar('Copied!');
-    copy(row.url);
-  }, [copy, enqueueSnackbar, row.url]);
+  // const handleCopy = useCallback(() => {
+  //   enqueueSnackbar('Copied!');
+  //   copy(row.url);
+  // }, [copy, enqueueSnackbar, row.url]);
 
   const defaultStyles = {
     borderTop: `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
@@ -105,7 +101,7 @@ export default function FileManagerTableRow({
   return (
     <>
       <TableRow
-        selected={selected}
+        // selected={selected}
         sx={{
           borderRadius: 2,
           [`&.${tableRowClasses.selected}, &:hover`]: {
@@ -129,17 +125,17 @@ export default function FileManagerTableRow({
           }),
         }}
       >
-        <TableCell padding="checkbox">
+        {/* <TableCell padding="checkbox">
           <Checkbox
             checked={selected}
             onDoubleClick={() => console.info('ON DOUBLE CLICK')}
             onClick={onSelectRow}
           />
-        </TableCell>
+        </TableCell> */}
 
-        <TableCell onClick={handleClick}>
+        <TableCell >
           <Stack direction="row" alignItems="center" spacing={2}>
-            <FileThumbnail file={type} sx={{ width: 36, height: 36 }} />
+            <FileThumbnail file={"pdf"} sx={{ width: 36, height: 36 }} />
 
             <Typography
               noWrap
@@ -150,31 +146,12 @@ export default function FileManagerTableRow({
                 ...(details.value && { fontWeight: 'fontWeightBold' }),
               }}
             >
-              {name}
+              Proforma Invoice
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
-          {fData(size)}
-        </TableCell>
 
-        <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
-          {type}
-        </TableCell>
-
-        <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
-          <ListItemText
-            primary={fDate(createdAt)}
-            secondary={fTime(createdAt)}
-            primaryTypographyProps={{ typography: 'body2' }}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-            }}
-          />
-        </TableCell>
 
         {/* <TableCell align="right" onClick={handleClick}>
           <AvatarGroup
@@ -218,49 +195,30 @@ export default function FileManagerTableRow({
           </IconButton>
         </TableCell> */}
 
-        <TableCell align="right" onClick={handleClick}>
-          {row.url ? (
-            <Button
-              variant="contained"
-              color="error"
-              startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-              onClick={(e) => {
-                e.stopPropagation();
-                confirm.onTrue();
-              }}
-              sx={{
-                backgroundColor: '#FF4842',
-                '&:hover': {
-                  backgroundColor: '#FF6B6B',
-                },
-                borderRadius: '8px',
-                textTransform: 'none',
-                px: 2,
-              }}
-            >
-              Remove
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="eva:cloud-upload-fill" />}
-              onClick={(e) => {
-                e.stopPropagation();
-                share.onTrue();
-              }}
-              sx={{
-                borderRadius: '8px',
-                textTransform: 'none',
-                px: 2,
-              }}
-            >
-              Upload
-            </Button>
-          )}
+        <TableCell align="right" >
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+            onClick={(e) => {
+              window.open(proformaInvoice, '_blank');
+            }}
+            sx={{
+              backgroundColor: '#FF4842',
+              '&:hover': {
+                backgroundColor: '#FF6B6B',
+              },
+              borderRadius: '8px',
+              textTransform: 'none',
+              px: 2,
+            }}
+          >
+            View Document
+          </Button>
         </TableCell>
       </TableRow>
 
-      <CustomPopover
+      {/* <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
@@ -298,7 +256,7 @@ export default function FileManagerTableRow({
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete
         </MenuItem>
-      </CustomPopover>
+      </CustomPopover> */}
 
       {/* <FileManagerFileDetails
         item={row}
@@ -325,16 +283,16 @@ export default function FileManagerTableRow({
         }}
       /> */}
 
-      <FileManagerNewFolderDialog
+      {/* <FileManagerNewFolderDialog
         open={share.value}
         onClose={() => {
           share.onFalse();
         }}
         documentId={row.id}
         onUploadSuccess={onUploadSuccess}
-      />
+      /> */}
 
-      <ConfirmDialog
+      {/* <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
         title="Remove Document"
@@ -351,7 +309,7 @@ export default function FileManagerTableRow({
             Remove
           </Button>
         }
-      />
+      /> */}
     </>
   );
 }

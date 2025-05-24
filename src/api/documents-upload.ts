@@ -80,6 +80,29 @@ export function useGetExhibitorUploadedDocuments(exhibitorIdId: number) {
 
   return memoizedValue;
 }
+export function useGetExhibitorProformaInvoice(eventID: number) {
+  const URL = apiEndpoints.documentsUpload.proforma + eventID;
+
+  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+
+  const reFetchExhibitorproforma = useCallback(() => mutate(URL), [URL]);
+
+  console.log('Proforma : *******', data);
+
+  const memoizedValue = useMemo(
+    () => ({
+      proforma: (data?.exhibitorDetails?.proforma?.data) || {},
+      proformaLoading: isLoading,
+     proformaError: error,
+      proformaValidating: isValidating,
+      proformaEmpty: !isLoading && !data?.data == null,
+      reFetchExhibitorproforma,
+    }),
+    [data, error, isLoading, isValidating, reFetchExhibitorproforma]
+  );
+
+  return memoizedValue;
+}
 
 export function useRemoveUploadUserDoc() {
   const removeUploadUserDoc = async (requestData: IRemoveUploadRequest) => {

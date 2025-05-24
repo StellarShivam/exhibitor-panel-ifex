@@ -9,6 +9,13 @@ import Link from '@mui/material/Link';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Button from '@mui/material/Button';
 
 import { useEventContext } from 'src/components/event-context';
 
@@ -17,10 +24,12 @@ import {
   useGetRequiredDocuments,
   useGetUserUploadedDocuments,
   useGetExhibitorUploadedDocuments,
+  useGetExhibitorProformaInvoice,
 } from 'src/api/documents-upload';
 
 import UserDocumentUpload from './user-document-upload';
 import EntityDocumentUpload from './entity-document-upload';
+import FileManagerTable from '../file-manager-table';
 
 const getFileType = (fileName: string) => {
   const extension = fileName.split('.').pop()?.toLowerCase() || '';
@@ -55,9 +64,17 @@ export default function DocumentsUploadView() {
     reFetchExhibitorUploadedDocs,
   } = useGetExhibitorUploadedDocuments(eventData?.state?.exhibitorId);
 
+  const {
+    proforma: proformaInvoice,
+    proformaLoading: proformaLoading,
+    proformaError: proformaError,
+    reFetchExhibitorproforma: reFetchExhibitorproforma,
+  } = useGetExhibitorProformaInvoice(eventData?.state?.eventId);
+
   console.log('userDocuments:---------', userDocuments);
   console.log('exhibitorDocuments:---------', exhibitorDocuments);
   console.log('uploadedDocuments:---------', exhibitorUploadedDocuments);
+  console.log('proformaInvoice:---------', proformaInvoice);
 
   const userDocumentsList = useMemo(
     () =>
@@ -109,17 +126,47 @@ export default function DocumentsUploadView() {
     <Container maxWidth="lg">
       <Box sx={{ mb: 0 }}>
         <Typography variant="h4" gutterBottom>
-          Documents Upload
+          Documents
         </Typography>
-        {/* <Breadcrumbs separator={<Iconify icon="eva:chevron-right-fill" />} aria-label="breadcrumb">
-          <Link underline="hover" color="inherit" href="#">
-            Dashboard
-          </Link>
-          <Typography color="text.primary">Documents Upload</Typography>
-        </Breadcrumbs> */}
       </Box>
 
-      <Tabs
+      {/* Proforma Invoice Table */}
+      {proformaInvoice?.proformaInvoice ? (
+        <TableContainer sx={{ my: 4 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>File Name</TableCell>
+                <TableCell>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>Proforma Invoice</TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => window.open(proformaInvoice.proformaInvoice, '_blank')}
+                  >
+                    View Document
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ):
+      (
+        <Box sx={{ my: 4, textAlign: 'center' }}>
+          <Typography variant="body1" color="textSecondary">
+            No Documents available.
+          </Typography>
+        </Box>
+      )}
+
+
+      {/* <Tabs
         value={currentTab}
         onChange={handleChangeTab}
         sx={{
@@ -138,9 +185,9 @@ export default function DocumentsUploadView() {
           icon={<Iconify icon="solar:document-add-bold" width={20} />}
           iconPosition="start"
         />
-      </Tabs>
+      </Tabs> */}
 
-      {currentTab === 'user' && (
+      {/* {currentTab === 'user' && (
         <UserDocumentUpload
           documents={userDocumentsList}
           documentType="user"
@@ -163,7 +210,7 @@ export default function DocumentsUploadView() {
             reFetchExhibitorUploadedDocs();
           }}
         />
-      )}
+      )} */}
     </Container>
   );
 }

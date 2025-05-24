@@ -76,15 +76,15 @@ export function useNavData() {
             path: paths.dashboard.documentsUpload,
             icon: ICONS.blog,
           },
-          {
-            title: 'Production Requirements',
-            path: paths.dashboard.productionRequirements.root,
-            icon: ICONS.banking,
-            children: [
-              { title: 'Products', path: paths.dashboard.productionRequirements.root },
-              { title: 'Orders', path: paths.dashboard.productionRequirements.orderList },
-            ],
-          },
+          // {
+          //   title: 'Production Requirements',
+          //   path: paths.dashboard.productionRequirements.root,
+          //   icon: ICONS.banking,
+          //   children: [
+          //     { title: 'Products', path: paths.dashboard.productionRequirements.root },
+          //     { title: 'Orders', path: paths.dashboard.productionRequirements.orderList },
+          //   ],
+          // },
           // {
           //   title: 'Help & Support',
           //   path: paths.dashboard.helpAndSupport.root,
@@ -105,11 +105,11 @@ export function useNavData() {
           //   path: paths.dashboard.setupTasks,
           //   icon: ICONS.tour,
           // },
-          // {
-          //   title: 'Product Portfolio',
-          //   path: paths.dashboard.productPortfolio.root,
-          //   icon: ICONS.product,
-          // },
+          {
+            title: 'Product Portfolio',
+            path: paths.dashboard.productPortfolio.root,
+            icon: ICONS.product,
+          },
           // {
           //   title: 'Listing Order',
           //   path: paths.dashboard.marketingAddOns,

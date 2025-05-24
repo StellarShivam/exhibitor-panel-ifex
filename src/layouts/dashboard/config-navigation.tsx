@@ -72,7 +72,7 @@ export function useNavData() {
           //   icon: ICONS.kanban,
           // },
           {
-            title: 'Documents Upload',
+            title: 'Documents',
             path: paths.dashboard.documentsUpload,
             icon: ICONS.blog,
           },

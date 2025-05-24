@@ -1,0 +1,1 @@
+export {default as InvitationCouponsListView} from './invitation-coupons-list';

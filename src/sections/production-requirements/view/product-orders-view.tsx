@@ -56,10 +56,6 @@ import ExhibitorProdRequirementsRow from '../exhibitor-prod-requirements-row';
 import ExhibitorProdRequirementsToolbar from '../exhibitor-prod-requirements-toolbar';
 import ExhibitorProdRequirementsFilterResults from '../exhibitor-prod-requirements-filter-results';
 
-import { ComingSoonIllustration } from 'src/assets/illustrations';
-import { Box } from '@mui/material';
-import Typography from '@mui/material/Typography';
-
 // ----------------------------------------------------------------------
 
 const paymentStatusOptions = ['PENDING', 'COMPLETED'];
@@ -193,211 +189,179 @@ export default function HelpAndSupportList() {
     [handleFilters]
   );
 
-  // return (
-  //   <>
-  //     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-  //       <CustomBreadcrumbs
-  //         heading="Production Requirements"
-  //         links={[
-  //           { name: 'Dashboard', href: paths.dashboard.root },
-  //           { name: 'Production Requirements', href: paths.dashboard.productionRequirements.root },
-  //           { name: 'Orders' },
-  //         ]}
-  //         sx={{
-  //           mb: { xs: 3, md: 5 },
-  //         }}
-  //       />
-
-  //       <Card>
-  //         <Tabs
-  //           value={filters.status}
-  //           onChange={handleFilterStatus}
-  //           sx={{
-  //             px: 2.5,
-  //             boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-  //           }}
-  //         >
-  //           {STATUS_OPTIONS.map((tab) => (
-  //             <Tab
-  //               key={tab.value}
-  //               iconPosition="end"
-  //               value={tab.value}
-  //               label={tab.label}
-  //               icon={
-  //                 <Label
-  //                   variant={
-  //                     ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-  //                   }
-  //                   color={
-  //                     (tab.value === 'COMPLETED' && 'success') ||
-  //                     (tab.value === 'REJECTED' && 'error') ||
-  //                     (tab.value === 'IN_PROGRESS' && 'warning') ||
-  //                     (tab.value === 'REFUNDED' && 'info') ||
-  //                     (tab.value === 'PENDING' && 'secondary') ||
-  //                     'default'
-  //                   }
-  //                 >
-  //                   {['COMPLETED', 'REJECTED', 'IN_PROGRESS', 'REFUNDED'].includes(tab.value)
-  //                     ? tableData.filter((user) => user.status === tab.value).length
-  //                     : tableData.length}
-  //                 </Label>
-  //               }
-  //             />
-  //           ))}
-  //         </Tabs>
-
-  //         <ExhibitorProdRequirementsToolbar
-  //           filters={filters}
-  //           onFilters={handleFilters}
-  //           //
-  //           paymentStatusOptions={paymentStatusOptions}
-  //         />
-
-  //         {canReset && (
-  //           <ExhibitorProdRequirementsFilterResults
-  //             filters={filters}
-  //             onFilters={handleFilters}
-  //             //
-  //             onResetFilters={handleResetFilters}
-  //             //
-  //             results={dataFiltered.length}
-  //             sx={{ p: 2.5, pt: 0 }}
-  //           />
-  //         )}
-
-  //         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-  //           <TableSelectedAction
-  //             dense={table.dense}
-  //             numSelected={table.selected.length}
-  //             rowCount={dataFiltered.length}
-  //             onSelectAllRows={(checked) =>
-  //               table.onSelectAllRows(
-  //                 checked,
-  //                 dataFiltered.map((row) => String(row.skuId))
-  //               )
-  //             }
-  //             // action={
-  //             //   <Tooltip title="Delete">
-  //             //     <IconButton color="primary" onClick={confirm.onTrue}>
-  //             //       <Iconify icon="solar:trash-bin-trash-bold" />
-  //             //     </IconButton>
-  //             //   </Tooltip>
-  //             // }
-  //           />
-
-  //           <Scrollbar>
-  //             <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-  //               <TableHeadCustom
-  //                 order={table.order}
-  //                 orderBy={table.orderBy}
-  //                 headLabel={TABLE_HEAD}
-  //                 rowCount={dataFiltered.length}
-  //                 numSelected={table.selected.length}
-  //                 onSort={table.onSort}
-  //                 onSelectAllRows={(checked) =>
-  //                   table.onSelectAllRows(
-  //                     checked,
-  //                     dataFiltered.map((row, idx) => String(idx))
-  //                   )
-  //                 }
-  //               />
-
-  //               <TableBody>
-  //                 {dataFiltered
-  //                   .slice(
-  //                     table.page * table.rowsPerPage,
-  //                     table.page * table.rowsPerPage + table.rowsPerPage
-  //                   )
-  //                   .map((row, idx) => (
-  //                     <ExhibitorProdRequirementsRow
-  //                       key={idx}
-  //                       row={row}
-  //                       selected={table.selected.includes(String(idx))}
-  //                       onSelectRow={() => table.onSelectRow(String(idx))}
-  //                       // onViewRow={() => handleDeleteRow(idx)}
-  //                       onEditRow={() => handleEditRow(String(idx))}
-  //                     />
-  //                   ))}
-
-  //                 <TableEmptyRows
-  //                   height={denseHeight}
-  //                   emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-  //                 />
-
-  //                 <TableNoData notFound={notFound} />
-  //               </TableBody>
-  //             </Table>
-  //           </Scrollbar>
-  //         </TableContainer>
-
-  //         <TablePaginationCustom
-  //           count={dataFiltered.length}
-  //           page={table.page}
-  //           rowsPerPage={table.rowsPerPage}
-  //           onPageChange={table.onChangePage}
-  //           onRowsPerPageChange={table.onChangeRowsPerPage}
-  //           //
-  //           dense={table.dense}
-  //           onChangeDense={table.onChangeDense}
-  //         />
-  //       </Card>
-  //     </Container>
-
-  //     <ConfirmDialog
-  //       open={confirm.value}
-  //       onClose={confirm.onFalse}
-  //       title="Delete"
-  //       content={
-  //         <>
-  //           Are you sure want to delete <strong> {table.selected.length} </strong> items?
-  //         </>
-  //       }
-  //       action={
-  //         <Button
-  //           variant="contained"
-  //           color="error"
-  //           onClick={() => {
-  //             // handleDeleteRows();
-  //             confirm.onFalse();
-  //           }}
-  //         >
-  //           Delete
-  //         </Button>
-  //       }
-  //     />
-  //   </>
-  // );
-
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)', // Center the entire content
-        display: 'flex',
-        flexDirection: 'column', // Stack items vertically
-        alignItems: 'center', // Center items horizontally
-        textAlign: 'center', // Center text
-      }}
-    >
-      <ComingSoonIllustration
-        sx={{
-          width: '150%',
-          height: '150%',
-          objectFit: 'contain',
-        }}
+    <>
+      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+        <CustomBreadcrumbs
+          heading="Production Requirements"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Production Requirements', href: paths.dashboard.productionRequirements.root },
+            { name: 'Orders' },
+          ]}
+          sx={{
+            mb: { xs: 3, md: 5 },
+          }}
+        />
+
+        <Card>
+          <Tabs
+            value={filters.status}
+            onChange={handleFilterStatus}
+            sx={{
+              px: 2.5,
+              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+          >
+            {STATUS_OPTIONS.map((tab) => (
+              <Tab
+                key={tab.value}
+                iconPosition="end"
+                value={tab.value}
+                label={tab.label}
+                icon={
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                    }
+                    color={
+                      (tab.value === 'COMPLETED' && 'success') ||
+                      (tab.value === 'REJECTED' && 'error') ||
+                      (tab.value === 'IN_PROGRESS' && 'warning') ||
+                      (tab.value === 'REFUNDED' && 'info') ||
+                      (tab.value === 'PENDING' && 'secondary') ||
+                      'default'
+                    }
+                  >
+                    {['COMPLETED', 'REJECTED', 'IN_PROGRESS', 'REFUNDED'].includes(tab.value)
+                      ? tableData.filter((user) => user.status === tab.value).length
+                      : tableData.length}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
+
+          <ExhibitorProdRequirementsToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            //
+            paymentStatusOptions={paymentStatusOptions}
+          />
+
+          {canReset && (
+            <ExhibitorProdRequirementsFilterResults
+              filters={filters}
+              onFilters={handleFilters}
+              //
+              onResetFilters={handleResetFilters}
+              //
+              results={dataFiltered.length}
+              sx={{ p: 2.5, pt: 0 }}
+            />
+          )}
+
+          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+            <TableSelectedAction
+              dense={table.dense}
+              numSelected={table.selected.length}
+              rowCount={dataFiltered.length}
+              onSelectAllRows={(checked) =>
+                table.onSelectAllRows(
+                  checked,
+                  dataFiltered.map((row) => String(row.skuId))
+                )
+              }
+              // action={
+              //   <Tooltip title="Delete">
+              //     <IconButton color="primary" onClick={confirm.onTrue}>
+              //       <Iconify icon="solar:trash-bin-trash-bold" />
+              //     </IconButton>
+              //   </Tooltip>
+              // }
+            />
+
+            <Scrollbar>
+              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                <TableHeadCustom
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  headLabel={TABLE_HEAD}
+                  rowCount={dataFiltered.length}
+                  numSelected={table.selected.length}
+                  onSort={table.onSort}
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      dataFiltered.map((row, idx) => String(idx))
+                    )
+                  }
+                />
+
+                <TableBody>
+                  {dataFiltered
+                    .slice(
+                      table.page * table.rowsPerPage,
+                      table.page * table.rowsPerPage + table.rowsPerPage
+                    )
+                    .map((row, idx) => (
+                      <ExhibitorProdRequirementsRow
+                        key={idx}
+                        row={row}
+                        selected={table.selected.includes(String(idx))}
+                        onSelectRow={() => table.onSelectRow(String(idx))}
+                        // onViewRow={() => handleDeleteRow(idx)}
+                        onEditRow={() => handleEditRow(String(idx))}
+                      />
+                    ))}
+
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                  />
+
+                  <TableNoData notFound={notFound} />
+                </TableBody>
+              </Table>
+            </Scrollbar>
+          </TableContainer>
+
+          <TablePaginationCustom
+            count={dataFiltered.length}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+            //
+            dense={table.dense}
+            onChangeDense={table.onChangeDense}
+          />
+        </Card>
+      </Container>
+
+      <ConfirmDialog
+        open={confirm.value}
+        onClose={confirm.onFalse}
+        title="Delete"
+        content={
+          <>
+            Are you sure want to delete <strong> {table.selected.length} </strong> items?
+          </>
+        }
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              // handleDeleteRows();
+              confirm.onFalse();
+            }}
+          >
+            Delete
+          </Button>
+        }
       />
-      <Typography
-        variant="h2"
-        sx={{
-          fontWeight: 'bold',
-          marginTop: 2, // Add spacing between the illustration and text
-        }}
-      >
-        Coming Soon!
-      </Typography>
-    </Box>
+    </>
   );
 }
 

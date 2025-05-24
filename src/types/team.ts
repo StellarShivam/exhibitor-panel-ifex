@@ -52,6 +52,5 @@ export interface IExhibitorItem {
   facebookUrl?: string | null;
   linkedinUrl?: string | null;
   youtubeUrl?: string | null;
-  faciaName?: string | null;
   videos?: any[];
 }

@@ -98,7 +98,7 @@ export default function UserTableRow({
           />
         </TableCell>
 
-        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Stack direction="row" spacing={0.4} flexWrap="wrap">
             {permissions.map((permission) => (
               <Button
@@ -123,7 +123,7 @@ export default function UserTableRow({
               </Button>
             ))}
           </Stack>
-        </TableCell> */}
+        </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edit" placement="top" arrow>

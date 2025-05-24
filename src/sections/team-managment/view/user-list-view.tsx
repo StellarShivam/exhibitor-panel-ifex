@@ -56,7 +56,7 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Team Member' },
   { id: 'status', label: 'Status', width: 100 },
   { id: 'lastUpdated', label: 'Last updated', width: 180 },
-  // { id: 'permissions', label: 'Permissions', width: 320 },
+  { id: 'permissions', label: 'Permissions', width: 320 },
   { id: '', label: 'Action', width: 80 },
 ];
 

@@ -71,6 +71,6 @@ export const paths = {
       detail: (id: string) => `${ROOTS.DASHBOARD}/help-and-support/${id}/detail`,
     },
     invitationCoupons: `${ROOTS.DASHBOARD}/invitation-coupons`,
-    facia: `${ROOTS.DASHBOARD}/fascia`,
+    facia: `${ROOTS.DASHBOARD}/facia`,
   },
 };

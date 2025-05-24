@@ -38,7 +38,7 @@ import ProductSort from '../product-sort';
 import CartIcon from '../common/cart-icon';
 import CartSidebar from '../cart/cart-sidebar';
 import SpecialRequestForm from '../product-special-request';
-import { ComingSoonIllustration } from 'src/assets/illustrations';
+
 // ----------------------------------------------------------------------
 
 export default function ProductShopView() {
@@ -124,7 +124,8 @@ export default function ProductShopView() {
             },
           }}
         />
-        {categories?.map((category) => (
+        
+        {/* {categories?.map((category) => (
           <Chip
             key={category.id}
             label={category.categoryName}
@@ -138,7 +139,23 @@ export default function ProductShopView() {
               },
             }}
           />
-        ))}
+        ))} */}
+        {Array.isArray(categories) &&
+  categories.map((category) => (
+    <Chip
+      key={category.id}
+      label={category.categoryName}
+      onClick={() => handleCategoryChange(category.id)}
+      sx={{
+        typography: 'body2',
+        color: selectedCategoryId === category.id ? 'primary.contrastText' : 'text.primary',
+        bgcolor: selectedCategoryId === category.id ? 'info.main' : 'background.paper',
+        '&:hover': {
+          bgcolor: selectedCategoryId === category.id ? 'info.dark' : 'background.neutral',
+        },
+      }}
+    />
+  ))}
       </Stack>
 
       {selectedCategoryId && subCategories && subCategories.length > 0 && (
@@ -275,129 +292,97 @@ export default function ProductShopView() {
       </Box>
     </Stack>
   );
-  // return (
-  //   <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ mb: 15 }}>
-  //     <CartIcon totalItems={cart?.length || 0} onClick={cartOpen.onTrue} />
-
-  //     <CartSidebar open={cartOpen.value} onClose={cartOpen.onFalse} />
-
-  //     <CustomBreadcrumbs
-  //       heading="Production Requirements"
-  //       links={[
-  //         { name: 'Dashboard', href: paths.dashboard.root },
-  //         { name: 'Production Requirements', href: paths.dashboard.root },
-  //         { name: 'Shop' },
-  //       ]}
-  //       action={
-  //         <Button
-  //           onClick={specialRequest.onTrue}
-  //           variant="contained"
-  //           startIcon={<Iconify icon="mingcute:add-line" />}
-  //         >
-  //           Special Request
-  //         </Button>
-  //       }
-  //       sx={{
-  //         mb: { xs: 3, md: 5 },
-  //       }}
-  //     />
-
-  //     <SpecialRequestForm open={specialRequest.value} onClose={specialRequest.onFalse} />
-
-  //     {renderItemsIncluded}
-
-  //     {/* <Stack
-  //       direction="column"
-  //       justifyContent="space-between"
-  //       alignItems="start"
-  //       gap="3"
-  //       sx={{ mb: 3 }}
-  //     >
-  //       <Typography variant="body1" sx={{ mb: 2 }}>
-  //         Items Included in your package
-  //       </Typography>
-  //       <Stack direction="row" spacing={1}>
-  //         <Card
-  //           variant="elevation"
-  //           elevation={3}
-  //           sx={{
-  //             bgcolor: 'success.lighter',
-  //             borderRadius: 2,
-  //             boxShadow: (theme) => theme.customShadows.z8,
-  //             width: 160,
-  //             p: 2,
-  //             display: 'flex',
-  //             flexDirection: 'column',
-  //             alignItems: 'start',
-  //             justifyContent: 'center',
-  //             gap: 1,
-  //             height: 'full',
-  //           }}
-  //         >
-  //           <CardMedia
-  //             component="img"
-  //             image="https://t3.ftcdn.net/jpg/01/96/73/92/360_F_196739274_vHDOtbnGAoQWzTFhCJsIFTpAfg0O9zSu.jpg"
-  //             alt="Table"
-  //             width={160}
-  //             height={160}
-  //             sx={{ borderRadius: 2, objectFit: 'fill' }}
-  //           />
-  //           <Typography variant="subtitle2" color="text.secondary">
-  //             Furniture
-  //           </Typography>
-  //           <Typography variant="body1" fontWeight={600} color="text.primary">
-  //             Table
-  //           </Typography>
-  //         </Card>
-  //       </Stack>
-  //     </Stack> */}
-
-  //     {renderFilters}
-
-  //     {isLoading ? (
-  //       <Typography>Loading...</Typography>
-  //     ) : (
-  //       <>
-  //         {dataFiltered.length > 0 ? (
-  //           <ProductList products={dataFiltered} loading={isLoading} />
-  //         ) : (
-  //           renderNotFound
-  //         )}
-  //       </>
-  //     )}
-  //   </Container>
-  // );
-
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)', // Center the entire content
-        display: 'flex',
-        flexDirection: 'column', // Stack items vertically
-        alignItems: 'center', // Center items horizontally
-        textAlign: 'center', // Center text
-      }}
-    >
-      <ComingSoonIllustration
+    <Container maxWidth={settings.themeStretch ? false : 'lg'} sx={{ mb: 15 }}>
+      <CartIcon totalItems={cart?.length || 0} onClick={cartOpen.onTrue} />
+
+      <CartSidebar open={cartOpen.value} onClose={cartOpen.onFalse} />
+
+      <CustomBreadcrumbs
+        heading="Production Requirements"
+        links={[
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Production Requirements', href: paths.dashboard.root },
+          { name: 'Shop' },
+        ]}
+        action={
+          <Button
+            onClick={specialRequest.onTrue}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+          >
+            Special Request
+          </Button>
+        }
         sx={{
-          width: '150%',
-          height: '150%',
-          objectFit: 'contain',
+          mb: { xs: 3, md: 5 },
         }}
       />
-      <Typography
-        variant="h2"
-        sx={{
-          fontWeight: 'bold',
-          marginTop: 2, // Add spacing between the illustration and text
-        }}
+
+      <SpecialRequestForm open={specialRequest.value} onClose={specialRequest.onFalse} />
+
+      {renderItemsIncluded}
+
+      {/* <Stack
+        direction="column"
+        justifyContent="space-between"
+        alignItems="start"
+        gap="3"
+        sx={{ mb: 3 }}
       >
-        Coming Soon!
-      </Typography>
-    </Box>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          Items Included in your package
+        </Typography>
+        <Stack direction="row" spacing={1}>
+          <Card
+            variant="elevation"
+            elevation={3}
+            sx={{
+              bgcolor: 'success.lighter',
+              borderRadius: 2,
+              boxShadow: (theme) => theme.customShadows.z8,
+              width: 160,
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'start',
+              justifyContent: 'center',
+              gap: 1,
+              height: 'full',
+            }}
+          >
+            <CardMedia
+              component="img"
+              image="https://t3.ftcdn.net/jpg/01/96/73/92/360_F_196739274_vHDOtbnGAoQWzTFhCJsIFTpAfg0O9zSu.jpg"
+              alt="Table"
+              width={160}
+              height={160}
+              sx={{ borderRadius: 2, objectFit: 'fill' }}
+            />
+            <Typography variant="subtitle2" color="text.secondary">
+              Furniture
+            </Typography>
+            <Typography variant="body1" fontWeight={600} color="text.primary">
+              Table
+            </Typography>
+          </Card>
+        </Stack>
+      </Stack> */}
+
+      {renderFilters}
+
+      {isLoading ? (
+        <Typography>Loading...</Typography>
+      ) : (
+        <>
+          {dataFiltered.length > 0 ? (
+            <ProductList products={dataFiltered} loading={isLoading} />
+          ) : (
+            renderNotFound
+          )}
+        </>
+      )}
+    </Container>
   );
 }
 

@@ -25,8 +25,8 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
       <Box
         ref={ref}
         sx={{
-          width: 166,
-          height: 47,
+          width: 100,
+          height: 100,
           display: 'inline-flex',
           position: 'relative',
           ...sx,
@@ -34,11 +34,11 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
         {...other}
       >
         <Image
-          src="/logo/wfi_black_logo-new.png"
+          src="/logo/logo-header.webp"
           alt="Logo"
           fill
           priority
-          sizes="166px"
+          sizes="250px"
           style={{
             objectFit: 'contain',
             filter,

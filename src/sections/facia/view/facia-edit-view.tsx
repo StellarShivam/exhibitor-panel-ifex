@@ -24,33 +24,20 @@ export default function FaciaEditView() {
   const settings = useSettingsContext();
   const [currentUser, setCurrentUser] = useState<IExhibitorItem | undefined>(undefined);
   const { eventData } = useEventContext();
-  const [faciaNameError, setFaciaNameError] = useState<string>('');
 
   const { exhibitor, exhibitorLoading } = useGetExhibitor(eventData?.state.exhibitorId);
-
-  const handleFaciaNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.length > 30) {
-      setFaciaNameError('Maximum 30 characters allowed');
-    } else {
-      setFaciaNameError('');
-    }
-    setCurrentUser({ ...currentUser, faciaName: value });
-  };
-
-  const isSaveDisabled = faciaNameError !== '' || !currentUser?.faciaName;
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Fascia Information"
+        heading="Facia Information"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Fascia',
+            name: 'Facia',
             href: paths.dashboard.facia,
           },
           { name: currentUser?.companyName || 'Edit Profile' },
@@ -65,31 +52,28 @@ export default function FaciaEditView() {
         <Grid item xs={12} md={6}>
           <Box>
             <Typography variant="h6" gutterBottom>
-              Fascia Name
+              Facia Name
             </Typography>
             <TextField
               fullWidth
-              label="Enter Fascia Name (Max 30 characters)"
+              label="Enter Facia Name"
               variant="outlined"
-              value={currentUser?.faciaName || ''}
-              onChange={handleFaciaNameChange}
-              error={faciaNameError !== ''}
-              helperText={faciaNameError}
+              // value={currentUser?.faciaName || ''}
+              // onChange={(e) => setCurrentUser({ ...currentUser, faciaName: e.target.value })}
             />
           </Box>
-          <Button
+          <Button 
             variant="contained"
             color="primary"
             fullWidth
             sx={{ mt: 2 }}
-            disabled={isSaveDisabled}
             onClick={() => {
               // Handle save action
               console.log('Save button clicked');
             }}
-          >
+            >
             Save
-          </Button>
+            </Button>
         </Grid>
 
         {/* Right Column: Card with Details */}
@@ -97,19 +81,19 @@ export default function FaciaEditView() {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Fascia Details
+                Facia Details
               </Typography>
               <Typography variant="body1">
-                <strong>Hall No:</strong> {currentUser?.hallNo || 'Ground Floor Hall 4'}
+                <strong>Hall No:</strong> { 'Ground Floor Hall 4'}
               </Typography>
               <Typography variant="body1">
-                <strong>Stall No:</strong> {currentUser?.stallNo || '1'}
+                <strong>Stall No:</strong> {'14'}
               </Typography>
               <Typography variant="body1">
-                <strong>Scheme:</strong> {currentUser?.scheme || 'Shell'}
+                <strong>Scheme:</strong> { 'Shell'}
               </Typography>
               <Typography variant="body1">
-                <strong>Area:</strong> {currentUser?.area || '80 sq. mtr.'}
+                <strong>Area:</strong> {'80 sq. mtr.'}
               </Typography>
             </CardContent>
           </Card>

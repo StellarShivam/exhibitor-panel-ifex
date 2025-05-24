@@ -57,25 +57,25 @@ export function useNavData() {
             path: paths.dashboard.exhibitorProfile.root,
             icon: ICONS.job,
           },
-          {
-            title: 'Exhibitor Badges',
-            path: paths.dashboard.teamManagement.root,
-            icon: ICONS.user,
-            children: [
-              { title: 'Members', path: paths.dashboard.teamManagement.root },
-              { title: 'Add Member', path: paths.dashboard.teamManagement.new },
-            ],
-          },
-          {
-            title: 'Fascia',
-            path: paths.dashboard.facia,
-            icon: ICONS.kanban,
-          },
           // {
-          //   title: 'Documents Upload',
-          //   path: paths.dashboard.documentsUpload,
-          //   icon: ICONS.blog,
+          //   title: 'Exhibitor Badges',
+          //   path: paths.dashboard.teamManagement.root,
+          //   icon: ICONS.user,
+          //   children: [
+          //     { title: 'Members', path: paths.dashboard.teamManagement.root },
+          //     { title: 'Add Member', path: paths.dashboard.teamManagement.new },
+          //   ],
           // },
+          // {
+          //   title: 'Facia',
+          //   path: paths.dashboard.facia,
+          //   icon: ICONS.kanban,
+          // },
+          {
+            title: 'Documents Upload',
+            path: paths.dashboard.documentsUpload,
+            icon: ICONS.blog,
+          },
           {
             title: 'Production Requirements',
             path: paths.dashboard.productionRequirements.root,
@@ -90,36 +90,36 @@ export function useNavData() {
           //   path: paths.dashboard.helpAndSupport.root,
           //   icon: ICONS.external,
           // },
-          {
-            title: 'My Connects',
-            path: paths.dashboard.myConnects,
-            icon: ICONS.user,
-          },
-          {
-            title: 'Chat',
-            path: paths.dashboard.chat,
-            icon: ICONS.chat,
-          },
+          // {
+          //   title: 'My Connects',
+          //   path: paths.dashboard.myConnects,
+          //   icon: ICONS.user,
+          // },
+          // {
+          //   title: 'Chat',
+          //   path: paths.dashboard.chat,
+          //   icon: ICONS.chat,
+          // },
           // {
           //   title: 'Admin',
           //   path: paths.dashboard.setupTasks,
           //   icon: ICONS.tour,
           // },
-          {
-            title: 'Product Portfolio',
-            path: paths.dashboard.productPortfolio.root,
-            icon: ICONS.product,
-          },
+          // {
+          //   title: 'Product Portfolio',
+          //   path: paths.dashboard.productPortfolio.root,
+          //   icon: ICONS.product,
+          // },
           // {
           //   title: 'Listing Order',
           //   path: paths.dashboard.marketingAddOns,
           //   icon: ICONS.order,
           // },
-          {
-            title: 'Invitation Coupons',
-            path: paths.dashboard.invitationCoupons,
-            icon: ICONS.label,
-          },
+          // {
+          //   title: 'Invitation Coupons',
+          //   path: paths.dashboard.invitationCoupons,
+          //   icon: ICONS.label,
+          // },
         ],
       },
 

@@ -38,7 +38,7 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
           alt="Logo"
           fill
           priority
-          sizes="250px"
+          // sizes="250px"
           style={{
             objectFit: 'contain',
             filter,

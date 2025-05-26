@@ -17,7 +17,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { IExhibitorProformaInvoice, IProcessedDocument } from 'src/types/documents';
+import { IProcessedDocument } from 'src/types/documents';
 
 import FileManagerTableRow from './file-manager-table-row';
 
@@ -25,8 +25,8 @@ import FileManagerTableRow from './file-manager-table-row';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
-  { id: 'size', label: 'Size', width: 120 },
-  { id: 'type', label: 'Type', width: 120 },
+  // { id: 'size', label: 'Size', width: 120 },
+  // { id: 'type', label: 'Type', width: 120 },
   { id: 'modifiedAt', label: 'Modified', width: 140 },
   { id: 'actions', label: 'Actions', align: 'center', width: 200 },
   // { id: '', width: 88 },
@@ -37,7 +37,7 @@ const TABLE_HEAD = [
 type Props = {
   table: TableProps;
   notFound: boolean;
-  dataFiltered: IExhibitorProformaInvoice[];
+  dataFiltered: IProcessedDocument[];
   onOpenConfirm: VoidFunction;
   onDeleteRow: (id: string) => void;
   onUploadSuccess: (documentId: string, files: File[]) => void;
@@ -78,14 +78,14 @@ export default function FileManagerTable({
           m: theme.spacing(-2, -3, -3, -3),
         }}
       >
-        {/* <TableSelectedAction
+        <TableSelectedAction
           dense={dense}
           numSelected={selected.length}
           rowCount={dataFiltered.length}
           onSelectAllRows={(checked) =>
             onSelectAllRows(
               checked,
-              // dataFiltered.map((row) => row.exhibitorId)
+              dataFiltered.map((row) => row.id)
             )
           }
           // action={
@@ -112,7 +112,7 @@ export default function FileManagerTable({
             width: 'auto',
             borderRadius: 1.5,
           }}
-        /> */}
+        />
 
         <TableContainer
           sx={{
@@ -134,12 +134,12 @@ export default function FileManagerTable({
               rowCount={dataFiltered.length}
               numSelected={selected.length}
               onSort={onSort}
-              // onSelectAllRows={(checked) =>
-              //   onSelectAllRows(
-              //     checked,
-              //     dataFiltered.map((row) => row.id)
-              //   )
-              // }
+              onSelectAllRows={(checked) =>
+                onSelectAllRows(
+                  checked,
+                  dataFiltered.map((row) => row.id)
+                )
+              }
               sx={{
                 [`& .${tableCellClasses.head}`]: {
                   '&:first-of-type': {
@@ -159,12 +159,12 @@ export default function FileManagerTable({
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
                   <FileManagerTableRow
-                    // key={row}
+                    key={row.id}
                     row={row}
-                    // selected={selected.includes(row.id)}
-                    // onSelectRow={() => onSelectRow(row.id)}
-                    // onDeleteRow={() => onDeleteRow(row.id)}
-                    // onUploadSuccess={onUploadSuccess}
+                    selected={selected.includes(row.id)}
+                    onSelectRow={() => onSelectRow(row.id)}
+                    onDeleteRow={() => onDeleteRow(row.id)}
+                    onUploadSuccess={onUploadSuccess}
                   />
                 ))}
 

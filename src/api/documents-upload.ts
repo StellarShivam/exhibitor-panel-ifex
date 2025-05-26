@@ -17,8 +17,8 @@ export function useGetRequiredDocuments(eventId: number) {
   const memoizedValue = useMemo(() => {
     const allDocuments = (data as IRequiredDocuments[]) || [];
 
-    const userDocuments = allDocuments.filter((doc) => doc.userType === 'User Document');
-    const exhibitorDocuments = allDocuments.filter((doc) => doc.userType === 'Exhibitor Document');
+    const userDocuments = allDocuments.filter((doc) => doc.userType === 'EXHIBITOR_USER');
+    const exhibitorDocuments = allDocuments.filter((doc) => doc.userType === 'EXHIBITOR_ENTITY');
 
     return {
       allDocuments,

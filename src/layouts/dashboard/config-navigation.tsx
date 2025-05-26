@@ -73,8 +73,12 @@ export function useNavData() {
           // },
           {
             title: 'Documents',
-            path: paths.dashboard.documentsUpload,
+            path: paths.dashboard.documents.root,
             icon: ICONS.blog,
+            children: [
+              { title: 'View Documents', path: paths.dashboard.documents.root },
+              { title: 'Upload Document', path: paths.dashboard.documents.upload },
+            ],
           },
           // {
           //   title: 'Production Requirements',

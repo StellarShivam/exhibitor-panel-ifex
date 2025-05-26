@@ -37,7 +37,10 @@ export const paths = {
     // productPortfolio: `${ROOTS.DASHBOARD}/product-portfolio`,
     marketingAddOns: `${ROOTS.DASHBOARD}/marketing-addons`,
     myConnects: `${ROOTS.DASHBOARD}/my-connects`,
-    documentsUpload: `${ROOTS.DASHBOARD}/documents-upload`,
+    documents: {
+      root: `${ROOTS.DASHBOARD}/documents-view`,
+      upload: `${ROOTS.DASHBOARD}/documents-upload`,
+    },
     chat: `${ROOTS.DASHBOARD}/chat`,
     // productionRequirements: `${ROOTS.DASHBOARD}/production-requirements`,
     productionRequirements: {

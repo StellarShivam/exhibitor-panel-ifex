@@ -109,9 +109,9 @@ export default function OverviewAppView() {
           />
         </Grid>
 
-        <Grid xs={12} md={6}>
+        {/* <Grid xs={12} md={6}>
           <AppTasks />
-        </Grid>
+        </Grid> */}
 
         <Grid xs={12} md={6}>
           <Stack spacing={3}>

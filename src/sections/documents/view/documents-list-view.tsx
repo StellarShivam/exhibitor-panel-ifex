@@ -36,7 +36,7 @@ const getFileType = (fileName: string) => {
   return extension;
 };
 
-export default function DocumentsUploadView() {
+export default function DocumentsListView() {
   const [currentTab, setCurrentTab] = useState('user');
 
   const { eventData } = useEventContext();

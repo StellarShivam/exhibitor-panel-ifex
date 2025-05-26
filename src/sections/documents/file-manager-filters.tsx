@@ -213,7 +213,7 @@ export default function FileManagerFilters({
       <Stack spacing={1} direction="row" alignItems="center" justifyContent="flex-end" flexGrow={1}>
         {renderFilterDate}
 
-        {renderFilterType}
+        {/* {renderFilterType} */}
       </Stack>
     </Stack>
   );

@@ -116,11 +116,11 @@ export default function AppTasks() {
       setLoadingTaskId(task.id);
       switch (task.taskName) {
         case 'Exhibitor Document':
-          router.push(paths.dashboard.documentsUpload);
+          router.push(paths.dashboard.documents.upload);
           await updateTask(task.id, true);
           break;
         case 'User Document':
-          router.push(paths.dashboard.documentsUpload);
+          router.push(paths.dashboard.documents.upload);
           await updateTask(task.id, true);
           break;
         case 'Click Chat':

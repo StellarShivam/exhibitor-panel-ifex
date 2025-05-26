@@ -11,7 +11,7 @@ export default function Page() {
 
 // import ExhibitorProfileView from 'src/sections/exhibitor-profile/view';
 // import { UserProfileView } from 'src/sections/exhibitor-profile/view/index';
-// import DocumentsUploadView from 'src/sections/documents-upload/view/documents-upload-view';
+// import DocumentsListView from 'src/sections/documents-upload/view/documents-upload-view';
 // // ----------------------------------------------------------------------
 
 // export const metadata = {
@@ -19,5 +19,5 @@ export default function Page() {
 // };
 
 // export default function Page() {
-//   return <DocumentsUploadView />;
+//   return <DocumentsListView />;
 // }

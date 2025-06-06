@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { paths } from 'src/routes/paths';
 
 import SvgColor from 'src/components/svg-color';
+import { useEventContext } from 'src/components/event-context';
 
 // ----------------------------------------------------------------------
 
@@ -44,109 +45,125 @@ const ICONS = {
 // ----------------------------------------------------------------------
 
 export function useNavData() {
-  const data = useMemo(
-    () => [
-      // OVERVIEW
-      // ----------------------------------------------------------------------
-      {
-        subheader: '',
-        items: [
-          { title: 'Overview', path: paths.dashboard.overview, icon: ICONS.analytics },
-          {
-            title: 'Exhibitor Profile',
-            path: paths.dashboard.exhibitorProfile.root,
-            icon: ICONS.job,
-          },
-          // {
-          //   title: 'Exhibitor Badges',
-          //   path: paths.dashboard.teamManagement.root,
-          //   icon: ICONS.user,
-          //   children: [
-          //     { title: 'Members', path: paths.dashboard.teamManagement.root },
-          //     { title: 'Add Member', path: paths.dashboard.teamManagement.new },
-          //   ],
-          // },
-          // {
-          //   title: 'Facia',
-          //   path: paths.dashboard.facia,
-          //   icon: ICONS.kanban,
-          // },
-          {
-            title: 'Documents',
-            path: paths.dashboard.documents.root,
-            icon: ICONS.blog,
-            children: [
-              { title: 'View Documents', path: paths.dashboard.documents.root },
-              { title: 'Upload Document', path: paths.dashboard.documents.upload },
-            ],
-          },
-          // {
-          //   title: 'Production Requirements',
-          //   path: paths.dashboard.productionRequirements.root,
-          //   icon: ICONS.banking,
-          //   children: [
-          //     { title: 'Products', path: paths.dashboard.productionRequirements.root },
-          //     { title: 'Orders', path: paths.dashboard.productionRequirements.orderList },
-          //   ],
-          // },
-          // {
-          //   title: 'Help & Support',
-          //   path: paths.dashboard.helpAndSupport.root,
-          //   icon: ICONS.external,
-          // },
-          // {
-          //   title: 'My Connects',
-          //   path: paths.dashboard.myConnects,
-          //   icon: ICONS.user,
-          // },
-          // {
-          //   title: 'Chat',
-          //   path: paths.dashboard.chat,
-          //   icon: ICONS.chat,
-          // },
-          // {
-          //   title: 'Admin',
-          //   path: paths.dashboard.setupTasks,
-          //   icon: ICONS.tour,
-          // },
-          {
-            title: 'Product Portfolio',
-            path: paths.dashboard.productPortfolio.root,
-            icon: ICONS.product,
-          },
-          // {
-          //   title: 'Listing Order',
-          //   path: paths.dashboard.marketingAddOns,
-          //   icon: ICONS.order,
-          // },
-          // {
-          //   title: 'Invitation Coupons',
-          //   path: paths.dashboard.invitationCoupons,
-          //   icon: ICONS.label,
-          // },
-        ],
-      },
+  const { eventData } = useEventContext();
 
-      // MANAGEMENT
-      // ----------------------------------------------------------------------
-      // {
-      //   subheader: 'management',
-      //   items: [
-      //     {
-      //       title: 'user',
-      //       path: paths.dashboard.group.root,
-      //       icon: ICONS.user,
-      //       children: [
-      //         { title: 'four', path: paths.dashboard.group.root },
-      //         { title: 'five', path: paths.dashboard.group.five },
-      //         { title: 'six', path: paths.dashboard.group.six },
-      //       ],
-      //     },
-      //   ],
-      // },
-    ],
-    []
-  );
+  // console.log(eventData, 'jhugyf');
+
+  const data = useMemo(() => {
+    if (eventData.state?.status === 'APPROVED' || eventData.state?.status === 'AUTO_APPROVED') {
+      return [
+        // OVERVIEW
+        // ----------------------------------------------------------------------
+        {
+          subheader: '',
+          items: [
+            { title: 'Overview', path: paths.dashboard.overview, icon: ICONS.analytics },
+            {
+              title: 'Your Profile',
+              path: paths.dashboard.exhibitorProfile.root,
+              icon: ICONS.job,
+            },
+            // {
+            //   title: 'Exhibitor Badges',
+            //   path: paths.dashboard.teamManagement.root,
+            //   icon: ICONS.user,
+            //   children: [
+            //     { title: 'Members', path: paths.dashboard.teamManagement.root },
+            //     { title: 'Add Member', path: paths.dashboard.teamManagement.new },
+            //   ],
+            // },
+            // {
+            //   title: 'Facia',
+            //   path: paths.dashboard.facia,
+            //   icon: ICONS.kanban,
+            // },
+            {
+              title: 'Transactions',
+              path: paths.dashboard.transactions,
+              icon: ICONS.banking,
+            },
+            {
+              title: 'Form',
+              path: paths.dashboard.form,
+              icon: ICONS.file,
+            },
+            // {
+            //   title: 'Documents',
+            //   path: paths.dashboard.documents.root,
+            //   icon: ICONS.blog,
+            //   children: [
+            //     { title: 'View Documents', path: paths.dashboard.documents.root },
+            //     { title: 'Upload Document', path: paths.dashboard.documents.upload },
+            //   ],
+            // },
+            // {
+            //   title: 'Production Requirements',
+            //   path: paths.dashboard.productionRequirements.root,
+            //   icon: ICONS.banking,
+            //   children: [
+            //     { title: 'Products', path: paths.dashboard.productionRequirements.root },
+            //     { title: 'Orders', path: paths.dashboard.productionRequirements.orderList },
+            //   ],
+            // },
+            // {
+            //   title: 'Help & Support',
+            //   path: paths.dashboard.helpAndSupport.root,
+            //   icon: ICONS.external,
+            // },
+            // {
+            //   title: 'My Connects',
+            //   path: paths.dashboard.myConnects,
+            //   icon: ICONS.user,
+            // },
+            // {
+            //   title: 'Chat',
+            //   path: paths.dashboard.chat,
+            //   icon: ICONS.chat,
+            // },
+            // {
+            //   title: 'Admin',
+            //   path: paths.dashboard.setupTasks,
+            //   icon: ICONS.tour,
+            // },
+            // {
+            //   title: 'Product Portfolio',
+            //   path: paths.dashboard.productPortfolio.root,
+            //   icon: ICONS.product,
+            // },
+            // {
+            //   title: 'Listing Order',
+            //   path: paths.dashboard.marketingAddOns,
+            //   icon: ICONS.order,
+            // },
+            // {
+            //   title: 'Invitation Coupons',
+            //   path: paths.dashboard.invitationCoupons,
+            //   icon: ICONS.label,
+            // },
+          ],
+        },
+
+        // MANAGEMENT
+        // ----------------------------------------------------------------------
+        // {
+        //   subheader: 'management',
+        //   items: [
+        //     {
+        //       title: 'user',
+        //       path: paths.dashboard.group.root,
+        //       icon: ICONS.user,
+        //       children: [
+        //         { title: 'four', path: paths.dashboard.group.root },
+        //         { title: 'five', path: paths.dashboard.group.five },
+        //         { title: 'six', path: paths.dashboard.group.six },
+        //       ],
+        //     },
+        //   ],
+        // },
+      ];
+    }
+    return [];
+  }, [eventData.state?.status]);
 
   return data;
 }

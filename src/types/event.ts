@@ -9,6 +9,7 @@ export type IEventItem = {
   endDate: string;
   fullName: string;
   mobile: string;
+  status: string;
 };
 
 // Event list model of event list page

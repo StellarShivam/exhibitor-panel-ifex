@@ -31,6 +31,31 @@ export default function RHFTextField({ name, helperText, type, ...other }: Props
           error={!!error}
           helperText={error ? error?.message : helperText}
           {...other}
+          // InputLabelProps={{
+          //   sx: {
+          //     fontSize: '1rem', // or remove this line for default
+          //     '&.Mui-focused': {
+          //       fontSize: '1rem',
+          //     },
+          //     '&.MuiInputLabel-shrink': {
+          //       fontSize: '1rem',
+          //     },
+          //   },
+          // }}
+          // sx={{
+          //   '& .MuiOutlinedInput-root': {
+          //     '& fieldset': {
+          //       borderColor: '#262626',
+          //     },
+          //     '&:hover fieldset': {
+          //       borderColor: 'black',
+          //     },
+          //     '&.Mui-focused fieldset': {
+          //       fontSize: '1.1rem',
+          //       borderColor: 'black',
+          //     },
+          //   },
+          // }}
         />
       )}
     />

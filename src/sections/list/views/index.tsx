@@ -30,6 +30,7 @@ import { useSetState } from 'src/hooks/use-set-state';
 import { IEventGridFilters, IEventItem, IEventListItem } from 'src/types/event';
 // import { EventGridToolBar } from '../event-grid-toolbar';
 import { EventGridFiltersResult } from '../event-grid-filter-results';
+import { ref } from 'yup';
 // import { EventsAnalytics } from '../events-analytics';
 
 // ----------------------------------------------------------------------
@@ -49,14 +50,35 @@ export default function EventCardsGrid() {
 
   const { events, eventsLoading, reFetchEventList } = useGetEventList1();
 
+  useEffect(() => {
+    reFetchEventList();
+  }, []); // Fetches events once on component mount
+
+  useEffect(() => {
+    // Wait until loading is finished and events are available
+    if (!eventsLoading && events && events.length > 0) {
+      eventData.setState(events[0]);
+      if (events[0]?.status === 'APPROVED') {
+        router.push('/dashboard');
+      } else {
+        router.push(`/dashboard/status`);
+      }
+    }
+  }, [events, eventsLoading]);
+
   // const popOver = usePopover();
 
   const [eventStatus, setEventStatus] = React.useState<string>('null');
 
   const selectEvent = (event: IEventItem) => {
+    console.log('Selected Event:', event);
     eventData.setState(event);
 
-    router.push(`/dashboard`);
+    if (event.status === 'APPROVED') {
+      router.push('/dashboard');
+    } else {
+      router.push(`/dashboard/status`);
+    }
   };
 
   // const handleUpdateStatus = useCallback(
@@ -192,7 +214,7 @@ export default function EventCardsGrid() {
           <EventGridFiltersResult
             filters={filters}
             totalResults={filteredEvents.length}
-            onResetPage={() => {}}
+            onResetPage={() => { }}
             sx={{ mb: 3 }}
           />
         )}

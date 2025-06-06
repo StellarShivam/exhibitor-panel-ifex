@@ -1,9 +1,14 @@
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
 import { alpha, useTheme } from '@mui/material/styles';
 
 import { bgGradient } from 'src/theme/css';
+import Iconify from 'src/components/iconify';
+import { useRouter } from 'src/routes/hooks';
+import { paths } from 'src/routes/paths';
+import { useEventContext } from 'src/components/event-context';
 
 import { IUserProfileCover } from 'src/types/user';
 
@@ -11,6 +16,8 @@ import { IUserProfileCover } from 'src/types/user';
 
 export default function ProfileCover({ name, avatarUrl, role, coverUrl }: IUserProfileCover) {
   const theme = useTheme();
+  const router = useRouter();
+  const { eventData } = useEventContext();
 
   return (
     <Box
@@ -37,18 +44,55 @@ export default function ProfileCover({ name, avatarUrl, role, coverUrl }: IUserP
           position: { md: 'absolute' },
         }}
       >
-        <Avatar
-          alt={name}
-          src={avatarUrl}
-          sx={{
-            mx: 'auto',
-            width: { xs: 64, md: 128 },
-            height: { xs: 64, md: 128 },
-            border: `solid 2px ${theme.palette.common.white}`,
-          }}
-        >
-          {name?.charAt(0).toUpperCase()}
-        </Avatar>
+        <Box sx={{ position: 'relative' }}>
+          <Avatar
+            alt={name}
+            src={avatarUrl}
+            sx={{
+              mx: 'auto',
+              width: { xs: 64, md: 128 },
+              height: { xs: 64, md: 128 },
+              border: `solid 2px ${theme.palette.common.white}`,
+              textAlign: 'center',
+              fontSize: { xs: '0.75rem' },
+            }}
+          >
+            {/* {name?.charAt(0).toUpperCase()} */}
+            Upload
+            <br />
+            Company&nbsp;Logo
+          </Avatar>
+          <IconButton
+            onClick={() =>
+              router.push(
+                paths.dashboard.exhibitorProfile.edit(String(eventData?.state.exhibitorId))
+              )
+            }
+            sx={{
+              position: 'absolute',
+              bottom: -8,
+              right: -8,
+              bgcolor: 'background.paper',
+              width: 34,
+              height: 34,
+              zIndex: 9,
+              boxShadow: (t) => t.customShadows?.z8,
+              '&:hover': {
+                bgcolor: 'background.paper',
+              },
+              '&:hover svg': {
+                transform: 'scale(1.4)',
+              },
+              '& svg': {
+                transition: 'transform 0.2s',
+                width: 28,
+                height: 28,
+              },
+            }}
+          >
+            <Iconify icon="eva:edit-2-fill" />
+          </IconButton>
+        </Box>
 
         {/* <ListItemText
           sx={{

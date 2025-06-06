@@ -18,6 +18,10 @@ import { AuthProvider } from 'src/auth/context/jwt';
 
 import { EventProvider } from '../components/event-context';
 
+import { PriceProvider } from 'src/sections/registartion-form/Price';
+
+import { LoaderProvider } from 'src/sections/registartion-form/LoaderContext';
+
 // ----------------------------------------------------------------------
 
 export const viewport = {
@@ -28,16 +32,16 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: 'Minimal UI Kit',
+  title: 'IFEX',
   description:
     'The starting point for your next project with Minimal UI Kit, built on the newest version of Material-UI ©, ready to be customized to your style',
   keywords: 'react,material,kit,application,dashboard,admin,template',
   manifest: '/manifest.json',
   icons: [
-    { rel: 'icon', url: '/favicon/favicon.ico' },
-    { rel: 'icon', type: 'image/png', sizes: '16x16', url: '/favicon/favicon-16x16.png' },
-    { rel: 'icon', type: 'image/png', sizes: '32x32', url: '/favicon/favicon-32x32.png' },
-    { rel: 'apple-touch-icon', sizes: '180x180', url: '/favicon/apple-touch-icon.png' },
+    { rel: 'icon', url: '/IFEX_LOGO.png' },
+    { rel: 'icon', type: 'image/png', sizes: '16x16', url: '/IFEX_LOGO.png' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', url: '/IFEX_LOGO.png' },
+    { rel: 'apple-touch-icon', sizes: '180x180', url: '/IFEX_LOGO.png' },
   ],
 };
 
@@ -57,22 +61,26 @@ export default function RootLayout({ children }: Props) {
                 themeDirection: 'ltr', //  'rtl' | 'ltr'
                 themeContrast: 'default', // 'default' | 'bold'
                 themeLayout: 'vertical', // 'vertical' | 'horizontal' | 'mini'
-                themeColorPresets: 'default', // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
+                themeColorPresets: 'blue', // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
                 themeStretch: false,
               }}
             >
               <ThemeProvider>
-                <EventProvider>
-                  <MotionLazy>
-                    <SnackbarProvider>
-                      <CheckoutProvider>
-                        <SettingsDrawer />
-                        <ProgressBar />
-                        {children}
-                      </CheckoutProvider>
-                    </SnackbarProvider>
-                  </MotionLazy>
-                </EventProvider>
+                <LoaderProvider>
+                  <PriceProvider>
+                    <EventProvider>
+                      <MotionLazy>
+                        <SnackbarProvider>
+                          <CheckoutProvider>
+                            <SettingsDrawer />
+                            <ProgressBar />
+                            {children}
+                          </CheckoutProvider>
+                        </SnackbarProvider>
+                      </MotionLazy>
+                    </EventProvider>
+                  </PriceProvider>
+                </LoaderProvider>
               </ThemeProvider>
             </SettingsProvider>
           </LocalizationProvider>

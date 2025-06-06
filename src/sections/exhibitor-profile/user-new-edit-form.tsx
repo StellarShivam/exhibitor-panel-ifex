@@ -99,26 +99,20 @@ export default function UserNewEditForm({ currentUser }: Props) {
   const { eventData } = useEventContext();
 
   const NewUserSchema = Yup.object().shape({
-    companyName: Yup.string().required('Company Name is required'),
-    companyAddress: Yup.string().required('Company Address is required'),
-    gstNo: Yup.string()
-      .required('GSTN is required')
-      .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'Invalid GSTN format'),
-    panNo: Yup.string()
-      .required('PAN is required')
-      .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}/, 'Invalid PAN number'),
-    about: Yup.string().required('About is required'),
-    directorName: Yup.string().required('Director Name is required'),
-    supportEmail: Yup.string()
-      .required('Support Email is required')
-      .email('Email must be a valid email address'),
-    supportPhone: Yup.string().required('Support Phone is required'),
+    companyName: Yup.string(),
+    companyAddress: Yup.string(),
+    gstNo: Yup.string(),
+    panNo: Yup.string(),
+    about: Yup.string(),
+    directorName: Yup.string(),
+    supportEmail: Yup.string().email('Email must be a valid email address'),
+    supportPhone: Yup.string(),
     facebookUrl: Yup.string(),
     linkedinUrl: Yup.string(),
     youtubeUrl: Yup.string(),
     videos: Yup.array(),
     // permissions: Yup.array().min(1, 'At least one permission is required'),
-    imgUrl: Yup.mixed<any>().nullable().required('Avatar is required'),
+    imgUrl: Yup.mixed<any>().nullable(),
   });
 
   const defaultValues = useMemo(
@@ -266,6 +260,9 @@ export default function UserNewEditForm({ currentUser }: Props) {
                       color: 'text.disabled',
                     }}
                   >
+                    Upload Company Logo
+                    <br />
+                    <br />
                     Allowed *.jpeg, *.jpg, *.png
                     <br /> max size of {fData(3145728)}
                   </Typography>
@@ -342,11 +339,12 @@ export default function UserNewEditForm({ currentUser }: Props) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="companyName" label="Company Name" />
-              <RHFTextField name="directorName" label="Director Name" />
+              <RHFTextField name="companyName" label="Company Name" disabled />
+              <RHFTextField name="directorName" label="Director Name" disabled />
               <RHFTextField
                 name="gstNo"
                 label="GST No"
+                disabled
                 inputProps={{
                   maxLength: 15,
                   style: { textTransform: 'uppercase' },
@@ -355,13 +353,14 @@ export default function UserNewEditForm({ currentUser }: Props) {
               <RHFTextField
                 name="panNo"
                 label="PAN No"
+                disabled
                 inputProps={{
                   maxLength: 10,
                   style: { textTransform: 'uppercase' },
                 }}
               />
-              <RHFTextField name="supportEmail" label="Support Email" />
-              <RHFPhoneField name="supportPhone" label="Support Phone" />
+              <RHFTextField name="supportEmail" label="Support Email" disabled />
+              <RHFPhoneField name="supportPhone" label="Support Phone" disabled />
             </Box>
 
             <Box sx={{ mt: 3 }}>
@@ -371,6 +370,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
                 multiline
                 rows={3}
                 fullWidth
+                disabled
               />
             </Box>
 

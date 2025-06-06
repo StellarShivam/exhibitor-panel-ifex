@@ -18,6 +18,10 @@ import useLightBox from 'src/components/lightbox/use-light-box';
 import { IUserProfile, IUserProfilePost } from 'src/types/user';
 import { IExhibitorItem } from 'src/types/team';
 import { Container } from '@mui/material';
+import { useRouter } from 'src/routes/hooks';
+import { paths } from 'src/routes/paths';
+import { useEventContext } from 'src/components/event-context';
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -99,6 +103,9 @@ const YOUTUBE_VIDEOS = [
 ];
 
 export default function ProfileHome({ info, posts }: Props) {
+  const router = useRouter();
+  const { eventData } = useEventContext();
+
   const videoSlides = VIDEOS.map((video) => ({
     type: 'video' as const,
     url: video.videoUrl,
@@ -179,7 +186,7 @@ export default function ProfileHome({ info, posts }: Props) {
               <Box sx={{ typography: 'body2' }}>{info.gstNo || 'N/A'}</Box>
             </Stack>
             <Stack direction="row" spacing={1}>
-              <Box sx={{ typography: 'body2', color: 'text.secondary' }}>PAN No:</Box>
+              <Box sx={{ typography: 'body2', color: 'text.secondary' }}>PAN:</Box>
               <Box sx={{ typography: 'body2' }}>{info.panNo || 'N/A'}</Box>
             </Stack>
           </Stack>
@@ -188,7 +195,32 @@ export default function ProfileHome({ info, posts }: Props) {
         <Grid container spacing={3} sx={{ width: '100%' }}>
           <Grid xs={12} md={8}>
             <Box>
-              <Box sx={{ typography: 'h5', mb: 1 }}>Description</Box>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                <Box sx={{ typography: 'h5' }}>Description</Box>
+                <IconButton
+                  onClick={() =>
+                    router.push(
+                      paths.dashboard.exhibitorProfile.edit(String(eventData?.state.exhibitorId))
+                    )
+                  }
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: 'background.paper',
+                    '&:hover': {
+                      bgcolor: 'background.paper',
+                    },
+                    '&:hover svg': {
+                      transform: 'scale(1.4)',
+                    },
+                    '& svg': {
+                      transition: 'transform 0.2s',
+                    },
+                  }}
+                >
+                  <Iconify icon="eva:edit-2-fill" width={24} />
+                </IconButton>
+              </Stack>
               <Box
                 sx={{
                   typography: 'body2',
@@ -198,7 +230,7 @@ export default function ProfileHome({ info, posts }: Props) {
                 }}
               >
                 {info.about ||
-                  'Your company profile is currently missing a description. To enhance visibility and credibility, please go to Edit Profile and update the "About Your Company" section. A clear description helps visitors understand your business, services, and values—making a strong first impression and building trust with potential clients and partners.                                                  '}
+                  'Your company profile is currently missing a description. To enhance visibility and credibility, please go to Edit Profile and update the "About Your Company" section. A clear description helps visitors understand your business, services, and values—making a strong first impression and building trust with potential clients and partners.'}
               </Box>
             </Box>
           </Grid>
@@ -214,7 +246,7 @@ export default function ProfileHome({ info, posts }: Props) {
                 flexDirection: 'column',
               }}
             >
-              <Box sx={{ typography: 'h6', mb: 1 }}>Support</Box>
+              <Box sx={{ typography: 'h6', mb: 1 }}>Contact Details</Box>
               <Stack spacing={1}>
                 <Stack direction="row" spacing={1}>
                   <Box sx={{ display: 'flex', flexShrink: 0 }}>
@@ -587,9 +619,11 @@ export default function ProfileHome({ info, posts }: Props) {
             )}
           </Stack>
 
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Reach out on our socials
-          </Typography>
+          {(info.facebookUrl || info.linkedinUrl || info.youtubeUrl) && (
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              Reach out on our socials
+            </Typography>
+          )}
         </Stack>
       </Box>
     </Grid>
@@ -599,7 +633,7 @@ export default function ProfileHome({ info, posts }: Props) {
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={4}>
         {renderFollows}
-        {renderYourAds}
+        {/* {renderYourAds} */}
         {renderYourYouTubeVideos}
         {/* {renderYourVideos} */}
         {renderFooter}

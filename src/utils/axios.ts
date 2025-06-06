@@ -142,6 +142,13 @@ export const apiEndpoints = {
     detail: '/event/',
     userCohorts: '/eventusercohorts/',
   },
+  form:{
+    list:'/exhibitorUserData/',
+    exhibitorForm: '/exhibitorForm/',
+    updateForm: '/updateRegistrationDetails',
+    updatePaymentStatus: '/updatePaymentStatus',
+    payment: '/exhibitorPaymentDetails/',
+  },
   pricing: {
     detail: '/eventpricing/',
     update: '/update/eventpricing',
@@ -222,6 +229,10 @@ export const apiEndpoints = {
     updateEventMediaUpload: 'update/eventmedia',
     getEventMediaUpload: '/eventmedia/',
   },
+  paymentSummary: {
+    updatePaymentStatus: '/updatePaymentStatus',
+    payment: '/exhibitorPaymentDetails/',
+  }
 };
 
 export const endpoints = {

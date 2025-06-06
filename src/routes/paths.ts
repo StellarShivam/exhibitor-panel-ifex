@@ -28,7 +28,9 @@ export const paths = {
     root: ROOTS.DASHBOARD,
     // comingSoon1: `${ROOTS.DASHBOARD}/coming-soon`,
     // comingSoon2: `${ROOTS.DASHBOARD}/coming-soon`,
+    transactions: `${ROOTS.DASHBOARD}/transactions`,
     overview: `${ROOTS.DASHBOARD}/overview`,
+    form: `${ROOTS.DASHBOARD}/form`,
     setupTasks: `${ROOTS.DASHBOARD}/setup-tasks`,
     exhibitorProfile: {
       root: `${ROOTS.DASHBOARD}/exhibitor-profile`,
@@ -75,5 +77,7 @@ export const paths = {
     },
     invitationCoupons: `${ROOTS.DASHBOARD}/invitation-coupons`,
     facia: `${ROOTS.DASHBOARD}/facia`,
+    status: (id: string) => `${ROOTS.DASHBOARD}/status/${id}`,
+    registration: `${ROOTS.DASHBOARD}/registration`,
   },
 };

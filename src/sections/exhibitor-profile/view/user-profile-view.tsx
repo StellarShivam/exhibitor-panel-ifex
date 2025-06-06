@@ -32,11 +32,11 @@ const TABS = [
     label: 'Profile',
     icon: <Iconify icon="solar:user-id-bold" width={24} />,
   },
-  {
-    value: 'associatedMembers',
-    label: 'Associated Members',
-    icon: <Iconify icon="solar:users-group-rounded-bold" width={24} />,
-  },
+  // {
+  //   value: 'associatedMembers',
+  //   label: 'Associated Members',
+  //   icon: <Iconify icon="solar:users-group-rounded-bold" width={24} />,
+  // },
   // {
   //   value: 'productPortfolio',
   //   label: 'Product Portfolio',
@@ -142,7 +142,7 @@ export default function UserProfileView() {
 
       {currentTab === 'profile' && <ProfileHome info={exhibitor} posts={_userFeeds} />}
 
-      {currentTab === 'associatedMembers' && <AssociatedMembers members={exhibitorUsers} />}
+      {/* {currentTab === 'associatedMembers' && <AssociatedMembers members={exhibitorUsers} />} */}
 
       {/* {currentTab === 'productPortfolio' && <ProductPortfolio />} */}
     </Container>

@@ -57,7 +57,7 @@ export default function JwtLoginView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const usernameWithSuffix = `${data.username}`;
+      const usernameWithSuffix = `${data.username}18`;
       await login?.(usernameWithSuffix, data.password);
       router.push(PATH_AFTER_LOGIN);
     } catch (error) {

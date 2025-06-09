@@ -162,6 +162,7 @@ export default function PaymentSummaryListView() {
     const amount = Number(payment?.paymentData.calculatedTotalCost || 0);
     let tds = Number(payment?.paymentData?.tds);
     let isPremium = payment?.paymentData.buyPremiumLocation === 'Yes' ? 1 : 0;
+    const premiumCharge = isPremium ? amount * 0.125 : 0;
 
     if (isNaN(tds)) {
       tds = 0;
@@ -186,11 +187,10 @@ export default function PaymentSummaryListView() {
     );
 
     // GST and TDS calculations (unchanged)
-    const gst = amount * 0.18;
-    const premiumCharge = isPremium ? amount * 0.125 : 0;
-    const postGst = amount + gst;
-    const tdsValue = (amount * tds) / 100;
-    const postTdsAmount = postGst - tdsValue + premiumCharge;
+    const gst = (amount + premiumCharge) * 0.18;
+    const postGst = amount + premiumCharge + gst;
+    const tdsValue = ((amount + premiumCharge) * tds) / 100;
+    const postTdsAmount = postGst - tdsValue;
 
     setTdsAmount(tdsValue);
     setGstAmount(gst);

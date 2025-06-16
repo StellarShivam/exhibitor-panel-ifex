@@ -77,7 +77,7 @@ export const PaymentSummaryTableRow: React.FC<Props> = ({ row, currencySymbol, r
       <SlimTableCell>{row.orderId}</SlimTableCell>
       <SlimTableCell>
         {currencySymbol}
-        {row.finalAmount}
+        {Number(row.finalAmount).toFixed(2)}
       </SlimTableCell>
       <SlimTableCell>
         <Label

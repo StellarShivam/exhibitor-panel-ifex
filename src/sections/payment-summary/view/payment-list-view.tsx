@@ -192,14 +192,15 @@ export default function PaymentSummaryListView() {
     const tdsValue = ((amount + premiumCharge) * tds) / 100;
     const postTdsAmount = postGst - tdsValue;
 
-    setTdsAmount(tdsValue);
-    setGstAmount(gst);
-    setPremiumLocationAmount(premiumCharge);
+    // Round all values to 2 decimals
+    setTdsAmount(Number(tdsValue.toFixed(2)));
+    setGstAmount(Number(gst.toFixed(2)));
+    setPremiumLocationAmount(Number(premiumCharge.toFixed(2)));
 
-    setPendingForApproval(pending);
-    setTotalAmount(postTdsAmount);
-    setPaidAmount(paid); // Use the folded paid amount
-    setPendingAmount(postTdsAmount - paid);
+    setPendingForApproval(Number(pending.toFixed(2)));
+    setTotalAmount(Number(postTdsAmount.toFixed(2)));
+    setPaidAmount(Number(paid.toFixed(2)));
+    setPendingAmount(Number((postTdsAmount - paid).toFixed(2)));
   }, [payment]);
 
   const getCurrencySymbol = () => {
@@ -287,26 +288,26 @@ export default function PaymentSummaryListView() {
               Total&nbsp;Payment
             </Box>
             <Box fontSize={20} fontWeight="bold">
-              ₹{totalAmount}
+              ₹{totalAmount.toFixed(2)}
             </Box>
           </Box>
           <Box>
             <Box fontWeight={'bold'} fontSize={10} color="text.primary">
               Base Amount : {currencySymbol}
-              {payment?.paymentData.calculatedTotalCost}{' '}
+              {Number(payment?.paymentData.calculatedTotalCost || 0).toFixed(2)}{' '}
             </Box>
             <Box fontWeight={'bold'} fontSize={10} color="text.primary">
               GST: {currencySymbol}
-              {gstAmount}{' '}
+              {gstAmount.toFixed(2)}{' '}
             </Box>
             <Box fontWeight={'bold'} fontSize={10} color="text.primary">
               TDS : {currencySymbol}
-              {tdsAmount}{' '}
+              {tdsAmount.toFixed(2)}{' '}
             </Box>
             {payment?.paymentData.buyPremiumLocation === 'Yes' && (
               <Box fontWeight={'bold'} fontSize={10} color="text.primary">
-                Premium Area Charge : {currencySymbol}
-                {premiumLocationAmount}{' '}
+                Prefered Location Charge : {currencySymbol}
+                {premiumLocationAmount.toFixed(2)}{' '}
               </Box>
             )}
           </Box>
@@ -328,7 +329,7 @@ export default function PaymentSummaryListView() {
             </Box>
             <Box fontSize={20} fontWeight="bold">
               {currencySymbol}
-              {paidAmount}
+              {paidAmount.toFixed(2)}
             </Box>
           </Box>
           <Iconify icon="eva:checkmark-circle-2-fill" width={32} color="#61e294" />
@@ -349,7 +350,7 @@ export default function PaymentSummaryListView() {
             </Box>
             <Box fontSize={20} fontWeight="bold">
               {currencySymbol}
-              {pendingForApproval}
+              {pendingForApproval.toFixed(2)}
             </Box>
           </Box>
           <Iconify icon="eva:clock-outline" width={32} color="#ffcf77" />
@@ -370,7 +371,7 @@ export default function PaymentSummaryListView() {
             </Box>
             <Box fontSize={20} fontWeight="bold">
               {currencySymbol}
-              {pendingAmount}
+              {pendingAmount.toFixed(2)}
             </Box>
           </Box>
           <Iconify icon="solar:wallet-money-outline" width={32} color="#A400FF" />
@@ -477,25 +478,14 @@ export default function PaymentSummaryListView() {
             </Button>
           </Box>
           <Box fontSize={14} color="text.secondary">
-            To ensure a smooth and confirmed participation at the UP International Trade Fair, all
-            exhibitors are required to adhere to the following payment milestones:
+            To ensure a smooth and confirmed participation, all exhibitors are required to adhere to
+            the following payment milestones:
           </Box>
           <Box component="ol" sx={{ pl: 3, mt: 1, mb: 0 }}>
-            <li>
-              <strong>Initial Payment – 25%</strong>
-              <br />
-              <span>Due At: Time of Registration</span>
-            </li>
-            <li>
-              <strong>Second Payment – 50%</strong>
-              <br />
-              <span>Due By: 27th June 2025 (90 days prior to the event)</span>
-            </li>
-            <li>
-              <strong>Final Payment – 25%</strong>
-              <br />
-              <span>Due By: 11th August 2025 (45 days prior to the event)</span>
-            </li>
+            <li className="list-disc mt-1">25% at the time of booking</li>
+            <li className="list-disc mt-1">25% before 20/Jul/2025</li>
+            <li className="list-disc mt-1">25% before 18/Oct/2025</li>
+            <li className="list-disc mt-1">25% before 16/Dec/2025</li>
           </Box>
         </Box>
       </Card>

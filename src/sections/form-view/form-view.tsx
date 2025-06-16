@@ -1141,7 +1141,7 @@ export default function ExhibitorForm() {
               <Grid container spacing={2} mt={2}>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Do you want to buy a premium location?*
+                    Do you want to buy a prefered location?*
                   </Typography>
                   <StyledRHFTextField
                     name="data.buyPremiumLocation"
@@ -1180,7 +1180,7 @@ export default function ExhibitorForm() {
                       {/* * Premium location charges (2-side, 3-side, or 4-side open) will incur an
                       additional 12.5% fee. */}
 
-                      *Price is inclusive of 12.5% premium location charges (2-side, 3-side, or 4-side open).
+                      *Price is inclusive of 12.5% prefered location charges (2-side, 3-side, or 4-side open).
                     </FormLabel>) : null
                   }
                   <FormLabel component="legend" sx={{ mt: 2 }}>* GST extra as applicable</FormLabel>

@@ -34,7 +34,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useSnackbar } from 'src/components/snackbar';
 
 import FormProvider, { RHFTextField, RHFRadioGroup } from 'src/components/hook-form';
-import { useExhibitorForm, updateRegistrationDetails } from 'src/api/form';
+import { useExhibitorForm, updateRegistrationDetails, generateProformaInvoice } from 'src/api/form';
 import { useEventContext } from 'src/components/event-context';
 import { useGetExhibitor } from 'src/api/exhibitor-profile';
 import { useParams } from 'react-router-dom';
@@ -303,6 +303,15 @@ export default function ExhibitorForm() {
 
     setPdfGenerating(true);
 
+    enqueueSnackbar('Please wait, we are generating your PDF...', {
+      variant: 'info',
+      action: (key) => (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <CircularProgress size={20} sx={{ color: 'white', mr: 1 }} />
+        </Box>
+      ),
+    });
+
     // Store original styles
     const originalStyles = {
       overflow: elementToCapture.style.overflow,
@@ -494,7 +503,9 @@ export default function ExhibitorForm() {
 
   const premiumLocation = watch('data.buyPremiumLocation');
 
-  const [amountPostPremium, setAmountPostPremium] = useState<number>(watch('data.calculatedTotalCost'));
+  const [amountPostPremium, setAmountPostPremium] = useState<number>(
+    watch('data.calculatedTotalCost')
+  );
 
   console.log('amountPostPremium', amountPostPremium);
 
@@ -508,6 +519,27 @@ export default function ExhibitorForm() {
       setAmountPostPremium(totalCost);
     }
   }, [watch('data.buyPremiumLocation'), watch('data.calculatedTotalCost')]);
+
+  const handleDownloadProformaInvoice = async () => {
+    enqueueSnackbar('Processing proforma invoice...', { variant: 'info' });
+    try {
+      if (typeof eventData.state.exhibitorId === 'number') {
+        const res = await generateProformaInvoice(eventData.state.exhibitorId);
+
+        enqueueSnackbar('Proforma invoice processed!!', { variant: 'success' });
+
+        if (res) {
+          window.open(res, '_blank', 'noopener,noreferrer');
+        }
+        // Optionally, refresh data or show a notification here
+      } else {
+        enqueueSnackbar('Failed to generate proforma invoice!', { variant: 'error' });
+      }
+    } catch (error) {
+      console.error('Failed to generate proforma invoice:', error);
+      enqueueSnackbar('Failed to generate proforma invoice!', { variant: 'error' });
+    }
+  };
 
   return (
     <>
@@ -572,7 +604,7 @@ export default function ExhibitorForm() {
                   textTransform: 'none',
                   px: 2,
                 }}
-                onClick={() => openPdfFromLink(exhibitorForm?.data?.proformaInvoice)}
+                onClick={handleDownloadProformaInvoice}
                 ref={buttonRef}
               >
                 Proforma Invoice
@@ -626,19 +658,13 @@ export default function ExhibitorForm() {
                   <Typography variant="subtitle2" gutterBottom>
                     Company Email *
                   </Typography>
-                  <StyledRHFTextField
-                    name="companyEmail"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="companyEmail" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
                     Company PAN Number*
                   </Typography>
-                  <StyledRHFTextField
-                    name="companyPanNo"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="companyPanNo" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -653,10 +679,7 @@ export default function ExhibitorForm() {
                   <Typography variant="subtitle2" gutterBottom>
                     If Yes, Please Specify your GST Number*
                   </Typography>
-                  <StyledRHFTextField
-                    name="companyGstin"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="companyGstin" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 {/* <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -723,10 +746,7 @@ export default function ExhibitorForm() {
                   <Typography variant="subtitle2" gutterBottom>
                     Country *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.country"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="data.country" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -741,10 +761,7 @@ export default function ExhibitorForm() {
                   <Typography variant="subtitle2" gutterBottom>
                     City / Town*
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.city"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="data.city" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -866,10 +883,7 @@ export default function ExhibitorForm() {
                   <Typography variant="subtitle2" gutterBottom>
                     Primary Contact Person Name*
                   </Typography>
-                  <StyledRHFTextField
-                    name="firstName"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="firstName" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -884,19 +898,13 @@ export default function ExhibitorForm() {
                   <Typography variant="subtitle2" gutterBottom>
                     Primary Contact : Mobile Number*
                   </Typography>
-                  <StyledRHFTextField
-                    name="phone"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="phone" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
                     Primary Contact : Email*
                   </Typography>
-                  <StyledRHFTextField
-                    name="email"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="email" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
 
                 <Grid item xs={12} md={4}>
@@ -1138,7 +1146,7 @@ export default function ExhibitorForm() {
                 </FormLabel>
                 <FormLabel component="legend">* GST extra as applicable</FormLabel> */}
               </FormControl>
-              <Grid container spacing={2} mt={2}>
+              <Grid container spacing={2} sx={{ mt: pdfGenerating ? 8 : 2 }}>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
                     Do you want to buy a prefered location?*
@@ -1161,10 +1169,7 @@ export default function ExhibitorForm() {
                   <Typography variant="subtitle2" gutterBottom>
                     Currency
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.currency"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="data.currency" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -1179,21 +1184,19 @@ export default function ExhibitorForm() {
                     <FormLabel component="legend" sx={{ mt: 2 }}>
                       {/* * Premium location charges (2-side, 3-side, or 4-side open) will incur an
                       additional 12.5% fee. */}
-
-                      *Price is inclusive of 12.5% prefered location charges (2-side, 3-side, or 4-side open).
-                    </FormLabel>) : null
-                  }
-                  <FormLabel component="legend" sx={{ mt: 2 }}>* GST extra as applicable</FormLabel>
-
+                      *Price is inclusive of 12.5% prefered location charges (2-side, 3-side, or
+                      4-side open).
+                    </FormLabel>
+                  ) : null}
+                  <FormLabel component="legend" sx={{ mt: 2 }}>
+                    * GST extra as applicable
+                  </FormLabel>
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
                     TDS Percentage*
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.tds"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <StyledRHFTextField name="data.tds" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>

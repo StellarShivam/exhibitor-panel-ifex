@@ -29,6 +29,10 @@ export const EventProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         fullName: '',
         mobile: '',
         status: '',
+        hallNo: '',
+        stallNo: '',
+        hallManagerName: '',
+        hallManagerContact: '',
       };
 
   const eventData = useSetState<IEventItem>(initialEventData);

@@ -57,7 +57,8 @@ export default function EventCardsGrid() {
   useEffect(() => {
     // Wait until loading is finished and events are available
     if (!eventsLoading && events && events.length > 0) {
-      eventData.setState(events[0]);
+      console.log('Events fetched being set:', events);
+      eventData.setState(events[events.length - 1]); // Set the last event as the current event
       if (events[0]?.status === 'APPROVED') {
         router.push('/dashboard');
       } else {

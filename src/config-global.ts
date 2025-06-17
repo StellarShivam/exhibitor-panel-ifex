@@ -1,6 +1,6 @@
 import { paths } from 'src/routes/paths';
 
-export const BASE_URL = 'https://sit.spicetrade.io/api';
+export const BASE_URL = 'https://test.spicetrade.io/api';
 
 // API
 // ----------------------------------------------------------------------

@@ -34,15 +34,18 @@ export default function StatusView() {
   const [transactions, setTransactions] = useState<any>(null);
   const [gstAmount, setGstAmount] = useState(0); // State for GST amount
   const [totalPrice, setTotalPrice] = useState(0);
-  console.log(payment);
+  console.log("PAYMENT LIST PLEASE AAJA",payment);
   const [postGstPrice, setPostGstPrice] = useState(0);
   const [tdsAmout, setTdsAmount] = useState<number>();
 
   useEffect(() => {
     const updateEventContext = async () => {
-      await reFetchEventList();
+      // await reFetchEventList();
       const updatedEvent = events.find((event) => event.eventId === eventData.state.eventId);
+        console.log('Updated Event:', updatedEvent);
+
       if (updatedEvent) {
+        console.log('Updated Event:', updatedEvent);
         eventData.setState(updatedEvent);
       }
     };
@@ -56,7 +59,7 @@ export default function StatusView() {
         'https://sit.spicetrade.io/api/' +
           'pub/exhibitorDetails/' +
           exhibitor.supportEmail +
-          '?eventId=165'
+          '?eventId=' + exhibitor.eventId
       );
 
       console.log(res.data.data);
@@ -68,7 +71,7 @@ export default function StatusView() {
         'https://sit.spicetrade.io/api/' +
           'pub/userPaymentDetails?email=' +
           exhibitor.supportEmail +
-          '&eventId=165'
+          '&eventId='+ exhibitor.eventId
       );
       console.log(res.data.data);
       setTransactions(res.data.data as any); // Use the interface
@@ -106,7 +109,7 @@ export default function StatusView() {
   const userName = eventData.state.fullName;
   const status = eventData.state.status;
 
-  console.log('ojihugfhj', eventData);
+  console.log('ojihugfhj', eventData.state.status);
 
   function formatCurrency(amount: number, currency: string = 'INR'): string {
     console.log('Formatted Amount: ', amount);
@@ -119,7 +122,144 @@ export default function StatusView() {
   const isCompleted = status === 'COMPLETED';
   const isToBeApproved = status === 'TO_BE_APPROVED';
 
-  const isApproved = status === 'APPROVED' || status === 'AUTO_APPROVED';
+  // --- Installment-based flow logic start ---
+  const { installments = [], currentDate, paymentStatus } = eventData.state || {};
+  // const status = eventData.state.status;
+
+  // Sort installments by dueDate ascending
+  const sortedInstallments = [...(installments || [])].sort(
+    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+  );
+
+  // Find the nearest installment whose dueDate is <= currentDate
+  const now = new Date(currentDate);
+  const nearestInstallmentIdx = sortedInstallments.findIndex(
+    (inst) => new Date(inst.dueDate).getTime() <= now.getTime()
+  );
+  const nearestInstallment =
+    nearestInstallmentIdx !== -1
+      ? sortedInstallments[nearestInstallmentIdx]
+      : sortedInstallments[0];
+
+  // Find all installmentTypes from nearestInstallment onwards (including higher)
+  const allowedInstallmentTypes = sortedInstallments
+    .slice(nearestInstallmentIdx)
+    .map((inst) => inst.installmentType);
+
+  // If status is approved, or matches nearestInstallment or any higher, skip this screen
+  const isApproved =
+    status === 'APPROVED' ||
+    status === 'AUTO_APPROVED' ||
+    (allowedInstallmentTypes && allowedInstallmentTypes.includes(status));
+
+  if (isApproved) {
+    router.push(`/dashboard`);
+    return null;
+  }
+
+  // Check if current date >= nearest installment's due date
+  const isDeadlineReached =
+    nearestInstallment && new Date(nearestInstallment.dueDate).getTime() <= now.getTime();
+
+  // If deadline is reached, show payment screen logic
+  if (isDeadlineReached) {
+    // Show pay now screen, and if transaction list is not empty, show the table
+    const hasTransactions = payment?.paymentTransactions?.length > 0;
+    const paymentStatusLower = paymentStatus?.toLowerCase();
+
+    return (
+      <>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: 'transparent',
+          }}
+        >
+          <Box
+            sx={{
+              width: 900,
+              height: 480,
+              borderRadius: 2,
+              bgcolor: (theme) => alpha(theme.palette.primary.light, 0.3),
+              boxShadow: 0,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              p: 0,
+            }}
+          >
+            <Stack spacing={1.5} sx={{ maxWidth: 480, pl: 4, pr: 2, py: 3 }}>
+              <Typography variant="h4" sx={{ fontWeight: 700, mb: 0, fontSize: 16 }}>
+                Welcome{' '}
+                <span role="img" aria-label="wave">
+                  👋
+                </span>
+                <br />
+                {eventData.state.fullName}
+              </Typography>
+              <Chip
+                label={hasTransactions && payment?.paymentTransactions[payment?.paymentTransactions.length -1]?.paymentStatus ==="pending" ? 'To Be Approved' : 'Registration Complete'}
+                color={hasTransactions && payment?.paymentTransactions[payment?.paymentTransactions.length -1]?.paymentStatus ==="pending" ? 'secondary' : 'info'}
+                sx={{ fontWeight: 700, fontSize: 16, px: 1, py: 0.6, width: 'fit-content', mb: 0 }}
+              />
+              <Typography
+                variant="body1"
+                sx={{ color: (theme) => theme.palette.primary.dark, mb: 0, fontSize: 13 }}
+              >
+                {hasTransactions && payment?.paymentTransactions[payment?.paymentTransactions.length -1]?.paymentStatus ==="pending"
+                  ? `Your payment for this installment has been received and is pending approval from the admin.`
+                  : `Thank you for filling out the form. To enable all the functionalities of the Exhibitor Panel, please make a payment of  ${nearestInstallment.installmentPart}% of the total amount.`
+                }
+              </Typography>
+              {!hasTransactions && (
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => {
+                    window.open(
+                      'https://register.upinternationaltradeshow.com/payment?email=' +
+                      exhibitor?.supportEmail,
+                      '_blank'
+                    );
+                  }}
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: 16,
+                    borderRadius: 1.5,
+                    width: '100%',
+                    mt: 1,
+                    backgroundColor: (theme) => theme.palette.primary.main,
+                  }}
+                >
+                  Pay Now
+                </Button>
+              )}
+            </Stack>
+            <Box
+              sx={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+              }}
+            >
+              <img
+                src="/assets/illustration_seo.svg"
+                alt="Illustration"
+                style={{ maxWidth: 320, width: '100%', height: 'auto' }}
+              />
+            </Box>
+          </Box>
+        </Box>
+        {/* Show payment table if transaction list is not empty */}
+        {hasTransactions && <PaymentSummaryListView />}
+      </>
+    );
+  }
+  // --- Installment-based flow logic end ---
 
   let chipLabel: string;
   let chipColor: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';

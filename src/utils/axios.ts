@@ -148,6 +148,7 @@ export const apiEndpoints = {
     updateForm: '/updateRegistrationDetails',
     updatePaymentStatus: '/updatePaymentStatus',
     payment: '/exhibitorPaymentDetails/',
+    generateProforma: '/generateProformaInvoice/',
   },
   pricing: {
     detail: '/eventpricing/',

@@ -49,8 +49,41 @@ export function useNavData() {
 
   // console.log(eventData, 'jhugyf');
 
+  const { installments = [], currentDate } = eventData.state || {};
+  const status = eventData.state?.status;
+
+  // Sort installments by dueDate ascending
+  const sortedInstallments = [...(installments || [])].sort(
+    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+  );
+
+  // Find the nearest installment whose dueDate is <= currentDate
+  const now = new Date(currentDate);
+  const nearestInstallmentIdx = sortedInstallments.findIndex(
+    (inst) => new Date(inst.dueDate).getTime() <= now.getTime()
+  );
+  const nearestInstallment =
+    nearestInstallmentIdx !== -1
+      ? sortedInstallments[nearestInstallmentIdx]
+      : sortedInstallments[0];
+
+  // Find all installmentTypes from nearestInstallment onwards (including higher)
+  const allowedInstallmentTypes = sortedInstallments
+    .slice(nearestInstallmentIdx)
+    .map((inst) => inst.installmentType);
+
+  // If status is approved, or matches nearestInstallment or any higher, allow navigation
+  const isApproved =
+    status === 'APPROVED' ||
+    status === 'AUTO_APPROVED' ||
+    (allowedInstallmentTypes && allowedInstallmentTypes.includes(status));
+
+  // console.log("isDeadlineReached", isDeadlineReached);
+
+  console.log("Is Approved", isApproved);
+
   const data = useMemo(() => {
-    if (eventData.state?.status === 'APPROVED' || eventData.state?.status === 'AUTO_APPROVED') {
+    if (isApproved) {
       return [
         // OVERVIEW
         // ----------------------------------------------------------------------
@@ -59,9 +92,9 @@ export function useNavData() {
           items: [
             { title: 'Overview', path: paths.dashboard.overview, icon: ICONS.analytics },
             {
-              title: 'Your Profile',
-              path: paths.dashboard.exhibitorProfile.root,
-              icon: ICONS.job,
+              title: 'Form',
+              path: paths.dashboard.form,
+              icon: ICONS.file,
             },
             // {
             //   title: 'Exhibitor Badges',
@@ -83,9 +116,9 @@ export function useNavData() {
               icon: ICONS.banking,
             },
             {
-              title: 'Form',
-              path: paths.dashboard.form,
-              icon: ICONS.file,
+              title: 'Exhibitor Profile',
+              path: paths.dashboard.exhibitorProfile.root,
+              icon: ICONS.job,
             },
             // {
             //   title: 'Documents',
@@ -163,7 +196,7 @@ export function useNavData() {
       ];
     }
     return [];
-  }, [eventData.state?.status]);
+  }, [eventData.state?.status, isApproved]);
 
   return data;
 }

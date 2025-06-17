@@ -10,6 +10,10 @@ export type IEventItem = {
   fullName: string;
   mobile: string;
   status: string;
+  hallNo: string;
+  stallNo: string;
+  hallManagerName?: string;
+  hallManagerContact?: string;
 };
 
 // Event list model of event list page

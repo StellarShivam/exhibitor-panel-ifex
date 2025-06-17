@@ -43,3 +43,19 @@ export async function updateRegistrationDetails(payload: IExhibitorFormData) {
     throw error;
   }
 }
+
+export async function generateProformaInvoice(exhibitorId: number) {
+  const token = tokenManager.getToken();
+  const url = apiEndpoints.form.generateProforma + '?exhibitorId=' + exhibitorId;
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+  try {
+    const response = await axiosInstance2.get(url, { headers });
+    return response.data.data;
+  } catch (error) {
+    console.error('Error generating proformaInvoice:', error);
+    throw error;
+  }
+}

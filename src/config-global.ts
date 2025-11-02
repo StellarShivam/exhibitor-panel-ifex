@@ -2,7 +2,6 @@ import { paths } from 'src/routes/paths';
 
 export const BASE_URL = 'https://ifex-web-stg.eventstrat.ai/api';
 // export const BASE_URL = 'https://test.spicetrade.io/api';
-
 // API
 // ----------------------------------------------------------------------
 

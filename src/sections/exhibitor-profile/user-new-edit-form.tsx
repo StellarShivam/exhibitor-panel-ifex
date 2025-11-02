@@ -110,7 +110,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
     facebookUrl: Yup.string(),
     linkedinUrl: Yup.string(),
     youtubeUrl: Yup.string(),
-    videos: Yup.array(),
+    videos: Yup.array(Yup.string().required('This is required').url('Must be a valid URL')),
     // permissions: Yup.array().min(1, 'At least one permission is required'),
     imgUrl: Yup.mixed<any>().nullable(),
   });

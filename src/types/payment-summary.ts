@@ -48,6 +48,11 @@ export interface IPaymentSummaryData {
   bookingViaAssociation: string;
   accountPersonEmailAddress: string;
   billingCity: string;
+  plcAmount: number;
+  gstAmount: number;
+  tdsAmount: number;
+  totalAmount: number;
+  buyPremiumLocation: string;
 }
 
 export interface IPaymentSummaryDetailsData {

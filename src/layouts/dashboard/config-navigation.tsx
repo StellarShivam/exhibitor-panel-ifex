@@ -76,6 +76,7 @@ export function useNavData() {
   const isApproved =
     status === 'APPROVED' ||
     status === 'AUTO_APPROVED' ||
+    status === 'ACTIVE' ||
     (allowedInstallmentTypes && allowedInstallmentTypes.includes(status));
 
   // console.log("isDeadlineReached", isDeadlineReached);

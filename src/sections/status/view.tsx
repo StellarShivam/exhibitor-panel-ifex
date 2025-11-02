@@ -17,6 +17,7 @@ import axios from 'axios';
 import { useSettingsContext } from 'src/components/settings';
 import PaymentSummaryListView from '../payment-summary/view/payment-list-view';
 import { usePaymentByExhibitorID } from 'src/api/payment-summary';
+import { BASE_URL } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 type Props = {
@@ -34,7 +35,7 @@ export default function StatusView() {
   const [transactions, setTransactions] = useState<any>(null);
   const [gstAmount, setGstAmount] = useState(0); // State for GST amount
   const [totalPrice, setTotalPrice] = useState(0);
-  console.log("PAYMENT LIST PLEASE AAJA",payment);
+  console.log('PAYMENT LIST PLEASE AAJA', payment);
   const [postGstPrice, setPostGstPrice] = useState(0);
   const [tdsAmout, setTdsAmount] = useState<number>();
 
@@ -42,7 +43,7 @@ export default function StatusView() {
     const updateEventContext = async () => {
       // await reFetchEventList();
       const updatedEvent = events.find((event) => event.eventId === eventData.state.eventId);
-        console.log('Updated Event:', updatedEvent);
+      console.log('Updated Event:', updatedEvent);
 
       if (updatedEvent) {
         console.log('Updated Event:', updatedEvent);
@@ -56,10 +57,11 @@ export default function StatusView() {
     console.log('Inithjg');
     const getExhibitorDetails = async () => {
       const res = await axios.get(
-        'https://sit.spicetrade.io/api/' +
-          'pub/exhibitorDetails/' +
+        BASE_URL +
+          '/pub/exhibitorDetails/' +
           exhibitor.supportEmail +
-          '?eventId=' + exhibitor.eventId
+          '?eventId=' +
+          exhibitor.eventId
       );
 
       console.log(res.data.data);
@@ -68,10 +70,11 @@ export default function StatusView() {
 
     const getTrasactionHistory = async () => {
       const res = await axios.get(
-        'https://sit.spicetrade.io/api/' +
-          'pub/userPaymentDetails?email=' +
+        BASE_URL +
+          '/pub/userPaymentDetails?email=' +
           exhibitor.supportEmail +
-          '&eventId='+ exhibitor.eventId
+          '&eventId=' +
+          exhibitor.eventId
       );
       console.log(res.data.data);
       setTransactions(res.data.data as any); // Use the interface
@@ -95,6 +98,8 @@ export default function StatusView() {
     const postGst = amount + gst; // Add GST to the base amount
     const tdsValue = (amount * tds) / 100; // Calculate TDS value
     const postTdsAmount = postGst - tdsValue; // Subtract TDS from post-GST amoun
+
+    // console.log("Exhibitor Data************",exhibitor)
 
     setTotalPrice(amount);
     setGstAmount(gst);
@@ -197,21 +202,34 @@ export default function StatusView() {
                   👋
                 </span>
                 <br />
-                {eventData.state.fullName}
+                {eventData.state.firstName}
               </Typography>
               <Chip
-                label={hasTransactions && payment?.paymentTransactions[payment?.paymentTransactions.length -1]?.paymentStatus ==="pending" ? 'To Be Approved' : 'Registration Complete'}
-                color={hasTransactions && payment?.paymentTransactions[payment?.paymentTransactions.length -1]?.paymentStatus ==="pending" ? 'secondary' : 'info'}
+                label={
+                  hasTransactions &&
+                  payment?.paymentTransactions[payment?.paymentTransactions.length - 1]
+                    ?.paymentStatus === 'pending'
+                    ? 'To Be Approved'
+                    : 'Registration Complete'
+                }
+                color={
+                  hasTransactions &&
+                  payment?.paymentTransactions[payment?.paymentTransactions.length - 1]
+                    ?.paymentStatus === 'pending'
+                    ? 'secondary'
+                    : 'info'
+                }
                 sx={{ fontWeight: 700, fontSize: 16, px: 1, py: 0.6, width: 'fit-content', mb: 0 }}
               />
               <Typography
                 variant="body1"
                 sx={{ color: (theme) => theme.palette.primary.dark, mb: 0, fontSize: 13 }}
               >
-                {hasTransactions && payment?.paymentTransactions[payment?.paymentTransactions.length -1]?.paymentStatus ==="pending"
+                {hasTransactions &&
+                payment?.paymentTransactions[payment?.paymentTransactions.length - 1]
+                  ?.paymentStatus === 'pending'
                   ? `Your payment for this installment has been received and is pending approval from the admin.`
-                  : `Thank you for filling out the form. To enable all the functionalities of the Exhibitor Panel, please make a payment of  ${nearestInstallment.installmentPart}% of the total amount.`
-                }
+                  : `Thank you for filling out the form, ${status === 'ACTIVE' ? '' : 'To enable all the functionalities of the Exhibitor Panel,'} please make a payment of  ${nearestInstallment.installmentPart}% of the total amount.`}
               </Typography>
               {!hasTransactions && (
                 <Button
@@ -219,8 +237,7 @@ export default function StatusView() {
                   size="large"
                   onClick={() => {
                     window.open(
-                      'https://register.upinternationaltradeshow.com/payment?email=' +
-                      exhibitor?.supportEmail,
+                      'https://register.ifexindia.com/payment?email=' + exhibitor?.supportEmail,
                       '_blank'
                     );
                   }}

@@ -125,6 +125,7 @@ export default function ExhibitorForm() {
     companyPanNo: Yup.string().required('PAN number is required'),
     companyGstin: Yup.string().required('GST number is required'),
     directorName: Yup.string().nullable(),
+    plcAmount: Yup.number(),
     data: Yup.object().shape({
       secondaryContactPersonEmail: Yup.string(),
       country: Yup.string().required('Country is required'),
@@ -190,6 +191,7 @@ export default function ExhibitorForm() {
       companyPanNo: exhibitorForm?.companyPanNo || '',
       companyGstin: exhibitorForm?.companyGstin || '',
       directorName: exhibitorForm?.directorName || '',
+      plcAmount: exhibitorForm?.plcAmount || '',
       data: {
         accountPersonEmailAddress: exhibitorForm?.data?.accountsPersonEmail || '',
         country: exhibitorForm?.data?.country || '',
@@ -1149,12 +1151,18 @@ export default function ExhibitorForm() {
               <Grid container spacing={2} sx={{ mt: pdfGenerating ? 8 : 2 }}>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Do you want to buy a prefered location?*
+                    Do you want to buy a preferred location?*
                   </Typography>
                   <StyledRHFTextField
                     name="data.buyPremiumLocation"
                     InputProps={{ readOnly: !isEditable }}
                   />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Preferred Location Charge
+                  </Typography>
+                  <StyledRHFTextField name="plcAmount" InputProps={{ readOnly: !isEditable }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
@@ -1184,8 +1192,8 @@ export default function ExhibitorForm() {
                     <FormLabel component="legend" sx={{ mt: 2 }}>
                       {/* * Premium location charges (2-side, 3-side, or 4-side open) will incur an
                       additional 12.5% fee. */}
-                      *Price is inclusive of 12.5% prefered location charges (2-side, 3-side, or
-                      4-side open).
+                      *Price is inclusive of prefered location charges (2-side, 3-side, or 4-side
+                      open).
                     </FormLabel>
                   ) : null}
                   <FormLabel component="legend" sx={{ mt: 2 }}>

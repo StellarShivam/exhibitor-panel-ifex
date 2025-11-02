@@ -162,7 +162,7 @@ export default function PaymentSummaryListView() {
     const amount = Number(payment?.paymentData.calculatedTotalCost || 0);
     let tds = Number(payment?.paymentData?.tds);
     let isPremium = payment?.paymentData.buyPremiumLocation === 'Yes' ? 1 : 0;
-    const premiumCharge = isPremium ? amount * 0.125 : 0;
+    const premiumCharge = Number((isPremium ? payment?.paymentData?.plcAmount : 0).toFixed(2));
 
     if (isNaN(tds)) {
       tds = 0;
@@ -187,10 +187,10 @@ export default function PaymentSummaryListView() {
     );
 
     // GST and TDS calculations (unchanged)
-    const gst = (amount + premiumCharge) * 0.18;
+    const gst = Number((payment?.paymentData.gstAmount || 0).toFixed(2));
     const postGst = amount + premiumCharge + gst;
-    const tdsValue = ((amount + premiumCharge) * tds) / 100;
-    const postTdsAmount = postGst - tdsValue;
+    const tdsValue = Number((payment?.paymentData.tdsAmount || 0).toFixed(2));
+    const postTdsAmount = Number((postGst - tdsValue).toFixed(2));
 
     // Round all values to 2 decimals
     setTdsAmount(Number(tdsValue.toFixed(2)));
@@ -288,7 +288,8 @@ export default function PaymentSummaryListView() {
               Total&nbsp;Payment
             </Box>
             <Box fontSize={20} fontWeight="bold">
-              ₹{totalAmount.toFixed(2)}
+              {currencySymbol}
+              {Number(payment?.paymentData?.totalAmount || 0).toFixed(2)}
             </Box>
           </Box>
           <Box>
@@ -298,16 +299,16 @@ export default function PaymentSummaryListView() {
             </Box>
             <Box fontWeight={'bold'} fontSize={10} color="text.primary">
               GST: {currencySymbol}
-              {gstAmount.toFixed(2)}{' '}
+              {Number(payment?.paymentData.gstAmount || 0).toFixed(2)}{' '}
             </Box>
             <Box fontWeight={'bold'} fontSize={10} color="text.primary">
               TDS : {currencySymbol}
-              {tdsAmount.toFixed(2)}{' '}
+              {Number(payment?.paymentData.tdsAmount || 0).toFixed(2)}{' '}
             </Box>
             {payment?.paymentData.buyPremiumLocation === 'Yes' && (
               <Box fontWeight={'bold'} fontSize={10} color="text.primary">
                 Prefered Location Charge : {currencySymbol}
-                {premiumLocationAmount.toFixed(2)}{' '}
+                {Number(payment?.paymentData?.plcAmount || 0).toFixed(2)}{' '}
               </Box>
             )}
           </Box>
@@ -468,8 +469,7 @@ export default function PaymentSummaryListView() {
               disabled={isOfflineTxnPending || pendingAmount <= 0}
               onClick={() =>
                 window.open(
-                  'https://ifexindia.registration.eventstrat.ai/payment?email=' +
-                    exhibitor?.supportEmail,
+                  'https://register.ifexindia.com/payment?email=' + exhibitor?.supportEmail,
                   '_blank'
                 )
               }

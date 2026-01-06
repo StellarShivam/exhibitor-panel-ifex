@@ -150,6 +150,13 @@ export const apiEndpoints = {
     payment: '/exhibitorPaymentDetails/',
     generateProforma: '/generateProformaInvoice/',
   },
+  forms: {
+    exhibitorForm: '/exhibitorForm/',
+    listing: '/exhibitorForm/exhibitor/formList',
+    saveForm: '/exhibitorForm/exhibitor/saveForm',
+    formData: '/exhibitorForm/exhibitor/formDetail?formDetailId=',
+    resubmit: '/exhibitorForm/exhibitor/resubmit',
+  },
   pricing: {
     detail: '/eventpricing/',
     update: '/update/eventpricing',

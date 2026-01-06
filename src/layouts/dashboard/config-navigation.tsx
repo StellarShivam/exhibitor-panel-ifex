@@ -93,7 +93,7 @@ export function useNavData() {
           items: [
             { title: 'Overview', path: paths.dashboard.overview, icon: ICONS.analytics },
             {
-              title: 'Form',
+              title: 'Application Form',
               path: paths.dashboard.form,
               icon: ICONS.file,
             },
@@ -122,13 +122,14 @@ export function useNavData() {
               icon: ICONS.job,
             },
             // {
-            //   title: 'Documents',
-            //   path: paths.dashboard.documents.root,
+            //   title: 'Exhibitor Manual',
+            //   path: 'https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf',
+            //   icon: ICONS.external,
+            // },
+            // {
+            //   title: 'Service Request Forms',
+            //   path: paths.dashboard.forms.root,
             //   icon: ICONS.blog,
-            //   children: [
-            //     { title: 'View Documents', path: paths.dashboard.documents.root },
-            //     { title: 'Upload Document', path: paths.dashboard.documents.upload },
-            //   ],
             // },
             // {
             //   title: 'Production Requirements',

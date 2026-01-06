@@ -79,5 +79,10 @@ export const paths = {
     facia: `${ROOTS.DASHBOARD}/facia`,
     status: (id: string) => `${ROOTS.DASHBOARD}/status/${id}`,
     registration: `${ROOTS.DASHBOARD}/registration`,
+    forms: {
+      root: `${ROOTS.DASHBOARD}/forms`,
+      detail: (id: string) => `${ROOTS.DASHBOARD}/forms/${id}/detail`,
+    },
+    formsTransactions: `${ROOTS.DASHBOARD}/forms-transactions`,
   },
 };

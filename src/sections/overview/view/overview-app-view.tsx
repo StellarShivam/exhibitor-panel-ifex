@@ -25,6 +25,7 @@ import AppWelcome from '../app-welcome';
 import AppSessions from '../app-sessions';
 import AppWidgetSummary from '../app-widget-summary';
 import StallAllotmentCard from '../StallAllotmentCard';
+import ExhibitorManual from '../exhibitor-manual';
 
 // ----------------------------------------------------------------------
 
@@ -123,9 +124,15 @@ export default function OverviewAppView() {
 
         {eventData?.state?.hallNo && eventData?.state?.stallNo && (
           <Grid xs={12} md={6}>
+          <Stack spacing={3}>
             <StallAllotmentCard />
+            {/* <ExhibitorManual /> */}
+          </Stack>
           </Grid>
         )}
+        {/* <Grid xs={12} md={6}>
+            <StallAllotmentCard />
+          </Grid> */}
 
         {/* <Grid xs={12} md={4}>
           <AppWidgetSummary

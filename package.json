@@ -39,6 +39,7 @@
     "clsx": "^2.1.1",
     "country-state-city": "^3.2.1",
     "date-fns": "^2.30.0",
+    "dayjs": "^1.11.19",
     "dompurify": "^3.2.5",
     "framer-motion": "^10.16.16",
     "highlight.js": "^11.11.1",

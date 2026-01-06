@@ -34,8 +34,8 @@ export const viewport = {
 export const metadata = {
   title: 'IFEX',
   description:
-    'The starting point for your next project with Minimal UI Kit, built on the newest version of Material-UI ©, ready to be customized to your style',
-  keywords: 'react,material,kit,application,dashboard,admin,template',
+    'IFEX Exhibitor Panel',
+  keywords: 'IFEX, Exhibitor, Panel, Event Management',
   manifest: '/manifest.json',
   icons: [
     { rel: 'icon', url: '/IFEX_LOGO.png' },

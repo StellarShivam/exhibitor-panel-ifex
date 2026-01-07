@@ -240,7 +240,12 @@ export const apiEndpoints = {
   paymentSummary: {
     updatePaymentStatus: '/updatePaymentStatus',
     payment: '/exhibitorPaymentDetails/',
-  }
+  },
+  requestFormPayments: {
+    createPayment: '/exhibitorForm/payment/create',
+    verifyPayment: '/exhibitorForm/payment/verify',
+    formTransactions: '/exhibitorForm/payment/transactions/exhibitor/',
+  },
 };
 
 export const endpoints = {

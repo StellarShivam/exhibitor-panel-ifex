@@ -126,11 +126,11 @@ export function useNavData() {
             //   path: 'https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf',
             //   icon: ICONS.external,
             // },
-            // {
-            //   title: 'Service Request Forms',
-            //   path: paths.dashboard.forms.root,
-            //   icon: ICONS.blog,
-            // },
+            {
+              title: 'Service Request Forms',
+              path: paths.dashboard.forms.root,
+              icon: ICONS.blog,
+            },
             // {
             //   title: 'Production Requirements',
             //   path: paths.dashboard.productionRequirements.root,

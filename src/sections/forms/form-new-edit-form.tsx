@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMemo, useEffect, useCallback, useState } from 'react';
 
@@ -128,6 +128,7 @@ export default function FormsNewEditForm({
   formList,
   exhibitorForm,
 }: Props) {
+  console.log(currentForm);
   const router = useRouter();
 
   const { uploadFile } = useFileUpload();
@@ -199,43 +200,43 @@ export default function FormsNewEditForm({
       };
       setFormDefaultValues(flattenedData);
     }
-    if (flattenedData?.standContractorCountry) {
-      countryTemp = flattenedData?.standContractorCountry;
-      stateTemp = flattenedData?.standContractorStateProvinceRegion;
-      cityTemp = flattenedData?.standContractorCity;
-    } else {
-      countryTemp = flattenedData?.billingCountry || flattenedData?.country;
-      stateTemp = flattenedData?.billingStateProvinceRegion || flattenedData?.stateProvinceRegion;
-      cityTemp = flattenedData?.billingCity || flattenedData?.city;
-    }
+    // if (flattenedData?.standContractorCountry) {
+    //   countryTemp = flattenedData?.standContractorCountry;
+    //   stateTemp = flattenedData?.standContractorStateProvinceRegion;
+    //   cityTemp = flattenedData?.standContractorCity;
+    // } else {
+    //   countryTemp = flattenedData?.billingCountry || flattenedData?.country;
+    //   stateTemp = flattenedData?.billingStateProvinceRegion || flattenedData?.stateProvinceRegion;
+    //   cityTemp = flattenedData?.billingCity || flattenedData?.city;
+    // }
 
-    if (!(formId === '4' && !flattenedData?.standContractorCountry)) {
-      const defaultCountry = Country.getAllCountries().find(
-        (country) => country.name === countryTemp
-      );
-      if (defaultCountry) {
-        setSelectedCountry(defaultCountry);
+    // if (!(formId === '4' && !flattenedData?.standContractorCountry)) {
+    //   const defaultCountry = Country.getAllCountries().find(
+    //     (country) => country.name === countryTemp
+    //   );
+    //   if (defaultCountry) {
+    //     setSelectedCountry(defaultCountry);
 
-        const countryStates = State.getStatesOfCountry(defaultCountry.isoCode);
-        setStates(countryStates);
-        const defaultState = countryStates.find((state) => state.name === stateTemp);
-        if (defaultState) {
-          setSelectedState(defaultState);
-          const stateCities = City.getCitiesOfState(defaultCountry.isoCode, defaultState.isoCode);
-          setCities(stateCities);
-          const defaultCity = stateCities.find((city) => city.name === cityTemp);
-          if (defaultCity) {
-            setSelectedCity(defaultCity);
-          }
-        }
-      }
-    } else {
-      setSelectedCountry(null);
-      setSelectedState(null);
-      setSelectedCity(null);
-      setStates([]);
-      setCities([]);
-    }
+    //     const countryStates = State.getStatesOfCountry(defaultCountry.isoCode);
+    //     setStates(countryStates);
+    //     const defaultState = countryStates.find((state) => state.name === stateTemp);
+    //     if (defaultState) {
+    //       setSelectedState(defaultState);
+    //       const stateCities = City.getCitiesOfState(defaultCountry.isoCode, defaultState.isoCode);
+    //       setCities(stateCities);
+    //       const defaultCity = stateCities.find((city) => city.name === cityTemp);
+    //       if (defaultCity) {
+    //         setSelectedCity(defaultCity);
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   setSelectedCountry(null);
+    //   setSelectedState(null);
+    //   setSelectedCity(null);
+    //   setStates([]);
+    //   setCities([]);
+    // }
   }, [formData, exhibitorForm, currentForm?.status]);
 
   const getFormIdentifier = (id?: number) => {
@@ -258,7 +259,7 @@ export default function FormsNewEditForm({
 
   const methods = useForm({
     resolver: yupResolver(FormSchema),
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues,
   });
 
@@ -271,28 +272,35 @@ export default function FormsNewEditForm({
     formState: { isSubmitting, errors },
   } = methods;
 
-  const watchSelectedCountry = watch('country');
+  // Field array for Form 13: Heavy / Large Exhibits
+  const {
+    fields: largeExhibitFields,
+    append: appendLargeExhibit,
+    remove: removeLargeExhibit,
+  } = useFieldArray({ control, name: 'largeExhibitEntries' });
 
-  useEffect(() => {
-    if (watchSelectedCountry) {
-      const countryData = countries.find((country) => country.label === watchSelectedCountry);
-      if (countryData?.phone) {
-        const currentPhone = watch('phone') || '';
-        const newCountryCode = `+${countryData.phone}`;
-        const currentCountryCode = currentPhone.startsWith('+')
-          ? currentPhone.substring(
-              0,
-              currentPhone.length -
-                (currentPhone.replace(/[^0-9]/g, '').length - countryData.phone.length)
-            )
-          : '';
+  // const watchSelectedCountry = watch('country');
 
-        if (currentCountryCode !== newCountryCode) {
-          setValue('phone', `${newCountryCode}`);
-        }
-      }
-    }
-  }, [watchSelectedCountry, setValue, watch]);
+  // useEffect(() => {
+  //   if (watchSelectedCountry) {
+  //     const countryData = countries.find((country) => country.label === watchSelectedCountry);
+  //     if (countryData?.phone) {
+  //       const currentPhone = watch('phone') || '';
+  //       const newCountryCode = `+${countryData.phone}`;
+  //       const currentCountryCode = currentPhone.startsWith('+')
+  //         ? currentPhone.substring(
+  //             0,
+  //             currentPhone.length -
+  //               (currentPhone.replace(/[^0-9]/g, '').length - countryData.phone.length)
+  //           )
+  //         : '';
+
+  //       if (currentCountryCode !== newCountryCode) {
+  //         setValue('phone', `${newCountryCode}`);
+  //       }
+  //     }
+  //   }
+  // }, [watchSelectedCountry, setValue, watch]);
 
   useEffect(() => {
     if (formDefaultValues) {
@@ -312,7 +320,7 @@ export default function FormsNewEditForm({
         .map((s: string) => s.trim())
         .filter((s: string) => s.length > 0);
       if (values.totalProductIndexNumbers !== indexNumbers.length) {
-        setValue('totalProductIndexNumbers', indexNumbers.length);
+        setValue('totalProductIndexNumbers', indexNumbers.length, { shouldValidate: false });
       }
 
       // Calculate number of words from additionalProductName (if present)
@@ -322,10 +330,23 @@ export default function FormsNewEditForm({
         .split(/\s+/)
         .filter((w: string) => w.length > 0).length;
       if (values.totalNumberOfWords !== wordCount) {
-        setValue('totalNumberOfWords', wordCount);
+        setValue('totalNumberOfWords', wordCount, { shouldValidate: false });
       }
+      const base =
+        (indexNumbers?.length || 0) * 5500 +
+        (values.logoOption === 'with_logo' ? 1100 : 0) +
+        (wordCount || 0) * 55;
+      setBaseAmount(base);
     }
-  }, [formId, values.additionalProductIndexNo, values.productCompanyProfile, values.totalProductIndexNumbers, values.totalNumberOfWords, setValue]);
+  }, [
+    formId,
+    values.additionalProductIndexNo,
+    values.productCompanyProfile,
+    values.totalProductIndexNumbers,
+    values.totalNumberOfWords,
+    values.logoOption,
+    setValue,
+  ]);
   // useEffect(() => {
   //   if (exhibitorForm) {
   //     reset(defaultValues);
@@ -357,82 +378,140 @@ export default function FormsNewEditForm({
   // }, [exhibitorForm, defaultValues, setValue, reset]);
 
   // Calculate base amount whenever form values change
+  // useEffect(() => {
+  //   if (formId === '8') {
+  //     const temporaryPowerCost =
+  //       values.temporaryPowerDates && values.temporaryPowerDates.length > 0
+  //         ? 2000 * values.temporaryPowerDates.length
+  //         : 0;
+
+  //     const permanent12hrCost =
+  //       values.permanentPower?.includes('12hr') && values.permanentPower12hrKW
+  //         ? Number(values.permanentPower12hrKW) * 6000
+  //         : 0;
+
+  //     const permanent24hrCost =
+  //       values.permanentPower?.includes('24hr') && values.permanentPower24hrKW
+  //         ? Number(values.permanentPower24hrKW) * 12000
+  //         : 0;
+
+  //     const totalBaseAmount = temporaryPowerCost + permanent12hrCost + permanent24hrCost;
+  //     setBaseAmount(totalBaseAmount);
+  //   }
+  // }, [
+  //   values.temporaryPowerDates,
+  //   values.permanentPower,
+  //   values.permanentPower12hrKW,
+  //   values.permanentPower24hrKW,
+  //   formId,
+  // ]);
+
   useEffect(() => {
-    if (formId === '8') {
-      const temporaryPowerCost =
-        values.temporaryPowerDates && values.temporaryPowerDates.length > 0
-          ? 2000 * values.temporaryPowerDates.length
-          : 0;
+    if (formId === '11') {
+      const dayShiftRate = 2000;
+      const nightShiftRate = 2000;
 
-      const permanent12hrCost =
-        values.permanentPower?.includes('12hr') && values.permanentPower12hrKW
-          ? Number(values.permanentPower12hrKW) * 6000
-          : 0;
+      const dates = [
+        '09 th February 2026',
+        '10 th February 2026',
+        '11 th February 2026',
+        '12 th February 2026',
+        '13 th February 2026',
+        '14 th February 2026',
+      ];
+      let totalBaseAmount = 0;
 
-      const permanent24hrCost =
-        values.permanentPower?.includes('24hr') && values.permanentPower24hrKW
-          ? Number(values.permanentPower24hrKW) * 12000
-          : 0;
+      dates.forEach((date) => {
+        const dayGuards = values[`noOfDayShiftGuards_${date.split(' ')[0]}`] || 0;
+        const nightGuards = values[`noOfNightShiftGuards_${date.split(' ')[0]}`] || 0;
+        const dayAmount = dayGuards * dayShiftRate;
+        const nightAmount = nightGuards * nightShiftRate;
+        totalBaseAmount += dayAmount + nightAmount;
+      });
 
-      const totalBaseAmount = temporaryPowerCost + permanent12hrCost + permanent24hrCost;
       setBaseAmount(totalBaseAmount);
     }
   }, [
-    values.temporaryPowerDates,
-    values.permanentPower,
-    values.permanentPower12hrKW,
-    values.permanentPower24hrKW,
     formId,
+    values.dayShifts,
+    values.nightShifts,
+    values.noOfDayShiftGuards_09,
+    values.noOfDayShiftGuards_10,
+    values.noOfDayShiftGuards_11,
+    values.noOfDayShiftGuards_12,
+    values.noOfDayShiftGuards_13,
+    values.noOfDayShiftGuards_14,
+    values.noOfNightShiftGuards_09,
+    values.noOfNightShiftGuards_10,
+    values.noOfNightShiftGuards_11,
+    values.noOfNightShiftGuards_12,
+    values.noOfNightShiftGuards_13,
+    values.noOfNightShiftGuards_14,
   ]);
 
   useEffect(() => {
-    if (formId === '7') {
-      const totalBaseAmount =
-        (values.dayShifts.length + values.nightShifts.length) * values.totalNumberOfGuards * 1725;
-      setBaseAmount(totalBaseAmount);
-    }
-  }, [values.dayShifts, values.nightShifts, values.totalNumberOfGuards, formId]);
+    if (formId === '12') {
+      const dayShiftRate = 1000;
+      const nightShiftRate = 1000;
 
-  useEffect(() => {
-    if (formId === '9') {
-      const totalBaseAmount = values.dates.length * values.totalNumberOfHousekeepers * 1250;
-      setBaseAmount(totalBaseAmount);
-    }
-  }, [values.dates, values.totalNumberOfHousekeepers, formId]);
+      const dates = [
+        '09 th February 2026',
+        '10 th February 2026',
+        '11 th February 2026',
+        '12 th February 2026',
+        '13 th February 2026',
+        '14 th February 2026',
+      ];
+      let totalBaseAmount = 0;
 
-  useEffect(() => {
-    if (formId === '8') {
-      const totalBaseAmount = (values.powerLoadRequired || values.requiredKW || 0) * 3000;
-      setBaseAmount(totalBaseAmount);
-    }
-  }, [values.powerLoadRequired, values.requiredKW, formId]);
+      dates.forEach((date) => {
+        const dayCleaners = values[`noOfDayShiftCleaners_${date.split(' ')[0]}`] || 0;
+        const nightCleaners = values[`noOfNightShiftCleaners_${date.split(' ')[0]}`] || 0;
+        const dayAmount = dayCleaners * dayShiftRate;
+        const nightAmount = nightCleaners * nightShiftRate;
+        totalBaseAmount += dayAmount + nightAmount;
+      });
 
-  useEffect(() => {
-    if (formId === '5') {
-      const dedicatedPortsCost = values.dedicatedPorts
-        ? values.dedicatedPorts.reduce((total: number, port: string) => {
-            const portInfo = itPricing[port as keyof typeof itPricing];
-            const numberOfPorts = values[portInfo.inputField] || 0;
-            return total + portInfo.price * numberOfPorts * 5;
-          }, 0)
-        : 0;
-
-      const wifiVoucherCost = values.noOfWifiVocher ? values.noOfWifiVocher * 1100 : 0;
-
-      const totalBaseAmount = dedicatedPortsCost + wifiVoucherCost;
       setBaseAmount(totalBaseAmount);
     }
   }, [
-    values.noOfWifiVocher,
-    values.numberOf1MbpsPorts,
-    values.numberOf5MbpsPorts,
-    values.numberOf10MbpsPorts,
-    values.numberOf20MbpsPorts,
-    values.numberOf30MbpsPorts,
-    values.numberOf40MbpsPorts,
-    values.numberOf50MbpsPorts,
     formId,
+    values.dayShifts,
+    values.nightShifts,
+    values.noOfDayShiftCleaners_09,
+    values.noOfDayShiftCleaners_10,
+    values.noOfDayShiftCleaners_11,
+    values.noOfDayShiftCleaners_12,
+    values.noOfDayShiftCleaners_13,
+    values.noOfDayShiftCleaners_14,
+    values.noOfNightShiftCleaners_09,
+    values.noOfNightShiftCleaners_10,
+    values.noOfNightShiftCleaners_11,
+    values.noOfNightShiftCleaners_12,
+    values.noOfNightShiftCleaners_13,
+    values.noOfNightShiftCleaners_14,
   ]);
+
+  useEffect(() => {
+    if (formId === '8' && values.waterPerPointRequired > 0) {
+      const base = values.waterPerPointRequired * 30000;
+      setBaseAmount(base);
+    }
+  }, [values.waterPerPointRequired, formId]);
+
+  useEffect(() => {
+    if (formId === '5' && values.powerLoadRequired > 0) {
+      const base = values.powerLoadRequired * 3000;
+      setBaseAmount(base);
+    }
+  }, [values.powerLoadRequired, formId]);
+
+  useEffect(() => {
+    if (formId === '7' && values.airPerConnectionRequired > 0) {
+      const base = values.airPerConnectionRequired * 20000;
+      setBaseAmount(base);
+    }
+  }, [values.airPerConnectionRequired, formId]);
 
   const gstAmount = Number(baseAmount) * 0.18;
   const totalAmount = Number(baseAmount) + Number(gstAmount);
@@ -532,10 +611,12 @@ export default function FormsNewEditForm({
           ...restData,
           ...(allUploadedFiles.length > 0 && { files: allUploadedFiles }),
           // fullName: `${data.title} ${data.firstName} ${data.lastName}`,
-          ...((currentForm?.formId === 8 ||
+          ...((currentForm?.formId === 2 ||
             currentForm?.formId === 5 ||
             currentForm?.formId === 7 ||
-            currentForm?.formId === 9) && {
+            currentForm?.formId === 8 ||
+            currentForm?.formId === 11 ||
+            currentForm?.formId === 12) && {
             baseAmount,
             gstAmount,
             totalAmount,
@@ -554,7 +635,7 @@ export default function FormsNewEditForm({
         // enqueueSnackbar('Form submitted successfully', { variant: 'success' });
         reFetchForms();
         reFetchFormData();
-        if (formId === '5' || formId === '8' || formId === '7' || formId === '9') {
+        if (formId === '2' || formId === '5' || formId === '8' || formId === '7' || formId === '11' || formId === '12') {
           setTimeout(() => {
             setPaymentDialogOpen(true);
           }, 1000);
@@ -611,7 +692,7 @@ export default function FormsNewEditForm({
   };
 
   // console.log(currentForm, 'currentForm*******');
-  const isFormDisabled = currentForm?.status != null && currentForm?.status !== 'REJECTED';
+  const isFormDisabled = currentForm?.status === 'SUBMITTED' || currentForm?.status === 'PENDING';
 
   return (
     <>
@@ -632,13 +713,21 @@ export default function FormsNewEditForm({
                       [key: string]: string[];
                     };
                     disabled?: boolean | ((formValues: any) => boolean);
+                    visible?: (formValues: any) => boolean;
                     gridItem?: {
                       xs?: number;
                       sm?: number;
                       md?: number;
                     };
                   }) => {
-                    // Support dynamic disabling via function in config
+                    if (
+                      field.visible &&
+                      typeof field.visible === 'function' &&
+                      !field.visible(values)
+                    ) {
+                      return null;
+                    }
+
                     let dynamicDisabled = false;
                     if (typeof field.disabled === 'function') {
                       dynamicDisabled = field.disabled(values);
@@ -647,7 +736,10 @@ export default function FormsNewEditForm({
                       key: field.name,
                       name: field.name,
                       label: field.label,
-                      disabled: isFormDisabled || dynamicDisabled || (!!field.disabled && typeof field.disabled !== 'function'),
+                      disabled:
+                        isFormDisabled ||
+                        dynamicDisabled ||
+                        (!!field.disabled && typeof field.disabled !== 'function'),
                     };
 
                     const renderField = () => {
@@ -858,20 +950,20 @@ export default function FormsNewEditForm({
                         case 'checkbox-group':
                           return (
                             <>
-                              {field.name === 'dayShifts' && (
+                              {formId === '11' && field.name === 'dayShifts' && (
                                 <>
                                   <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                    Rate for 12 Hours INR (Security Guard – Rs 1,725/-)
+                                    Rate for 12 Hours INR (Security Guard – Rs 2,000/-)
                                   </Typography>
                                   <Typography variant="subtitle2" sx={{ mb: 1 }}>
                                     Select Date(s)*:
                                   </Typography>
                                 </>
                               )}
-                              {field.name === 'dates' && (
+                              {formId === '12' && field.name === 'dayShifts' && (
                                 <>
                                   <Typography variant="subtitle2">
-                                    Charges for 12 Hours per Housekeeping Boy - Rs. 1250
+                                    Charges for 12 Hours per Housekeeping Boy - Rs. 1000/-
                                   </Typography>
                                   <Typography variant="subtitle2" sx={{ mb: 1 }}>
                                     (Note:- This is only manpower cost. Cost of
@@ -1155,16 +1247,29 @@ export default function FormsNewEditForm({
                                   Badges on my behalf.
                                 </Typography>
                               )}
-                              {field.name === 'powerLoad' && (
+                              {field.name === 'powerLoadRequired' && (
                                 <>
                                   <Typography variant="subtitle2">
                                     Power Load Required (KW)*
                                   </Typography>
                                   <Typography variant="body2" sx={{ mb: 2 }}>
-                                    Rs.2250/- per KW + 18% GST, For the entire setup and event
-                                    duration as per the exhibitor's requirements.
+                                    (Any gadget requiring 24 hours electric load to be included in
+                                    power load requirement and the numbers intimated to organizer
+                                    while taking possession, charges applicable as per requirement)
                                   </Typography>
                                 </>
+                              )}
+                              {field.name === 'waterPerPointRequired' && (
+                                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                                  Water Point Required - @ Rs. 30,000/- + 18 % GST – For 2.5 Bar
+                                  pressure*
+                                </Typography>
+                              )}
+                              {field.name === 'airPerConnectionRequired' && (
+                                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                                  Air Per Connection Required - @ Rs. 20,000 /- + 18 % GST – For 6
+                                  Bar upto 10 cfm for the event duration*
+                                </Typography>
                               )}
                               {field.name === 'noOfWifiVocher' && (
                                 <>
@@ -1208,9 +1313,53 @@ export default function FormsNewEditForm({
                                 }}
                               >
                                 <Typography variant="subtitle2">{field.label}</Typography>
-                                {formId === '6' && field.name === 'authorityLetter' && (
+                                {formId === '6' &&
+                                  field.name === 'authorityLetterForPossessionOfStand' && (
+                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                      (Note: Must be on the company's letterhead and for more
+                                      information refer to page 32 of{' '}
+                                      <a
+                                        className="underline"
+                                        href="https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
+                                        {' '}
+                                        Exhibitor's Manual
+                                      </a>{' '}
+                                      )
+                                    </Typography>
+                                  )}
+                                {formId === '9' && field.name === 'undertakingOfNoRetailSale' && (
                                   <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                    (Note: Must be on the company's letterhead)
+                                    (Note: Must be on the company's letterhead and for more
+                                    information refer to page 35 of{' '}
+                                    <a
+                                      className="underline"
+                                      href="https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {' '}
+                                      Exhibitor's Manual
+                                    </a>{' '}
+                                    )
+                                  </Typography>
+                                )}
+                                {formId === '10' && field.name === 'gatePassLetter' && (
+                                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                    (Note: Must be on the company's letterhead and for more
+                                    information refer to page 36 of{' '}
+                                    <a
+                                      className="underline"
+                                      href="https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {' '}
+                                      Exhibitor's Manual
+                                    </a>{' '}
+                                    )
                                   </Typography>
                                 )}
                                 {formId === '1' && field.name === 'files' && (
@@ -1412,6 +1561,143 @@ export default function FormsNewEditForm({
                 )}
               </Grid>
 
+              {formId === '13' && (
+                <>
+                  <Divider sx={{ my: 3 }} />
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Heavy / Large Exhibits
+                  </Typography>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                      HEAVY EXHIBITS : WEIGHT EXCEEDING 2000 kgs.
+                      <br />
+                      LARGE EXHIBITS : SIZE EXCEEDING 2 M x 1.5 M (L x W)
+                      <br />
+                      TALL EXHIBITS : HEIGHT EXCEEDING 2 M
+                    </Typography>
+                    <Box
+                      component="ul"
+                      sx={{ mt: 2, pl: 3, mb: 0, color: 'text.primary', listStyle: 'disc' }}
+                    >
+                      <li>
+                        <i>
+                          Machines in the above mentioned category must arrive in time for port
+                          clearances and reach the exhibition site as per dead line (09<sup>th</sup>{' '}
+                          February, 2026 by 8:00 AM). For machinery/ equipment above 1500 kgs and
+                          which require HYDRA for placing of the machine. Please inform us, so that
+                          we can decide on the installation date mutually.
+                        </i>
+                      </li>
+                      <li>
+                        If such machines arrive after the scheduled dates, it would be difficult to
+                        allow entry into site as access may be obstructed due to stand construction.
+                      </li>
+                      <li>
+                        All machines onsite will be handled by the official freight forwarder. This
+                        applies without exception.
+                      </li>
+                      <li>
+                        Exhibitors with heavy exhibits are to refer to the floor loading capacity
+                        and must provide steel plates for load spreading, if necessary. Please do
+                        not overload the floor loading capacity.
+                      </li>
+                      <li>
+                        <i>
+                          Kindly work in coordination with the freight forwarder and the Technical
+                          Manager to avoid any last-minute hassles regarding your exhibits. Your
+                          freight forwarder will be allowed to bring in the equipment till the gates
+                          of the hall.
+                        </i>
+                      </li>
+                      <li>Filling this form is mandatory for bringing in large exhibits.</li>
+                    </Box>
+                    <Typography variant="body2" sx={{ mt: 2 }}>
+                      Please list all items to be brought in. At least one entry is required.
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        appendLargeExhibit({
+                          item: '',
+                          dimensions: '',
+                          weightKg: '',
+                          dateOfArrival: '',
+                        })
+                      }
+                      disabled={isFormDisabled}
+                      startIcon={<Iconify icon="mdi:plus" />}
+                    >
+                      Add Entry
+                    </Button>
+                  </Box>
+                  <Grid container spacing={2}>
+                    {largeExhibitFields.length === 0 && (
+                      <Grid item xs={12}>
+                        <Card sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>
+                          No entries yet. Click "Add Entry" to add one.
+                        </Card>
+                      </Grid>
+                    )}
+                    {largeExhibitFields.map((row, index) => (
+                      <Grid item xs={12} key={row.id}>
+                        <Card sx={{ p: 3, position: 'relative' }}>
+                          <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
+                            <Button
+                              color="error"
+                              variant="outlined"
+                              size="small"
+                              onClick={() => removeLargeExhibit(index)}
+                              disabled={isFormDisabled || largeExhibitFields.length <= 1}
+                              startIcon={<Iconify icon="mdi:trash-can-outline" />}
+                            >
+                              Remove
+                            </Button>
+                          </Box>
+                          <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                            Entry #{index + 1}
+                          </Typography>
+                          <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                              <RHFTextField
+                                name={`largeExhibitEntries.${index}.item`}
+                                label="Items*"
+                                disabled={isFormDisabled}
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <RHFTextField
+                                name={`largeExhibitEntries.${index}.dimensions`}
+                                label="Dimensions*"
+                                disabled={isFormDisabled}
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <RHFTextField
+                                name={`largeExhibitEntries.${index}.weightKg`}
+                                label="Weight (Kg)*"
+                                type="number"
+                                disabled={isFormDisabled}
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <RHFTextField
+                                name={`largeExhibitEntries.${index}.dateOfArrival`}
+                                label="Date of arrival*"
+                                type="date"
+                                InputLabelProps={{ shrink: true }}
+                                disabled={isFormDisabled}
+                              />
+                            </Grid>
+                          </Grid>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </>
+              )}
+
               {/* Payment Calculations Table for Additional Catalogue Entry (Form 2) */}
               {formId === '2' && (
                 <PaymentCalculationTable
@@ -1421,43 +1707,149 @@ export default function FormsNewEditForm({
                 />
               )}
 
-              {(formId === '7' || formId === '9' || formId === '8') && (
+              {(formId === '11' || formId === '12') && (
+                <Card sx={{ mt: 3, p: 3, backgroundColor: '#f5f5f5' }}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Cost Calculation
+                  </Typography>
+                  {(values?.dayShifts?.length > 0 || values?.nightShifts?.length > 0) && (
+                    <Grid container spacing={2}>
+                      <Grid xs={12}>
+                        <Box sx={{ overflowX: 'auto' }}>
+                          <Table sx={{ minWidth: 500 }}>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                                  Day Shift No. of {formId === '11' ? 'Guards' : 'Cleaners'}
+                                </TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                                  Night Shift No. of {formId === '11' ? 'Guards' : 'Cleaners'}
+                                </TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                                  Amount
+                                </TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {[
+                                {
+                                  date: '09/02/2026',
+                                  fullDate: '09th February 2026',
+                                  dayKey: '09',
+                                  isDaySelected: values?.dayShifts?.includes('09th February 2026'),
+                                  isNightSelected:
+                                    values?.nightShifts?.includes('09th February 2026'),
+                                },
+                                {
+                                  date: '10/02/2026',
+                                  fullDate: '10th February 2026',
+                                  dayKey: '10',
+                                  isDaySelected: values?.dayShifts?.includes('10th February 2026'),
+                                  isNightSelected:
+                                    values?.nightShifts?.includes('10th February 2026'),
+                                },
+                                {
+                                  date: '11/02/2026',
+                                  fullDate: '11th February 2026',
+                                  dayKey: '11',
+                                  isDaySelected: values?.dayShifts?.includes('11th February 2026'),
+                                  isNightSelected:
+                                    values?.nightShifts?.includes('11th February 2026'),
+                                },
+                                {
+                                  date: '12/02/2026',
+                                  fullDate: '12th February 2026',
+                                  dayKey: '12',
+                                  isDaySelected: values?.dayShifts?.includes('12th February 2026'),
+                                  isNightSelected:
+                                    values?.nightShifts?.includes('12th February 2026'),
+                                },
+                                {
+                                  date: '13/02/2026',
+                                  fullDate: '13th February 2026',
+                                  dayKey: '13',
+                                  isDaySelected: values?.dayShifts?.includes('13th February 2026'),
+                                  isNightSelected:
+                                    values?.nightShifts?.includes('13th February 2026'),
+                                },
+                                {
+                                  date: '14/02/2026',
+                                  fullDate: '14th February 2026',
+                                  dayKey: '14',
+                                  isDaySelected: values?.dayShifts?.includes('14th February 2026'),
+                                  isNightSelected:
+                                    values?.nightShifts?.includes('14th February 2026'),
+                                },
+                              ]
+                                .filter((item) => item.isDaySelected || item.isNightSelected)
+                                .map((item) => {
+                                  const dayPeople =
+                                    values[
+                                      `noOfDayShift${formId === '11' ? 'Guards' : 'Cleaners'}_${item.dayKey}`
+                                    ] || 0;
+                                  const nightPeople =
+                                    values[
+                                      `noOfNightShift${formId === '11' ? 'Guards' : 'Cleaners'}_${item.dayKey}`
+                                    ] || 0;
+                                  const dayShiftRate = formId === '11' ? 2000 : 1000;
+                                  const nightShiftRate = formId === '11' ? 2000 : 1000;
+                                  const dayAmount = dayPeople * dayShiftRate;
+                                  const nightAmount = nightPeople * nightShiftRate;
+                                  const rowTotalAmount = dayAmount + nightAmount;
+
+                                  return (
+                                    <TableRow key={item.date}>
+                                      <TableCell>{item.date}</TableCell>
+                                      <TableCell align="center">{dayPeople || '-'}</TableCell>
+                                      <TableCell align="center">{nightPeople || '-'}</TableCell>
+                                      <TableCell align="center">
+                                        Rs. {rowTotalAmount.toLocaleString()}
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })}
+                            </TableBody>
+                          </Table>
+                        </Box>
+                        <Divider sx={{ my: 2 }} />
+                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                          <Typography variant="subtitle2" sx={{ textAlign: 'left' }}>
+                            Base Amount:
+                          </Typography>
+                          <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>
+                            Rs. {baseAmount.toLocaleString()}
+                          </Typography>
+                        </Stack>
+                        <Divider sx={{ my: 2 }} />
+                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                          <Typography variant="subtitle2" sx={{ textAlign: 'left' }}>
+                            GST Amount (18%):
+                          </Typography>
+                          <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>
+                            Rs. {gstAmount.toLocaleString()}
+                          </Typography>
+                        </Stack>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                          <Typography variant="h6" sx={{ textAlign: 'left' }}>
+                            Estimated Total Cost:
+                          </Typography>
+                          <Typography variant="h6" sx={{ textAlign: 'right' }}>
+                            Rs. {totalAmount.toLocaleString()}
+                          </Typography>
+                        </Stack>
+                      </Grid>
+                    </Grid>
+                  )}
+                </Card>
+              )}
+              {(formId === '5' || formId === '8' || formId === '7') && (
                 <Card sx={{ mt: 3, p: 3, backgroundColor: '#f5f5f5' }}>
                   <Typography variant="h6" sx={{ mb: 2 }}>
                     Cost Calculation
                   </Typography>
                   <Grid container spacing={2}>
-                    {values?.totalNumberOfGuards > 0 &&
-                      (values?.dayShifts?.length > 0 || values?.nightShifts?.length > 0) && (
-                        <Grid xs={12}>
-                          <Stack direction="row" alignItems="center" justifyContent="space-between">
-                            <Typography variant="subtitle2" sx={{ textAlign: 'left' }}>
-                              Base Amount:
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>
-                              Rs. {baseAmount}
-                            </Typography>
-                          </Stack>
-                          <Divider sx={{ my: 2 }} />
-                          <Stack direction="row" alignItems="center" justifyContent="space-between">
-                            <Typography variant="subtitle2" sx={{ textAlign: 'left' }}>
-                              GST Amount (18%):
-                            </Typography>
-                            <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>
-                              Rs. {gstAmount}
-                            </Typography>
-                          </Stack>
-                          <Stack direction="row" alignItems="center" justifyContent="space-between">
-                            <Typography variant="h6" sx={{ textAlign: 'left' }}>
-                              Estimated Total Cost:
-                            </Typography>
-                            <Typography variant="h6" sx={{ textAlign: 'right' }}>
-                              Rs. {totalAmount}
-                            </Typography>
-                          </Stack>
-                        </Grid>
-                      )}
-                    {values?.totalNumberOfHousekeepers > 0 && values?.dates?.length > 0 && (
+                    {(values?.waterPerPointRequired > 0 || values?.airPerConnectionRequired > 0 || values?.powerLoadRequired > 0) && (
                       <Grid xs={12}>
                         <Stack direction="row" alignItems="center" justifyContent="space-between">
                           <Typography variant="subtitle2" sx={{ textAlign: 'left' }}>
@@ -1481,36 +1873,7 @@ export default function FormsNewEditForm({
                             Estimated Total Cost:
                           </Typography>
                           <Typography variant="h6" sx={{ textAlign: 'right' }}>
-                            Rs. {totalAmount}
-                          </Typography>
-                        </Stack>
-                      </Grid>
-                    )}
-                    {values?.requiredKW > 0 && (
-                      <Grid xs={12}>
-                        <Stack direction="row" alignItems="center" justifyContent="space-between">
-                          <Typography variant="subtitle2" sx={{ textAlign: 'left' }}>
-                            Base Amount:
-                          </Typography>
-                          <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>
-                            Rs. {baseAmount}
-                          </Typography>
-                        </Stack>
-                        <Divider sx={{ my: 2 }} />
-                        <Stack direction="row" alignItems="center" justifyContent="space-between">
-                          <Typography variant="subtitle2" sx={{ textAlign: 'left' }}>
-                            GST Amount (18%):
-                          </Typography>
-                          <Typography variant="subtitle2" sx={{ textAlign: 'right' }}>
-                            Rs. {gstAmount}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" alignItems="center" justifyContent="space-between">
-                          <Typography variant="h6" sx={{ textAlign: 'left' }}>
-                            Estimated Total Cost:
-                          </Typography>
-                          <Typography variant="h6" sx={{ textAlign: 'right' }}>
-                            Rs. {totalAmount}
+                            Rs. {totalAmount.toLocaleString()}
                           </Typography>
                         </Stack>
                       </Grid>
@@ -1677,7 +2040,12 @@ export default function FormsNewEditForm({
 
                   <Stack sx={{ mt: 3 }}>
                     <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                      {formId === '2' || formId === '5' || formId === '8' || formId === '7' || formId === '9'
+                      {formId === '2' ||
+                      formId === '5' ||
+                      formId === '8' ||
+                      formId === '7' ||
+                      formId === '11' ||
+                      formId === '12'
                         ? 'Submit & Pay'
                         : 'Submit'}
                     </LoadingButton>
@@ -1685,7 +2053,12 @@ export default function FormsNewEditForm({
                 </>
               )}
 
-              {(formId === '2' || formId === '5' || formId === '8' || formId === '7' || formId === '9') &&
+              {(formId === '2' ||
+                formId === '5' ||
+                formId === '8' ||
+                formId === '7' ||
+                formId === '11' ||
+                formId === '12') &&
                 formData &&
                 formData?.formDetail &&
                 formData?.formDetail?.paymentStatus !== 'captured' &&
@@ -1943,6 +2316,7 @@ export default function FormsNewEditForm({
         exhibitorFormDetailId={currentForm?.exhibitorFormId}
         email={values?.email}
         reFetchFormData={reFetchFormData}
+        offlineOnly={true}
       />
     </>
   );

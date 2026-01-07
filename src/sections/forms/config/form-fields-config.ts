@@ -32,7 +32,8 @@ interface IFormConfig {
         };
       };
       required?: boolean;
-      disabled?: boolean;
+      disabled?: boolean | ((formValues: any) => boolean);
+      visible?: (formValues: any) => boolean;
       gridItem?: {
         xs?: number;
         sm?: number;
@@ -59,53 +60,67 @@ interface IFormConfig {
 
 const standDesignSchema: IFormConfig = {
   schema: Yup.object().shape({
-    exhibitorName: Yup.string().required('Exhibitor is required'),
-    standHallNo: Yup.string().required('Stand & Hall No. is required'),
-    contactPerson: Yup.string().required('Contact Person is required'),
-    addressLine1: Yup.string().required('Address is required'),
-    addressLine2: Yup.string(),
-    tel: Yup.string().required('Tel is required'),
-    fax: Yup.string(),
+    companyOrganizationName: Yup.string(),
+    hallNo: Yup.string(),
+    stallNo: Yup.string(),
+    conatctPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
     standContractorName: Yup.string().required('Stand Contractor / Architect is required'),
     standContractorContactPerson: Yup.string().required('Contractor Contact Person is required'),
-    standContractorAddressLine1: Yup.string().required('Contractor Address is required'),
-    standContractorAddressLine2: Yup.string(),
+    standContractorAddress: Yup.string().required('Contractor Address is required'),
     standContractorTel: Yup.string().required('Contractor Tel is required'),
     standContractorFax: Yup.string(),
-    certifiedStandDrawings: Yup.array()
-      .min(1, 'At least one certified stand drawing is required')
-      .required('Certified stand drawings are required'),
-    organizerApprovedStandDrawings: Yup.array()
-      .min(1, 'At least one organizer approved stand drawing is required')
-      .required('Organizer approved stand drawings are required'),
+
+    topView: Yup.array().min(1, 'Top View is required'),
+    frontElevation: Yup.array().min(1, 'Front Elevation is required'),
+    sideElevation: Yup.array().min(1, 'Side Elevation is required'),
+    threeDView: Yup.array().min(1, '3D View is required'),
+    safeStabilityStructureCertificate: Yup.array().optional(),
+
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
       .oneOf([true], 'You must confirm the details before submitting'),
   }),
   defaultValues: (formData: any) => ({
-    exhibitorName: formData?.exhibitorName || formData?.companyOrganizationName || '',
-    standHallNo: formData?.standHallNo || formData?.stallNo || '',
-    contactPerson: formData?.contactPerson || '',
-    addressLine1: formData?.addressLine1 || '',
-    addressLine2: formData?.addressLine2 || '',
-    tel: formData?.tel || formData?.phone || '',
-    fax: formData?.fax || '',
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+
     standContractorName: formData?.standContractorName || formData?.standContractor || '',
-    standContractorContactPerson:
-      formData?.standContractorContactPerson || '',
-    standContractorAddressLine1: formData?.standContractorAddressLine1 || '',
-    standContractorAddressLine2: formData?.standContractorAddressLine2 || '',
+    standContractorContactPerson: formData?.standContractorContactPerson || '',
+    standContractorAddress: formData?.standContractorAddress || '',
     standContractorTel: formData?.standContractorTel || '',
     standContractorFax: formData?.standContractorFax || '',
-    certifiedStandDrawings: formData?.certifiedStandDrawings || [],
-    organizerApprovedStandDrawings: formData?.organizerApprovedStandDrawings || [],
+
+    topView: formData?.topView || [],
+    frontElevation: formData?.frontElevation || [],
+    sideElevation: formData?.sideElevation || [],
+    threeDView: formData?.threeDView || [],
+    safeStabilityStructureCertificate: formData?.safeStabilityStructureCertificate || [],
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
     fields: [
       {
-        name: 'exhibitorName',
-        label: 'Exhibitor*',
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
         type: 'text',
         required: true,
         disabled: true,
@@ -115,8 +130,8 @@ const standDesignSchema: IFormConfig = {
         },
       },
       {
-        name: 'standHallNo',
-        label: 'Stand & Hall No.*',
+        name: 'stallNo',
+        label: 'Stall No.*',
         type: 'text',
         required: true,
         disabled: true,
@@ -126,32 +141,8 @@ const standDesignSchema: IFormConfig = {
         },
       },
       {
-        name: 'contactPerson',
-        label: 'Contact Person*',
-        type: 'text',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'addressLine1',
-        label: 'Address*',
-        type: 'text',
-        required: true,
-        disabled: true,
-      },
-      {
-        name: 'addressLine2',
-        label: 'Address Line 2',
-        type: 'text',
-        required: false,
-        disabled: true,
-      },
-      {
-        name: 'tel',
-        label: 'Tel*',
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
         type: 'text',
         required: true,
         disabled: true,
@@ -161,10 +152,33 @@ const standDesignSchema: IFormConfig = {
         },
       },
       {
-        name: 'fax',
-        label: 'Fax',
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
         type: 'text',
-        required: false,
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email ID*',
+        type: 'email',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Mobile No.*',
+        type: 'phone',
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -183,16 +197,10 @@ const standDesignSchema: IFormConfig = {
         required: true,
       },
       {
-        name: 'standContractorAddressLine1',
+        name: 'standContractorAddress',
         label: 'Contractor Address*',
         type: 'text',
         required: true,
-      },
-      {
-        name: 'standContractorAddressLine2',
-        label: 'Contractor Address Line 2',
-        type: 'text',
-        required: false,
       },
       {
         name: 'standContractorTel',
@@ -215,40 +223,84 @@ const standDesignSchema: IFormConfig = {
         },
       },
       {
-        name: 'certifiedStandDrawings',
-        label: 'Certified Stand Drawings (Certified by Structural Engineer, elevations, layout plan, perspective, with dimensions)',
-        type: 'file-multiple',
-        required: true,
-        maxSize: 10485760, // 10 MB
+        name: 'topView',
+        label: 'Top View*',
+        type: 'file',
         allowedTypes: {
-          'image/png': ['.png'],
-          'image/jpeg': ['.jpg', '.jpeg'],
           'application/pdf': ['.pdf'],
+          'word/document': ['.doc', '.docx'],
         },
         gridItem: {
           xs: 12,
+          sm: 6,
         },
+        required: true,
+        maxSize: 5242880,
       },
       {
-        name: 'organizerApprovedStandDrawings',
-        label: 'Organizer Approved Stand Drawings (with dimensions, 2 sets)',
-        type: 'file-multiple',
-        required: true,
-        maxSize: 10485760, // 10 MB
+        name: 'frontElevation',
+        label: 'Front Elevation*',
+        type: 'file',
         allowedTypes: {
-          'image/png': ['.png'],
-          'image/jpeg': ['.jpg', '.jpeg'],
           'application/pdf': ['.pdf'],
+          'word/document': ['.doc', '.docx'],
         },
         gridItem: {
           xs: 12,
+          sm: 6,
         },
+        required: true,
+        maxSize: 5242880,
+      },
+      {
+        name: 'sideElevation',
+        label: 'Side Elevation*',
+        type: 'file',
+        allowedTypes: {
+          'application/pdf': ['.pdf'],
+          'word/document': ['.doc', '.docx'],
+        },
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+        required: true,
+        maxSize: 5242880,
+      },
+      {
+        name: 'threeDView',
+        label: '3D View*',
+        type: 'file',
+        allowedTypes: {
+          'application/pdf': ['.pdf'],
+          'word/document': ['.doc', '.docx'],
+        },
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+        required: true,
+        maxSize: 5242880,
+      },
+      {
+        name: 'safeStabilityStructureCertificate',
+        label: 'Safe Stability Structure Certificate',
+        type: 'file',
+        allowedTypes: {
+          'application/pdf': ['.pdf'],
+          'word/document': ['.doc', '.docx'],
+        },
+        required: false,
+        maxSize: 5242880,
+      },
+      {
+        name: 'finalConfirmation',
+        label:
+          'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
+        type: 'checkbox',
+        required: true,
       },
     ],
-    declaration: {
-      required: true,
-      text: 'We confirm that we have read, understood, and agree to comply with and to be bound by the Terms & Conditions.',
-    },
   },
 };
 
@@ -257,9 +309,13 @@ const basicCatalogueEntrySchema: IFormConfig = {
     productIndexNo: Yup.string()
       .required('Product Index No. is required')
       .matches(/^(\d+)(\.(\d+))*$/, 'Only numbers and dots allowed, e.g., 2.3.4'),
-    productIndexNo2: Yup.string()
-      .matches(/^(\d+)(\.(\d+))*$/, 'Only numbers and dots allowed, e.g., 2.3.4'),
-    registeredCompanyName: Yup.string().required('Registered name of Exhibitor/Company is required'),
+    productIndexNo2: Yup.string().matches(
+      /^(\d+)(\.(\d+))*$/,
+      'Only numbers and dots allowed, e.g., 2.3.4'
+    ),
+    registeredCompanyName: Yup.string().required(
+      'Registered name of Exhibitor/Company is required'
+    ),
     addressLine1: Yup.string().required('Address is required'),
     addressLine2: Yup.string(),
     stateProvinceRegion: Yup.string().required('State is required'),
@@ -269,7 +325,7 @@ const basicCatalogueEntrySchema: IFormConfig = {
     fax: Yup.string(),
     email: Yup.string().email('Invalid email format').required('Email is required'),
     website: Yup.string().url('Invalid website URL'),
-    organizationHeadName: Yup.string().required('Name of the Organization\'s Head is required'),
+    organizationHeadName: Yup.string().required("Name of the Organization's Head is required"),
     contactPerson: Yup.string().required('Contact Person is required'),
     standNo: Yup.string().required('Stand no. is required'),
     city: Yup.string(),
@@ -279,10 +335,12 @@ const basicCatalogueEntrySchema: IFormConfig = {
   }),
   defaultValues: (formData: any) => ({
     productIndexNo: formData?.productIndexNo || '',
-    registeredCompanyName: formData?.registeredCompanyName || formData?.companyOrganizationName || '',
+    registeredCompanyName:
+      formData?.registeredCompanyName || formData?.companyOrganizationName || '',
     addressLine1: formData?.billingAddressLine1 || formData?.addressLine1 || '',
     addressLine2: formData?.billingAddressLine2 || formData?.addressLine2 || '',
-    stateProvinceRegion: formData?.billingStateProvinceRegion || formData?.stateProvinceRegion || '',
+    stateProvinceRegion:
+      formData?.billingStateProvinceRegion || formData?.stateProvinceRegion || '',
     country: formData?.billingCountry || formData?.country || '',
     postalCode: formData?.billingPostalCode || formData?.postalCode || '',
     phone: formData?.phone || '',
@@ -449,55 +507,42 @@ const basicCatalogueEntrySchema: IFormConfig = {
 
 const electricityFormSchema: IFormConfig = {
   schema: Yup.object().shape({
-    exhibitorName: Yup.string().required('Exhibitor is required'),
-    standNo: Yup.string().required('Stand No. is required'),
-    hallNo: Yup.string().required('Hall No. is required'),
-    contactPerson: Yup.string().required('Contact Person is required'),
-    date: Yup.string().required('Date is required'),
-    tel: Yup.string().required('Tel is required'),
+    companyOrganizationName: Yup.string(),
+    hallNo:Yup.string(),
+    stallNo: Yup.string(),
+    contactPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
     powerLoadRequired: Yup.number()
-      .required('Power Load Required (kw) is required')
+      .required('Power Load Required is required')
       .min(1, 'Power Load Required must be at least 1'),
-    totalDues: Yup.number(),
-    demandDraftNo: Yup.string(),
-    demandDraftFor: Yup.string(),
-    demandDraftAmount: Yup.string(),
-    banker: Yup.string(),
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
       .oneOf([true], 'You must confirm the details before submitting'),
   }),
   defaultValues: (formData: any) => ({
-    exhibitorName: formData?.exhibitorName || formData?.companyOrganizationName || '',
-    standNo: formData?.standNo || formData?.stallNo || '',
+    companyOrganizationName: formData?.companyOrganizationName || '',
     hallNo: formData?.hallNo || '',
-    contactPerson: formData?.contactPerson || '',
-    date: formData?.date || '',
-    tel: formData?.tel || formData?.phone || '',
-    powerLoadRequired: formData?.powerLoadRequired || formData?.requiredKW || 0,
-    totalDues: formData?.totalDues || 0,
-    demandDraftNo: formData?.demandDraftNo || '',
-    demandDraftFor: formData?.demandDraftFor || '',
-    demandDraftAmount: formData?.demandDraftAmount || '',
-    banker: formData?.banker || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+    powerLoadRequired: formData?.powerLoadRequired || 0,
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
     fields: [
       {
-        name: 'exhibitorName',
-        label: 'Exhibitor*',
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
         type: 'text',
         required: true,
-      },
-      {
-        name: 'standNo',
-        label: 'Stand No.*',
-        type: 'text',
-        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
-          sm: 6,
         },
       },
       {
@@ -505,36 +550,62 @@ const electricityFormSchema: IFormConfig = {
         label: 'Hall No.*',
         type: 'text',
         required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'contactPerson',
-        label: 'Contact Person*',
+        name: 'stallNo',
+        label: 'Stall No.*',
         type: 'text',
         required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'date',
-        label: 'Date*',
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
         type: 'text',
         required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'tel',
-        label: 'Tel*',
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email*',
+        type: 'email',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Phone Number*',
         type: 'phone',
         required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -542,7 +613,7 @@ const electricityFormSchema: IFormConfig = {
       },
       {
         name: 'powerLoadRequired',
-        label: 'Power Load Required - kw @ Rs. 3000/- + 18 % GST*',
+        label: 'POWER LOAD REQUIRED - kw @ Rs. 3000/- + 18 % GST',
         type: 'number',
         required: true,
         gridItem: {
@@ -550,92 +621,170 @@ const electricityFormSchema: IFormConfig = {
         },
       },
       {
-        name: 'totalDues',
-        label: 'Total Dues Rs.',
-        type: 'number',
-        required: false,
+        name: 'finalConfirmation',
+        label:
+          'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
+        type: 'checkbox',
+        required: true,
+      },
+    ],
+  },
+};
+
+const waterConnectionServicesSchema: IFormConfig = {
+  schema: Yup.object().shape({
+    companyOrganizationName: Yup.string(),
+    hallNo:Yup.string(),
+    stallNo: Yup.string(),
+    contactPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
+    waterPerPointRequired: Yup.number()
+      .required('Water Point Required is required')
+      .min(1, 'Water Point Required must be at least 1'),
+    finalConfirmation: Yup.boolean()
+      .required('You must confirm the details before submitting')
+      .oneOf([true], 'You must confirm the details before submitting'),
+  }),
+  defaultValues: (formData: any) => ({
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+    waterPerPointRequired: formData?.waterPerPointRequired || 0,
+    finalConfirmation: formData?.finalConfirmation || false,
+  }),
+  structure: {
+    fields: [
+      {
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
         disabled: true,
         gridItem: {
           xs: 12,
         },
       },
       {
-        name: 'demandDraftNo',
-        label: 'Demand Draft No.',
+        name: 'hallNo',
+        label: 'Hall No.*',
         type: 'text',
-        required: false,
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'demandDraftFor',
-        label: 'For Rs.',
+        name: 'stallNo',
+        label: 'Stall No.*',
         type: 'text',
-        required: false,
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'demandDraftAmount',
-        label: 'Rs.',
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
         type: 'text',
-        required: false,
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'banker',
-        label: 'Banker',
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
         type: 'text',
-        required: false,
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email*',
+        type: 'email',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Phone Number*',
+        type: 'phone',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'waterPerPointRequired',
+        label: 'Water Per Point Required',
+        type: 'number',
+        required: true,
+        gridItem: {
+          xs: 12,
         },
       },
       {
         name: 'finalConfirmation',
         label:
-          'We confirm that we have read, understood, and agree to comply with and to be bound by the Terms & Conditions.',
+          'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
         type: 'checkbox',
         required: true,
       },
     ],
-    declaration: {
-      required: true,
-      text: 'The Organisers Will Only Provide 4 Spotlights & One Plug Socket (5/15 Amp) In A 12 Sq. Mt. Booth (Additional power requirement need to be applied). Any gadget requiring 24 hours electric load to be included in power load requirement and the numbers intimated to organizer while taking possession, charges applicable as per requirement. Important: Requests Received Without Payment Or After The Prescribed Date Will Not Be Entertained. Further, Payment For Electricity Load Once Deposited Will Not Be Refunded.',
-    },
   },
 };
 
 const additionalCatalogueEntrySchema: IFormConfig = {
   schema: Yup.object().shape({
-    exhibitorName: Yup.string().required('Exhibitor is required'),
-    standNo: Yup.string().required('Stand no. is required'),
-    contactPerson: Yup.string().required('Contact is required'),
+    companyOrganizationName: Yup.string(),
+    hallNo: Yup.string(),
+    stallNo: Yup.string(),
+    conatctPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
+
     additionalProductIndexNo: Yup.string()
       .required('Additional Product Index No. is required')
       .test(
         'valid-multiple-index',
         'Enter one or more product index numbers separated by commas. Each must be in the format 2.3.4',
-        value => {
+        (value) => {
           if (!value) return false;
-          return value.split(',').every(v => v.trim().match(/^(\d+)(\.(\d+))*$/));
+          return value.split(',').every((v) => v.trim().match(/^(\d+)(\.(\d+))*$/));
         }
       ),
     logoOption: Yup.string().required('Logo selection is required'),
     companyLogoFile: Yup.array().when('logoOption', {
       is: 'with_logo',
       then: (schema) =>
-        schema.min(1, 'Company logo is required when selecting with company logo').required(
-          'Company logo is required when selecting with company logo'
-        ),
+        schema
+          .min(1, 'Company logo is required when selecting with company logo')
+          .required('Company logo is required when selecting with company logo'),
       otherwise: (schema) => schema.optional(),
     }),
     productCompanyProfile: Yup.string().required('Product / Company Profile is required'),
@@ -650,9 +799,14 @@ const additionalCatalogueEntrySchema: IFormConfig = {
       .oneOf([true], 'You must confirm the details before submitting'),
   }),
   defaultValues: (formData: any) => ({
-    exhibitorName: formData?.exhibitorName || formData?.companyOrganizationName || '',
-    standNo: formData?.standNo || formData?.stallNo || '',
-    contactPerson: formData?.contactPerson || '',
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+
     additionalProductIndexNo: formData?.additionalProductIndexNo || '',
     logoOption: formData?.logoOption || '',
     companyLogoFile: formData?.companyLogoFile || [],
@@ -664,8 +818,18 @@ const additionalCatalogueEntrySchema: IFormConfig = {
   structure: {
     fields: [
       {
-        name: 'exhibitorName',
-        label: 'Exhibitor*',
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
         type: 'text',
         required: true,
         disabled: true,
@@ -675,8 +839,8 @@ const additionalCatalogueEntrySchema: IFormConfig = {
         },
       },
       {
-        name: 'standNo',
-        label: 'Stand#*',
+        name: 'stallNo',
+        label: 'Stall No.*',
         type: 'text',
         required: true,
         disabled: true,
@@ -686,10 +850,44 @@ const additionalCatalogueEntrySchema: IFormConfig = {
         },
       },
       {
-        name: 'contactPerson',
-        label: 'Contact*',
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
         type: 'text',
         required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email ID*',
+        type: 'email',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Mobile No.*',
+        type: 'phone',
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -702,7 +900,6 @@ const additionalCatalogueEntrySchema: IFormConfig = {
         required: true,
         gridItem: {
           xs: 12,
-          sm: 6,
         },
         inputProps: {
           placeholder: 'e.g. 2.3.4, 5.6.7',
@@ -712,10 +909,7 @@ const additionalCatalogueEntrySchema: IFormConfig = {
         name: 'logoOption',
         label: 'Logo Selection*',
         type: 'radio-group',
-        options: [
-          'with_logo|With company logo',
-          'without_logo|Without company logo (soft copy of logo to be provided by the exhibitor)',
-        ],
+        options: ['with_logo|With company logo', 'without_logo|Without company logo'],
         required: true,
       },
       {
@@ -782,13 +976,14 @@ const additionalCatalogueEntrySchema: IFormConfig = {
 
 const badgesForConstruction: IFormConfig = {
   schema: Yup.object().shape({
-    exhibitorName: Yup.string().required('Exhibitor is required'),
-    standHallNo: Yup.string().required('Stand & Hall No. is required'),
-    contactPerson: Yup.string().required('Contact Person is required'),
-    addressLine1: Yup.string().required('Address is required'),
-    addressLine2: Yup.string(),
-    tel: Yup.string().required('Tel is required'),
-    fax: Yup.string(),
+    companyOrganizationName: Yup.string(),
+    hallNo: Yup.string(),
+    stallNo: Yup.string(),
+    conatctPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
     worker1Name: Yup.string(),
     worker1Address: Yup.string(),
     worker1Mobile: Yup.string(),
@@ -817,13 +1012,14 @@ const badgesForConstruction: IFormConfig = {
       .oneOf([true], 'You must confirm the details before submitting'),
   }),
   defaultValues: (formData: any) => ({
-    exhibitorName: formData?.exhibitorName || formData?.companyOrganizationName || '',
-    standHallNo: formData?.standHallNo || formData?.stallNo || '',
-    contactPerson: formData?.contactPerson || '',
-    addressLine1: formData?.addressLine1 || '',
-    addressLine2: formData?.addressLine2 || '',
-    tel: formData?.tel || formData?.phone || '',
-    fax: formData?.fax || '',
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+
     worker1Name: formData?.worker1Name || '',
     worker1Address: formData?.worker1Address || '',
     worker1Mobile: formData?.worker1Mobile || '',
@@ -839,9 +1035,12 @@ const badgesForConstruction: IFormConfig = {
     worker5Name: formData?.worker5Name || '',
     worker5Address: formData?.worker5Address || '',
     worker5Mobile: formData?.worker5Mobile || '',
-    standContractorName: formData?.standContractorName || formData?.standContractorCompanyName || '',
-    standContractorContactPerson: formData?.standContractorContactPerson || formData?.standContractorContactPersonName || '',
-    standContractorAddress: formData?.standContractorAddress || formData?.standContractorAddressLine1 || '',
+    standContractorName:
+      formData?.standContractorName || formData?.standContractorCompanyName || '',
+    standContractorContactPerson:
+      formData?.standContractorContactPerson || formData?.standContractorContactPersonName || '',
+    standContractorAddress:
+      formData?.standContractorAddress || formData?.standContractorAddressLine1 || '',
     standContractorTel: formData?.standContractorTel || formData?.standContractorPhone || '',
     standContractorFax: formData?.standContractorFax || '',
     collectorName: formData?.collectorName || '',
@@ -852,8 +1051,18 @@ const badgesForConstruction: IFormConfig = {
   structure: {
     fields: [
       {
-        name: 'exhibitorName',
-        label: 'Exhibitor*',
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
         type: 'text',
         required: true,
         disabled: true,
@@ -863,8 +1072,8 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
-        name: 'standHallNo',
-        label: 'Stand & Hall No.*',
+        name: 'stallNo',
+        label: 'Stall No.*',
         type: 'text',
         required: true,
         disabled: true,
@@ -874,28 +1083,8 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
-        name: 'contactPerson',
-        label: 'Contact Person*',
-        type: 'text',
-        required: true,
-      },
-      {
-        name: 'addressLine1',
-        label: 'Address*',
-        type: 'text',
-        required: true,
-        disabled: true,
-      },
-      {
-        name: 'addressLine2',
-        label: 'Address Line 2',
-        type: 'text',
-        required: false,
-        disabled: true,
-      },
-      {
-        name: 'tel',
-        label: 'Tel*',
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
         type: 'text',
         required: true,
         disabled: true,
@@ -905,10 +1094,33 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
-        name: 'fax',
-        label: 'Fax',
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
         type: 'text',
-        required: false,
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email ID*',
+        type: 'email',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Mobile No.*',
+        type: 'phone',
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1112,7 +1324,8 @@ const badgesForConstruction: IFormConfig = {
       },
       {
         name: 'collectorNote',
-        label: 'The above person will collect (number) of Contractor Badges on my behalf for following person .',
+        label:
+          'The above person will collect (number) of Contractor Badges on my behalf for following person .',
         type: 'note',
         gridItem: {
           xs: 12,
@@ -1158,217 +1371,73 @@ const badgesForConstruction: IFormConfig = {
 
 const authorityLetterSchema: IFormConfig = {
   schema: Yup.object().shape({
-    hallNo: Yup.string().required('Hall No. is required'),
-    standNo: Yup.string().required('Stand No. is required'),
-    organizationName: Yup.string().required('Name of the Organisation is required'),
-    addressLine1: Yup.string().required('Address is required'),
-    addressLine2: Yup.string(),
-    telephone: Yup.string().required('Telephone is required'),
-    email: Yup.string().email('Invalid email format').required('E-mail is required'),
-    contactExecutive: Yup.string().required('Contact Executive is required'),
-    standNumber: Yup.string().required('Stand Number is required'),
-    signatureDate: Yup.string().required('Date is required'),
-    signatoryName: Yup.string().required('Name is required'),
-    signatoryDesignation: Yup.string().required('Designation is required'),
-    finalConfirmation: Yup.boolean()
-      .required('You must confirm the details before submitting')
-      .oneOf([true], 'You must confirm the details before submitting'),
-  }),
-  defaultValues: (formData: any) => ({
-    hallNo: formData?.hallNo || '',
-    standNo: formData?.standNo || formData?.stallNo || '',
-    organizationName: formData?.organizationName || formData?.companyOrganizationName || '',
-    addressLine1: formData?.addressLine1 || '',
-    addressLine2: formData?.addressLine2 || '',
-    telephone: formData?.telephone || formData?.phone || '',
-    email: formData?.email || '',
-    contactExecutive: formData?.contactExecutive || '',
-    standNumber: formData?.standNumber || formData?.stallNo || '',
-    signatureDate: formData?.signatureDate || '',
-    signatoryName: formData?.signatoryName || '',
-    signatoryDesignation: formData?.signatoryDesignation || '',
-    finalConfirmation: formData?.finalConfirmation || false,
-  }),
-  structure: {
-    fields: [
-      {
-        name: 'hallNo',
-        label: 'Hall No.*',
-        type: 'text',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'standNo',
-        label: 'Stand No.*',
-        type: 'text',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'organizationName',
-        label: 'NAME OF THE ORGANISATION*',
-        type: 'text',
-        required: true,
-      },
-      {
-        name: 'addressLine1',
-        label: 'ADDRESS*',
-        type: 'text',
-        required: true,
-      },
-      {
-        name: 'addressLine2',
-        label: 'Address Line 2',
-        type: 'text',
-        required: false,
-      },
-      {
-        name: 'telephone',
-        label: 'TELEPHONE*',
-        type: 'phone',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'email',
-        label: 'E-MAIL*',
-        type: 'email',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'contactExecutive',
-        label: 'CONTACT EXECUTIVE*',
-        type: 'text',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'standNumber',
-        label: 'STAND NUMBER*',
-        type: 'text',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'signatoryName',
-        label: 'Name (Signatory)*',
-        type: 'text',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'signatoryDesignation',
-        label: 'Designation*',
-        type: 'text',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'signatureDate',
-        label: 'Date*',
-        type: 'text',
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'finalConfirmation',
-        label:
-          'We are enclosing a copy of our stand allotment letter and confirm that payment for stand charges in full has already been made.',
-            declaration: {
-              required: true,
-              text: 'To be typed on company letterhead and to be submitted at the time of taking possession of your stand but not later than 11th February 2026 by 12 noon at the exhibition ground.',
-            },
-        type: 'checkbox',
-        required: true,
-      },
-    ],
-  },
-};
-
-const securityServicesSchema: IFormConfig = {
-  schema: Yup.object().shape({
     companyOrganizationName: Yup.string(),
+    hallNo: Yup.string(),
     stallNo: Yup.string(),
-    firstName: Yup.string(),
-    lastName: Yup.string(),
+    conatctPersonName: Yup.string(),
     contactPersonDesignation: Yup.string(),
     phone: Yup.string(),
     email: Yup.string(),
-    dayShifts: Yup.array(),
-    nightShifts: Yup.array().test(
-      'at-least-one-shift',
-      'At least one day shift or night shift must be selected',
-      function (value) {
-        const { dayShifts = [] } = this.parent;
-        return dayShifts.length > 0 || (value && value.length > 0);
-      }
-    ),
-    totalNumberOfGuards: Yup.number()
-      .required('Total Number of Guards is required')
-      .min(1, 'Total Number of Guards must be at least 1'),
+
+    undertakingOfNoRetailSale: Yup.array()
+      .min(1, 'At least one file is required')
+      .required('Undertaking of No Retail Sale Letter is required'),
+
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
       .oneOf([true], 'You must confirm the details before submitting'),
   }),
   defaultValues: (formData: any) => ({
     companyOrganizationName: formData?.companyOrganizationName || '',
-    firstName: formData?.firstName || '',
-    lastName: formData?.lastName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
     contactPersonDesignation: formData?.contactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
-    stallNo: formData?.stallNo || '',
-    dayShifts: formData?.dayShifts || [],
-    nightShifts: formData?.nightShifts || [],
-    totalNumberOfGuards: formData?.totalNumberOfGuards || 0,
+    undertakingOfNoRetailSale: formData?.undertakingOfNoRetailSale || [],
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
     fields: [
       {
-        name: 'firstName',
-        label: 'Contact Person First Name*',
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
         type: 'text',
         required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'lastName',
-        label: 'Contact Person Last Name*',
+        name: 'stallNo',
+        label: 'Stall No.*',
         type: 'text',
         required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1379,6 +1448,7 @@ const securityServicesSchema: IFormConfig = {
         label: 'Contact Person Designation*',
         type: 'text',
         required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1389,6 +1459,7 @@ const securityServicesSchema: IFormConfig = {
         label: 'Email ID*',
         type: 'email',
         required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1399,48 +1470,22 @@ const securityServicesSchema: IFormConfig = {
         label: 'Mobile No.*',
         type: 'phone',
         required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'dayShifts',
-        label: 'Day Shifts',
-        type: 'checkbox-group',
-        options: [
-          'Thu|25|25th September 2025',
-          'Fri|26|26th September 2025',
-          'Sat|27|27th September 2025',
-          'Sun|28|28th September 2025',
-          'Mon|29|29th September 2025',
-        ],
-        required: false,
-        gridItem: {
-          xs: 12,
-        },
-      },
-      {
-        name: 'nightShifts',
-        label: 'Night Shifts',
-        type: 'checkbox-group',
-        options: [
-          'Thu|25|25th September 2025',
-          'Fri|26|26th September 2025',
-          'Sat|27|27th September 2025',
-          'Sun|28|28th September 2025',
-          'Mon|29|29th September 2025',
-        ],
-        required: false,
-        gridItem: {
-          xs: 12,
-        },
-      },
-      {
-        name: 'totalNumberOfGuards',
-        label: 'Total Number of Guards*',
-        type: 'number',
+        name: 'authorityLetterForPossessionOfStand',
+        label: 'Upload Authority Letter for Possession of Stand*',
+        type: 'file',
         required: true,
+        maxSize: 5242880,
+        allowedTypes: {
+          'application/pdf': ['.pdf'],
+          'word/document': ['.doc', '.docx'],
+        },
       },
       {
         name: 'finalConfirmation',
@@ -1453,52 +1498,207 @@ const securityServicesSchema: IFormConfig = {
   },
 };
 
-const housekeepingServicesSchema: IFormConfig = {
+const securityServicesSchema: IFormConfig = {
   schema: Yup.object().shape({
     companyOrganizationName: Yup.string(),
+    hallNo: Yup.string(),
     stallNo: Yup.string(),
-    firstName: Yup.string(),
-    lastName: Yup.string(),
+    conatctPersonName: Yup.string(),
     contactPersonDesignation: Yup.string(),
     phone: Yup.string(),
     email: Yup.string(),
-    dates: Yup.array().min(1, 'Dates is required'),
-    totalNumberOfHousekeepers: Yup.number()
-      .required('Total Number of Housekeeping Boys is required')
-      .min(1, 'Total Number of Housekeeping Boys must be at least 1'),
+
+    dayShifts: Yup.array(),
+    nightShifts: Yup.array().test(
+      'at-least-one-shift',
+      'At least one day shift or night shift must be selected',
+      function (value) {
+        const { dayShifts = [] } = this.parent;
+        return dayShifts.length > 0 || (value && value.length > 0);
+      }
+    ),
+    noOfDayShiftGuards_09: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('09th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift guards for 09/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftGuards_09: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('09th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift guards for 09/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftGuards_10: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('10th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift guards for 10/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftGuards_10: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('10th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift guards for 10/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftGuards_11: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('11th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift guards for 11/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftGuards_11: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('11th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift guards for 11/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftGuards_12: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('12th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift guards for 12/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftGuards_12: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('12th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift guards for 12/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftGuards_13: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('13th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift guards for 13/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftGuards_13: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('13th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift guards for 13/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftGuards_14: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('14th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift guards for 14/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftGuards_14: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('14th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift guards for 14/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
       .oneOf([true], 'You must confirm the details before submitting'),
   }),
   defaultValues: (formData: any) => ({
     companyOrganizationName: formData?.companyOrganizationName || '',
-    firstName: formData?.firstName || '',
-    lastName: formData?.lastName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
     contactPersonDesignation: formData?.contactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
-    stallNo: formData?.stallNo || '',
-    dates: formData?.dates || [],
-    totalNumberOfHousekeepers: formData?.totalNumberOfHousekeepers || 0,
+    dayShifts: formData?.dayShifts || [],
+    nightShifts: formData?.nightShifts || [],
+    noOfDayShiftGuards_09: formData?.noOfDayShiftGuards_09 || formData?.dayShiftGuards_09 || 0,
+    noOfNightShiftGuards_09:
+      formData?.noOfNightShiftGuards_09 || formData?.nightShiftGuards_09 || 0,
+    noOfDayShiftGuards_10: formData?.noOfDayShiftGuards_10 || formData?.dayShiftGuards_10 || 0,
+    noOfNightShiftGuards_10:
+      formData?.noOfNightShiftGuards_10 || formData?.nightShiftGuards_10 || 0,
+    noOfDayShiftGuards_11: formData?.noOfDayShiftGuards_11 || formData?.dayShiftGuards_11 || 0,
+    noOfNightShiftGuards_11:
+      formData?.noOfNightShiftGuards_11 || formData?.nightShiftGuards_11 || 0,
+    noOfDayShiftGuards_12: formData?.noOfDayShiftGuards_12 || formData?.dayShiftGuards_12 || 0,
+    noOfNightShiftGuards_12:
+      formData?.noOfNightShiftGuards_12 || formData?.nightShiftGuards_12 || 0,
+    noOfDayShiftGuards_13: formData?.noOfDayShiftGuards_13 || formData?.dayShiftGuards_13 || 0,
+    noOfNightShiftGuards_13:
+      formData?.noOfNightShiftGuards_13 || formData?.nightShiftGuards_13 || 0,
+    noOfDayShiftGuards_14: formData?.noOfDayShiftGuards_14 || formData?.dayShiftGuards_14 || 0,
+    noOfNightShiftGuards_14:
+      formData?.noOfNightShiftGuards_14 || formData?.nightShiftGuards_14 || 0,
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
     fields: [
       {
-        name: 'firstName',
-        label: 'Contact Person First Name*',
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
         type: 'text',
         required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'lastName',
-        label: 'Contact Person Last Name*',
+        name: 'stallNo',
+        label: 'Stall No.*',
         type: 'text',
         required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
+        type: 'text',
+        required: true,
+        disabled:true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1509,6 +1709,7 @@ const housekeepingServicesSchema: IFormConfig = {
         label: 'Contact Person Designation*',
         type: 'text',
         required: true,
+        disabled:true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1519,6 +1720,7 @@ const housekeepingServicesSchema: IFormConfig = {
         label: 'Email ID*',
         type: 'email',
         required: true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1529,32 +1731,621 @@ const housekeepingServicesSchema: IFormConfig = {
         label: 'Mobile No.*',
         type: 'phone',
         required: true,
+        disabled:true,
         gridItem: {
           xs: 12,
           sm: 6,
         },
       },
       {
-        name: 'dates',
-        label: 'Select Date(s)*:',
+        name: 'dayShifts',
+        label: 'Day Shifts',
         type: 'checkbox-group',
         options: [
-          'Thu|25|25th September 2025',
-          'Fri|26|26th September 2025',
-          'Sat|27|27th September 2025',
-          'Sun|28|28th September 2025',
-          'Mon|29|29th September 2025',
+          'Mon|09|09th February 2026',
+          'Tue|10|10th February 2026',
+          'Wed|11|11th February 2026',
+          'Thu|12|12th February 2026',
+          'Fri|13|13th February 2026',
+          'Sat|14|14th February 2026',
         ],
-        required: true,
+        required: false,
         gridItem: {
           xs: 12,
         },
       },
       {
-        name: 'totalNumberOfHousekeepers',
-        label: 'Total Number of Housekeeping Boys*',
+        name: 'noOfDayShiftGuards_09',
+        label: 'Day Shift No. of Guards on 09/02/2026',
         type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('09th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftGuards_10',
+        label: 'Day Shift No. of Guards on 10/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('10th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftGuards_11',
+        label: 'Day Shift No. of Guards on 11/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('11th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftGuards_12',
+        label: 'Day Shift No. of Guards on 12/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('12th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftGuards_13',
+        label: 'Day Shift No. of Guards on 13/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('13th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftGuards_14',
+        label: 'Day Shift No. of Guards on 14/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('14th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'nightShifts',
+        label: 'Night Shifts',
+        type: 'checkbox-group',
+        options: [
+          'Mon|09|09th February 2026',
+          'Tue|10|10th February 2026',
+          'Wed|11|11th February 2026',
+          'Thu|12|12th February 2026',
+          'Fri|13|13th February 2026',
+          'Sat|14|14th February 2026',
+        ],
+        required: false,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'noOfNightShiftGuards_09',
+        label: 'Night Shift No. of Guards on 09/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('09th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftGuards_10',
+        label: 'Night Shift No. of Guards on 10/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('10th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftGuards_11',
+        label: 'Night Shift No. of Guards on 11/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('11th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftGuards_12',
+        label: 'Night Shift No. of Guards on 12/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('12th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftGuards_13',
+        label: 'Night Shift No. of Guards on 13/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('13th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftGuards_14',
+        label: 'Night Shift No. of Guards on 14/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('14th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'finalConfirmation',
+        label:
+          'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
+        type: 'checkbox',
         required: true,
+      },
+    ],
+  },
+};
+
+const cleaningServicesSchema: IFormConfig = {
+  schema: Yup.object().shape({
+    companyOrganizationName: Yup.string(),
+    stallNo: Yup.string(),
+    hallNo: Yup.string(),
+    conatctPersonName: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+    dayShifts: Yup.array(),
+    nightShifts: Yup.array().test(
+      'at-least-one-shift',
+      'At least one day shift or night shift must be selected',
+      function (value) {
+        const { dayShifts = [] } = this.parent;
+        return dayShifts.length > 0 || (value && value.length > 0);
+      }
+    ),
+    noOfDayShiftCleaners_09: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('09th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift cleaners for 09/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftCleaners_09: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('09th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift cleaners for 09/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftCleaners_10: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('10th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift cleaners for 10/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftCleaners_10: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('10th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift guards for 10/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftCleaners_11: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('11th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift cleaners for 11/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftCleaners_11: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('11th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift cleaners for 11/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftCleaners_12: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('12th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift cleaners for 12/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftCleaners_12: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('12th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift cleaners for 12/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftCleaners_13: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('13th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift cleaners for 13/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftCleaners_13: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('13th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift cleaners for 13/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfDayShiftCleaners_14: Yup.number().when('dayShifts', {
+      is: (dayShifts: any[]) =>
+        Array.isArray(dayShifts) && dayShifts.includes('14th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Day shift cleaners for 14/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    noOfNightShiftCleaners_14: Yup.number().when('nightShifts', {
+      is: (nightShifts: any[]) =>
+        Array.isArray(nightShifts) && nightShifts.includes('14th February 2026'),
+      then: (schema) =>
+        schema
+          .required('Night shift cleaners for 14/02/2026 is required')
+          .min(1, 'This field is required'),
+      otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
+    }),
+    finalConfirmation: Yup.boolean()
+      .required('You must confirm the details before submitting')
+      .oneOf([true], 'You must confirm the details before submitting'),
+  }),
+  defaultValues: (formData: any) => ({
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+    dayShifts: formData?.dayShifts || [],
+    nightShifts: formData?.nightShifts || [],
+    noOfDayShiftCleaners_09:
+      formData?.noOfDayShiftCleaners_09 || formData?.dayShiftCleaners_09 || 0,
+    noOfNightShiftCleaners_09:
+      formData?.noOfNightShiftCleaners_09 || formData?.nightShiftCleaners_09 || 0,
+    noOfDayShiftCleaners_10:
+      formData?.noOfDayShiftCleaners_10 || formData?.dayShiftCleaners_10 || 0,
+    noOfNightShiftCleaners_10:
+      formData?.noOfNightShiftCleaners_10 || formData?.nightShiftCleaners_10 || 0,
+    noOfDayShiftCleaners_11:
+      formData?.noOfDayShiftCleaners_11 || formData?.dayShiftCleaners_11 || 0,
+    noOfNightShiftCleaners_11:
+      formData?.noOfNightShiftCleaners_11 || formData?.nightShiftCleaners_11 || 0,
+    noOfDayShiftCleaners_12:
+      formData?.noOfDayShiftCleaners_12 || formData?.dayShiftCleaners_12 || 0,
+    noOfNightShiftCleaners_12:
+      formData?.noOfNightShiftCleaners_12 || formData?.nightShiftCleaners_12 || 0,
+    noOfDayShiftCleaners_13:
+      formData?.noOfDayShiftCleaners_13 || formData?.dayShiftCleaners_13 || 0,
+    noOfNightShiftCleaners_13:
+      formData?.noOfNightShiftCleaners_13 || formData?.nightShiftCleaners_13 || 0,
+    noOfDayShiftCleaners_14:
+      formData?.noOfDayShiftCleaners_14 || formData?.dayShiftCleaners_14 || 0,
+    noOfNightShiftCleaners_14:
+      formData?.noOfNightShiftCleaners_14 || formData?.nightShiftCleaners_14 || 0,
+    finalConfirmation: formData?.finalConfirmation || false,
+  }),
+  structure: {
+    fields: [
+      {
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'stallNo',
+        label: 'Stall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
+        type: 'text',
+        required: true,
+        disabled:true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
+        type: 'text',
+        required: true,
+        disabled:true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email ID*',
+        type: 'email',
+        required: true,
+        disabled:true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Mobile No.*',
+        type: 'phone',
+        required: true,
+        disabled:true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'dayShifts',
+        label: 'Day Shifts',
+        type: 'checkbox-group',
+        options: [
+          'Mon|09|09th February 2026',
+          'Tue|10|10th February 2026',
+          'Wed|11|11th February 2026',
+          'Thu|12|12th February 2026',
+          'Fri|13|13th February 2026',
+          'Sat|14|14th February 2026',
+        ],
+        required: false,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'noOfDayShiftCleaners_09',
+        label: 'Day Shift No. of Cleaners on 09/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('09th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftCleaners_10',
+        label: 'Day Shift No. of Cleaners on 10/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('10th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftCleaners_11',
+        label: 'Day Shift No. of Cleaners on 11/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('11th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftCleaners_12',
+        label: 'Day Shift No. of Cleaners on 12/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('12th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftCleaners_13',
+        label: 'Day Shift No. of Cleaners on 13/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('13th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfDayShiftCleaners_14',
+        label: 'Day Shift No. of Cleaners on 14/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.dayShifts?.includes('14th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'nightShifts',
+        label: 'Night Shifts',
+        type: 'checkbox-group',
+        options: [
+          'Mon|09|09th February 2026',
+          'Tue|10|10th February 2026',
+          'Wed|11|11th February 2026',
+          'Thu|12|12th February 2026',
+          'Fri|13|13th February 2026',
+          'Sat|14|14th February 2026',
+        ],
+        required: false,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'noOfNightShiftCleaners_09',
+        label: 'Night Shift No. of Cleaners on 09/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('09th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftCleaners_10',
+        label: 'Night Shift No. of Cleaners on 10/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('10th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftCleaners_11',
+        label: 'Night Shift No. of Cleaners on 11/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('11th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftCleaners_12',
+        label: 'Night Shift No. of Cleaners on 12/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('12th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftCleaners_13',
+        label: 'Night Shift No. of Cleaners on 13/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('13th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'noOfNightShiftCleaners_14',
+        label: 'Night Shift No. of Cleaners on 14/02/2026',
+        type: 'number',
+        required: false,
+        visible: (formValues: any) =>
+          formValues?.nightShifts?.includes('14th February 2026') || false,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
       },
       {
         name: 'finalConfirmation',
@@ -1668,8 +2459,7 @@ const itFormSchema: IFormConfig = {
   schema: Yup.object().shape({
     companyOrganizationName: Yup.string(),
     stallNo: Yup.string(),
-    firstName: Yup.string(),
-    lastName: Yup.string(),
+    conatctPersonName: Yup.string(),
     contactPersonDesignation: Yup.string(),
     phone: Yup.string(),
     email: Yup.string(),
@@ -1733,8 +2523,7 @@ const itFormSchema: IFormConfig = {
 
   defaultValues: (formData: any) => ({
     companyOrganizationName: formData?.companyOrganizationName || '',
-    firstName: formData?.firstName || '',
-    lastName: formData?.lastName || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
     contactPersonDesignation: formData?.contactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
@@ -1753,20 +2542,11 @@ const itFormSchema: IFormConfig = {
   structure: {
     fields: [
       {
-        name: 'firstName',
-        label: 'Contact Person First Name*',
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
         type: 'text',
         required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'lastName',
-        label: 'Contact Person Last Name*',
-        type: 'text',
-        required: true,
+        disabled:true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1777,6 +2557,7 @@ const itFormSchema: IFormConfig = {
         label: 'Contact Person Designation*',
         type: 'text',
         required: true,
+        disabled:true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1787,6 +2568,7 @@ const itFormSchema: IFormConfig = {
         label: 'Email ID*',
         type: 'email',
         required: true,
+        disabled:true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1797,6 +2579,7 @@ const itFormSchema: IFormConfig = {
         label: 'Mobile No.*',
         type: 'phone',
         required: true,
+        disabled:true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1840,6 +2623,509 @@ const itFormSchema: IFormConfig = {
   },
 };
 
+const airConnectionServicesSchema: IFormConfig = {
+  schema: Yup.object().shape({
+    companyOrganizationName: Yup.string(),
+    hallNo:Yup.string(),
+    stallNo: Yup.string(),
+    contactPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
+    airPerConnectionRequired: Yup.number()
+      .required('Air Per Connection Required is required')
+      .min(1, 'Air Per Connection Required must be at least 1'),
+    finalConfirmation: Yup.boolean()
+      .required('You must confirm the details before submitting')
+      .oneOf([true], 'You must confirm the details before submitting'),
+  }),
+  defaultValues: (formData: any) => ({
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+    airPerConnectionRequired: formData?.airPerConnectionRequired || 0,
+    finalConfirmation: formData?.finalConfirmation || false,
+  }),
+  structure: {
+    fields: [
+      {
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'stallNo',
+        label: 'Stall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email*',
+        type: 'email',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Phone Number*',
+        type: 'phone',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'airPerConnectionRequired',
+        label: 'Air Per Connection Required',
+        type: 'number',
+        required: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'finalConfirmation',
+        label:
+          'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
+        type: 'checkbox',
+        required: true,
+      },
+    ],
+  },
+};
+
+const undertakingNoRetailSaleSchema: IFormConfig = {
+  schema: Yup.object().shape({
+    companyOrganizationName: Yup.string(),
+    hallNo: Yup.string(),
+    stallNo: Yup.string(),
+    conatctPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
+    undertakingOfNoRetailSale: Yup.array()
+      .min(1, 'At least one file is required')
+      .required('Undertaking of No Retail Sale Letter is required'),
+
+    finalConfirmation: Yup.boolean()
+      .required('You must confirm the details before submitting')
+      .oneOf([true], 'You must confirm the details before submitting'),
+  }),
+  defaultValues: (formData: any) => ({
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+    undertakingOfNoRetailSale: formData?.undertakingOfNoRetailSale || [],
+    finalConfirmation: formData?.finalConfirmation || false,
+  }),
+  structure: {
+    fields: [
+      {
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'stallNo',
+        label: 'Stall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
+        type: 'text',
+        required: true,
+        disabled:true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
+        type: 'text',
+        required: true,
+        disabled:true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email ID*',
+        type: 'email',
+        required: true,
+        disabled:true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Mobile No.*',
+        type: 'phone',
+        required: true,
+        disabled:true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'undertakingOfNoRetailSale',
+        label: 'Upload Undertaking of No Retail Sale Letter*',
+        type: 'file',
+        required: true,
+        maxSize: 5242880,
+        allowedTypes: {
+          'application/pdf': ['.pdf'],
+          'word/document': ['.doc', '.docx'],
+        },
+      },
+      {
+        name: 'finalConfirmation',
+        label:
+          'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
+        type: 'checkbox',
+        required: true,
+      },
+    ],
+  },
+};
+
+const gatePassFormSchema: IFormConfig = {
+  schema: Yup.object().shape({
+    companyOrganizationName: Yup.string(),
+    hallNo: Yup.string(),
+    stallNo: Yup.string(),
+    conatctPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
+    gatePassLetter: Yup.array()
+      .min(1, 'At least one file is required')
+      .required('Gate Pass Letter is required'),
+
+    finalConfirmation: Yup.boolean()
+      .required('You must confirm the details before submitting')
+      .oneOf([true], 'You must confirm the details before submitting'),
+  }),
+  defaultValues: (formData: any) => ({
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+    gatePassLetter: formData?.gatePassLetter || [],
+    finalConfirmation: formData?.finalConfirmation || false,
+  }),
+  structure: {
+    fields: [
+      {
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'stallNo',
+        label: 'Stall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'email',
+        label: 'Email ID*',
+        type: 'email',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'phone',
+        label: 'Mobile No.*',
+        type: 'phone',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'gatePassLetter',
+        label: 'Upload Gate Pass Letter*',
+        type: 'file',
+        required: true,
+        maxSize: 5242880,
+        allowedTypes: {
+          'application/pdf': ['.pdf'],
+          'word/document': ['.doc', '.docx'],
+        },
+      },
+      {
+        name: 'finalConfirmation',
+        label:
+          'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
+        type: 'checkbox',
+        required: true,
+      },
+    ],
+  },
+};
+
+const heavyLargeExhibitsFormSchema: IFormConfig = {
+  schema: Yup.object().shape({
+    companyOrganizationName: Yup.string(),
+    hallNo: Yup.string(),
+    stallNo: Yup.string(),
+    conatctPersonName: Yup.string(),
+    contactPersonDesignation: Yup.string(),
+    phone: Yup.string(),
+    email: Yup.string(),
+
+    largeExhibitEntries: Yup.array()
+      .of(
+        Yup.object().shape({
+          item: Yup.string().required('Items is required'),
+          dimensions: Yup.string().required('Dimensions is required'),
+          weightKg: Yup.number()
+            .typeError('Weight must be a number')
+            .positive('Weight must be positive')
+            .required('Weight is required'),
+          dateOfArrival: Yup.string().required('Date of arrival is required'),
+        })
+      )
+      .min(1, 'At least one entry is required')
+      .required('At least one entry is required'),
+  }),
+  defaultValues: (formData: any) => ({
+    companyOrganizationName: formData?.companyOrganizationName || '',
+    hallNo: formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
+    contactPersonDesignation: formData?.contactPersonDesignation || '',
+    phone: formData?.phone || '',
+    email: formData?.email || '',
+
+    largeExhibitEntries:
+      formData?.largeExhibitEntries && Array.isArray(formData.largeExhibitEntries)
+        ? formData.largeExhibitEntries
+        : [
+            {
+              item: '',
+              dimensions: '',
+              weightKg: '',
+              dateOfArrival: '',
+            },
+          ],
+  }),
+  structure: {
+    fields: [
+      {
+        name: 'companyOrganizationName',
+        label: 'Company Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: { xs: 12 },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: { xs: 12, sm: 6 },
+      },
+      {
+        name: 'stallNo',
+        label: 'Stall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: { xs: 12, sm: 6 },
+      },
+      {
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: { xs: 12, sm: 6 },
+      },
+      {
+        name: 'lastName',
+        label: 'Contact Person Last Name*',
+        type: 'text',
+        required: true,
+        gridItem: { xs: 12, sm: 6 },
+      },
+      {
+        name: 'contactPersonDesignation',
+        label: 'Contact Person Designation*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: { xs: 12, sm: 6 },
+      },
+      {
+        name: 'email',
+        label: 'Email ID*',
+        type: 'email',
+        required: true,
+        disabled: true,
+        gridItem: { xs: 12, sm: 6 },
+      },
+      {
+        name: 'phone',
+        label: 'Mobile No.*',
+        type: 'phone',
+        required: true,
+        disabled: true,
+        gridItem: { xs: 12, sm: 6 },
+      },
+    ],
+    declaration: {
+      required: true,
+      text: 'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
+    },
+  },
+};
+
 const formConfigs: { [key: string]: IFormConfig } = {
   '1': basicCatalogueEntrySchema,
   '2': additionalCatalogueEntrySchema,
@@ -1847,10 +3133,13 @@ const formConfigs: { [key: string]: IFormConfig } = {
   '4': badgesForConstruction,
   '5': electricityFormSchema,
   '6': authorityLetterSchema,
-  '7': securityServicesSchema,
-  '8': electricityFormSchema,
-  '9': housekeepingServicesSchema,
-  // '10': itFormSchema,
+  '7': airConnectionServicesSchema,
+  '8': waterConnectionServicesSchema,
+  '9': undertakingNoRetailSaleSchema,
+  '10': gatePassFormSchema,
+  '11': securityServicesSchema,
+  '12': cleaningServicesSchema,
+  '13': heavyLargeExhibitsFormSchema,
 };
 
 export const getFormConfig = (formId: string): IFormConfig | null => formConfigs[formId] || null;

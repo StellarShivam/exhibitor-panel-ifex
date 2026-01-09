@@ -692,7 +692,7 @@ export default function FormsNewEditForm({
   };
 
   // console.log(currentForm, 'currentForm*******');
-  const isFormDisabled = currentForm?.status === 'SUBMITTED' || currentForm?.status === 'PENDING';
+  const isFormDisabled = currentForm?.status === 'SUBMITTED' || currentForm?.status === 'PENDING' || currentForm?.status === 'APPROVED';
 
   return (
     <>

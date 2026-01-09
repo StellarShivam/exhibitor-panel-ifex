@@ -49,3 +49,19 @@ export function usePaymentByExhibitorID(exhibitorID: number) {
 
   return memoizedPayment;
 }
+
+export async function generateMultiReceipt(purchaseId: number) {
+  const token = tokenManager.getToken();
+  const url = apiEndpoints.paymentSummary.generateMultiReceipt + purchaseId;
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+  try {
+    const response = await axiosInstance2.get(url, { headers });
+    return response.data.data;
+  } catch (error) {
+    console.error('Error generating receipt:', error);
+    throw error;
+  }
+}

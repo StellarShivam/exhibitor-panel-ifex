@@ -306,6 +306,16 @@ const standDesignSchema: IFormConfig = {
 
 const basicCatalogueEntrySchema: IFormConfig = {
   schema: Yup.object().shape({
+    companyOrganizationName: Yup.string().required(
+      'Registered name of Exhibitor/Company is required'
+    ),
+    hallNo: Yup.string(),
+    stallNo: Yup.string().required('Stall no. is required'),
+    addressLine1: Yup.string().required('Address is required'),
+    stateProvinceRegion: Yup.string().required('State is required'),
+    country: Yup.string().required('Country is required'),
+    postalCode: Yup.string().required('Pin code is required'),
+
     productIndexNo: Yup.string()
       .required('Product Index No. is required')
       .matches(/^(\d+)(\.(\d+))*$/, 'Only numbers and dots allowed, e.g., 2.3.4'),
@@ -313,21 +323,12 @@ const basicCatalogueEntrySchema: IFormConfig = {
       /^(\d+)(\.(\d+))*$/,
       'Only numbers and dots allowed, e.g., 2.3.4'
     ),
-    registeredCompanyName: Yup.string().required(
-      'Registered name of Exhibitor/Company is required'
-    ),
-    addressLine1: Yup.string().required('Address is required'),
-    addressLine2: Yup.string(),
-    stateProvinceRegion: Yup.string().required('State is required'),
-    country: Yup.string().required('Country is required'),
-    postalCode: Yup.string().required('Pin code is required'),
     phone: Yup.string().required('Phone is required'),
     fax: Yup.string(),
     email: Yup.string().email('Invalid email format').required('Email is required'),
     website: Yup.string().url('Invalid website URL'),
     organizationHeadName: Yup.string().required("Name of the Organization's Head is required"),
-    contactPerson: Yup.string().required('Contact Person is required'),
-    standNo: Yup.string().required('Stand no. is required'),
+    contactPersonName: Yup.string().required('Contact Person Name is required'),
     city: Yup.string(),
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
@@ -335,10 +336,10 @@ const basicCatalogueEntrySchema: IFormConfig = {
   }),
   defaultValues: (formData: any) => ({
     productIndexNo: formData?.productIndexNo || '',
-    registeredCompanyName:
-      formData?.registeredCompanyName || formData?.companyOrganizationName || '',
+    productIndexNo2: formData?.productIndexNo2 || '',
+    companyOrganizationName:
+      formData?.companyOrganizationName || '',
     addressLine1: formData?.billingAddressLine1 || formData?.addressLine1 || '',
-    addressLine2: formData?.billingAddressLine2 || formData?.addressLine2 || '',
     stateProvinceRegion:
       formData?.billingStateProvinceRegion || formData?.stateProvinceRegion || '',
     country: formData?.billingCountry || formData?.country || '',
@@ -346,29 +347,18 @@ const basicCatalogueEntrySchema: IFormConfig = {
     phone: formData?.phone || '',
     fax: formData?.fax || '',
     email: formData?.email || '',
-    website: formData?.website || '',
+    hallNo:formData?.hallNo || '',
+    stallNo: formData?.stallNo || '',
+    website: formData?.data?.corporateWebsite || formData?.website || '',
     organizationHeadName: formData?.organizationHeadName || '',
-    contactPerson: formData?.contactPerson || '',
-    standNo: formData?.standNo || formData?.stallNo || '',
+    contactPersonName: formData?.firstName || formData?.contactPersonName || '',
     city: formData?.billingCity || formData?.city || '',
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
     fields: [
       {
-        name: 'productIndexNo',
-        label: 'Product Index No.*',
-        type: 'text',
-        required: true,
-      },
-      {
-        name: 'productIndexNo2',
-        label: 'Product Index No. 2',
-        type: 'text',
-        required: true,
-      },
-      {
-        name: 'registeredCompanyName',
+        name: 'companyOrganizationName',
         label: 'Registered name of Exhibitor/Company*',
         type: 'text',
         required: true,
@@ -379,13 +369,6 @@ const basicCatalogueEntrySchema: IFormConfig = {
         label: 'Address*',
         type: 'text',
         required: true,
-        disabled: true,
-      },
-      {
-        name: 'addressLine2',
-        label: 'Address Line 2',
-        type: 'text',
-        required: false,
         disabled: true,
       },
       {
@@ -413,6 +396,28 @@ const basicCatalogueEntrySchema: IFormConfig = {
       {
         name: 'postalCode',
         label: 'Pin code*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'hallNo',
+        label: 'Hall No.*',
+        type: 'text',
+        required: true,
+        disabled: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'stallNo',
+        label: 'Stall No.*',
         type: 'text',
         required: true,
         disabled: true,
@@ -470,8 +475,8 @@ const basicCatalogueEntrySchema: IFormConfig = {
         },
       },
       {
-        name: 'contactPerson',
-        label: 'Contact Person*',
+        name: 'contactPersonName',
+        label: 'Contact Person Name*',
         type: 'text',
         required: true,
         gridItem: {
@@ -480,15 +485,16 @@ const basicCatalogueEntrySchema: IFormConfig = {
         },
       },
       {
-        name: 'standNo',
-        label: 'Stand no.*',
+        name: 'productIndexNo',
+        label: 'Product Index No.*',
         type: 'text',
         required: true,
-        disabled: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
+      },
+      {
+        name: 'productIndexNo2',
+        label: 'Product Index No. 2',
+        type: 'text',
+        required: true,
       },
       {
         name: 'finalConfirmation',
@@ -1361,11 +1367,14 @@ const badgesForConstruction: IFormConfig = {
           sm: 4,
         },
       },
+      {
+        name: 'finalConfirmation',
+        label:
+          'I hereby confirm that all the provided information is accurate and final. I understand that no changes can be made after submission.',
+        type: 'checkbox',
+        required: true,
+      },
     ],
-    declaration: {
-      required: true,
-      text: 'We confirm that we have read, understood, and agree to comply with and to be bound by the Terms & Conditions.',
-    },
   },
 };
 
@@ -1379,9 +1388,9 @@ const authorityLetterSchema: IFormConfig = {
     phone: Yup.string(),
     email: Yup.string(),
 
-    undertakingOfNoRetailSale: Yup.array()
+    authorityLetter: Yup.array()
       .min(1, 'At least one file is required')
-      .required('Undertaking of No Retail Sale Letter is required'),
+      .required('Authority Letter is required'),
 
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
@@ -1395,7 +1404,7 @@ const authorityLetterSchema: IFormConfig = {
     contactPersonDesignation: formData?.contactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
-    undertakingOfNoRetailSale: formData?.undertakingOfNoRetailSale || [],
+    authorityLetter: formData?.authorityLetter || [],
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
@@ -1477,7 +1486,7 @@ const authorityLetterSchema: IFormConfig = {
         },
       },
       {
-        name: 'authorityLetterForPossessionOfStand',
+        name: 'authorityLetter',
         label: 'Upload Authority Letter for Possession of Stand*',
         type: 'file',
         required: true,

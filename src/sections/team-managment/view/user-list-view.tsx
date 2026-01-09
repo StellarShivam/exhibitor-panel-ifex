@@ -14,6 +14,8 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -47,6 +49,7 @@ import { IUserItem, IUserTableFilters, IUserTableFilterValue } from 'src/types/u
 
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
+import { useGetEventList1 } from 'src/api/event';
 
 // ----------------------------------------------------------------------
 
@@ -54,10 +57,12 @@ import UserTableToolbar from '../user-table-toolbar';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Team Member' },
-  { id: 'status', label: 'Status', width: 100 },
-  { id: 'lastUpdated', label: 'Last updated', width: 180 },
-  { id: 'permissions', label: 'Permissions', width: 320 },
-  { id: '', label: 'Action', width: 80 },
+  { id: 'designation', label: 'Designation' },
+  { id: 'phone', label: 'Phone' },
+  // { id: 'status', label: 'Status' },
+  { id: 'lastUpdated', label: 'Last updated' },
+  // { id: 'permissions', label: 'Permissions', width: 320 },
+  // { id: '', label: 'Action', width: 80 },
 ];
 
 const defaultFilters: IUserTableFilters = {
@@ -80,6 +85,7 @@ export default function UserListView() {
   const confirm = useBoolean();
 
   const { eventData } = useEventContext();
+  const { events, reFetchEventList } = useGetEventList1();
 
   const { exhibitorUsers, exhibitorUsersLoading, reFetchExhibitorUsers } = useGetExhibitorUsers(
     eventData?.state.exhibitorId
@@ -193,6 +199,39 @@ export default function UserListView() {
           }}
         />
 
+        <Stack
+          direction="row"
+          // alignItems="center"
+          gap={2}
+          // justifyContent="space-between"
+          sx={{
+            backgroundColor: '#00B8D929',
+            color: 'info.main',
+            border: '2px solid #00B8D920',
+            borderRadius: 1,
+            px: 2,
+            py: 1,
+            mb: 3,
+            width: '100%',
+          }}
+        >
+          <Stack direction="row" alignItems="start" spacing={1}>
+            {/* <InfoIcon sx={{ color: 'info.main' }} /> */}
+            <Typography variant="subtitle2" sx={{ color: 'info.main' }}>
+              <strong>•</strong> Total Members Allowed :{' '}
+              <strong>
+                {events.find((event) => event.eventId === eventData.state.eventId)?.totalBadgeCount}
+              </strong>
+            </Typography>
+          </Stack>
+          <Typography variant="subtitle2" sx={{ color: 'info.main', ml: 4 }}>
+            <strong>•</strong> Members Added:{' '}
+            <strong>
+              {events.find((event) => event.eventId === eventData.state.eventId)?.usedBadgeCount}
+            </strong>
+          </Typography>
+        </Stack>
+
         <Card>
           {/* <Tabs
             value={filters.status}
@@ -277,12 +316,12 @@ export default function UserListView() {
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => String(row.id))
-                    )
-                  }
+                  // onSelectAllRows={(checked) =>
+                  //   table.onSelectAllRows(
+                  //     checked,
+                  //     dataFiltered.map((row) => String(row.id))
+                  //   )
+                  // }
                 />
 
                 <TableBody>

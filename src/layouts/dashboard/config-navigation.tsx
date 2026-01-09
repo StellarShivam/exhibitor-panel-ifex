@@ -115,6 +115,10 @@ export function useNavData() {
               title: 'Transactions',
               path: paths.dashboard.transactions,
               icon: ICONS.banking,
+              children: [
+                { title: 'All', path: paths.dashboard.transactions },
+                { title: 'Service Request Forms', path: paths.dashboard.formsTransactions },
+              ],
             },
             {
               title: 'Exhibitor Profile',

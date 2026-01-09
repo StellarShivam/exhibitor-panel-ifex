@@ -29,6 +29,7 @@ import FormProvider, {
   RHFTextField,
   RHFUploadAvatar,
   RHFAutocomplete,
+  RHFPhoneField,
 } from 'src/components/hook-form';
 
 import { IUserItem } from 'src/types/user';
@@ -65,10 +66,10 @@ export default function UserNewEditForm({ currentUser }: Props) {
     lastName: Yup.string().required('Last Name is required'),
     designation: Yup.string().required('Designation is required'),
     email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    country: Yup.string().required('Country is required'),
+    // country: Yup.string().required('Country is required'),
     phoneNumber: Yup.string().required('Phone number is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
+    // state: Yup.string().required('State is required'),
+    // city: Yup.string().required('City is required'),
     // permissions: Yup.array().min(1, 'At least one permission is required'),
     // image: Yup.mixed<any>().nullable().required('Avatar is required'),
   });
@@ -79,10 +80,10 @@ export default function UserNewEditForm({ currentUser }: Props) {
       lastName: currentUser?.lastName || '',
       designation: currentUser?.designation || '',
       email: currentUser?.email || '',
-      country: currentUser?.country || '',
+      // country: currentUser?.country || '',
       phoneNumber: currentUser?.phone || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
+      // state: currentUser?.state || '',
+      // city: currentUser?.city || '',
       // permissions: currentUser?.permissions || [],
       // image: currentUser?.profileUrl || null,
     }),
@@ -133,10 +134,10 @@ export default function UserNewEditForm({ currentUser }: Props) {
         lastName: data.lastName,
         designation: data.designation,
         email: data.email,
-        country: data.country,
+        // country: data.country,
         phone: data.phoneNumber,
-        state: data.state,
-        city: data.city,
+        // state: data.state,
+        // city: data.city,
         // permissions: data.permissions,
         // image: data.image?.preview || data.image,
       };
@@ -191,7 +192,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
       <Grid container spacing={3}>
         {/* <Grid xs={12} md={4}>
           <Card sx={{ pt: 10, pb: 5, px: 3 }}> */}
-            {/* {currentUser && (
+        {/* {currentUser && (
               <Label
                 color={
                   (values.status === 'active' && 'success') ||
@@ -204,7 +205,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
               </Label>
             )} */}
 
-            {/* <Box sx={{ mb: 5 }}>
+        {/* <Box sx={{ mb: 5 }}>
               <RHFUploadAvatar
                 name="image"
                 maxSize={3145728}
@@ -227,7 +228,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
               />
             </Box> */}
 
-            {/* {currentUser && (
+        {/* {currentUser && (
               <FormControlLabel
                 labelPlacement="start"
                 control={
@@ -259,7 +260,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
               />
             )} */}
 
-            {/* <RHFSwitch
+        {/* <RHFSwitch
               name="isVerified"
               labelPlacement="start"
               label={
@@ -275,14 +276,14 @@ export default function UserNewEditForm({ currentUser }: Props) {
               sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
             /> */}
 
-            {/* {currentUser && (
+        {/* {currentUser && (
               <Stack justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
                 <Button variant="soft" color="error">
                   Delete User
                 </Button>
               </Stack>
             )} */}
-          {/* </Card>
+        {/* </Card>
         </Grid> */}
 
         <Grid xs={12} md={12}>
@@ -296,12 +297,12 @@ export default function UserNewEditForm({ currentUser }: Props) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="firstName" label="First Name" />
-              <RHFTextField name="lastName" label="Last Name" />
-              <RHFTextField name="designation" label="Designation" />
+              <RHFTextField name="firstName" label="First Name*" />
+              <RHFTextField name="lastName" label="Last Name*" />
+              <RHFTextField name="designation" label="Designation*" />
               <RHFTextField
                 name="email"
-                label="Email Address"
+                label="Email Address*"
                 disabled={Boolean(currentUser)}
                 InputProps={{
                   sx: {
@@ -310,7 +311,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
                   },
                 }}
               />
-              <RHFAutocomplete
+              {/* <RHFAutocomplete
                 name="country"
                 type="country"
                 label="Country"
@@ -318,10 +319,10 @@ export default function UserNewEditForm({ currentUser }: Props) {
                 fullWidth
                 options={countries.map((option) => option.label)}
                 getOptionLabel={(option) => option}
-              />
-              <RHFTextField name="phoneNumber" label="Phone Number" />
-              <RHFTextField name="state" label="State" />
-              <RHFTextField name="city" label="City" />
+              /> */}
+              <RHFPhoneField name="phoneNumber" label="Phone Number*" />
+              {/* <RHFTextField name="state" label="State" /> */}
+              {/* <RHFTextField name="city" label="City" /> */}
             </Box>
 
             {/* <Box sx={{ mt: 3, ml: 1 }}>

@@ -8,12 +8,17 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
 import UserNewEditForm from '../user-new-edit-form';
+import { useGetEventList1 } from 'src/api/event';
+import { useEventContext } from 'src/components/event-context';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 // ----------------------------------------------------------------------
 
 export default function UserCreateView() {
   const settings = useSettingsContext();
-
+  const { events, reFetchEventList } = useGetEventList1();
+  const { eventData } = useEventContext();
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
@@ -33,6 +38,39 @@ export default function UserCreateView() {
           mb: { xs: 3, md: 5 },
         }}
       />
+
+      <Stack
+        direction="row"
+        // alignItems="center"
+        gap={2}
+        // justifyContent="space-between"
+        sx={{
+          backgroundColor: '#00B8D929',
+          color: 'info.main',
+          border: '2px solid #00B8D920',
+          borderRadius: 1,
+          px: 2,
+          py: 1,
+          mb: 3,
+          width: '100%',
+        }}
+      >
+        <Stack direction="row" alignItems="start" spacing={1}>
+          {/* <InfoIcon sx={{ color: 'info.main' }} /> */}
+          <Typography variant="subtitle2" sx={{ color: 'info.main' }}>
+            <strong>•</strong> Total Members Allowed :{' '}
+            <strong>
+              {events.find((event) => event.eventId === eventData.state.eventId)?.totalBadgeCount}
+            </strong>
+          </Typography>
+        </Stack>
+        <Typography variant="subtitle2" sx={{ color: 'info.main', ml: 4 }}>
+          <strong>•</strong> Members Added:{' '}
+          <strong>
+            {events.find((event) => event.eventId === eventData.state.eventId)?.usedBadgeCount}
+          </strong>
+        </Typography>
+      </Stack>
 
       <UserNewEditForm />
     </Container>

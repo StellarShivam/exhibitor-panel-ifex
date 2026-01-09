@@ -310,7 +310,7 @@ export default function FormsListView() {
               </Grid>
             );
           })}
-          {/* <Grid item xs={12} md={6} lg={4}>
+          <Grid item xs={12} md={6} lg={4}>
             <Card
               sx={{
                 p: 2,
@@ -342,7 +342,7 @@ export default function FormsListView() {
                 spacing={0}
               >
                 <Typography variant="h6" sx={{ mt: 1, flex: 1 }}>
-                  Form 10. Exhibitor Badges
+                Form 14 – Exhibitor Badges Generation
                 </Typography>
               </Stack>
               <Typography
@@ -353,10 +353,10 @@ export default function FormsListView() {
                   color: 'text.primary',
                 }}
               >
-                Due : 31 Jan 2026
+                Due : 01 Feb 2026
               </Typography>
             </Card>
-          </Grid> */}
+          </Grid>
         </Grid>
 
         {/* <Card>

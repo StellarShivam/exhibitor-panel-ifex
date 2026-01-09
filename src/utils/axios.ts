@@ -240,6 +240,7 @@ export const apiEndpoints = {
   paymentSummary: {
     updatePaymentStatus: '/updatePaymentStatus',
     payment: '/exhibitorPaymentDetails/',
+    generateMultiReceipt: '/generateMultiReceipt?purchaseId=',
   },
   requestFormPayments: {
     createPayment: '/exhibitorForm/payment/create',

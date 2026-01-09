@@ -38,22 +38,18 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { fullName, email, profileUrl, updatedAt } = row;
+  const { fullName, email, profileUrl, updatedAt, designation, phone } = row;
 
   const confirm = useBoolean();
-
-  const permissions = ['Team Management', 'Tasks and Booth Setup'];
-
-  const quickEdit = useBoolean();
 
   const popover = usePopover();
 
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
+        {/* <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
+        </TableCell> */}
 
         <TableCell>
           <Stack direction="row" alignItems="center">
@@ -69,21 +65,10 @@ export default function UserTableRow({
             />
           </Stack>
         </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{designation}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{phone}</TableCell>
 
-        <TableCell>
-          <Label
-            variant="soft"
-            color={
-              // (status === 'Active' && 'success') ||
-              // (status === 'pending' && 'warning') ||
-              // (status === 'banned' && 'error') ||
-              // 'default'
-              'success'
-            }
-          >
-            Active
-          </Label>
-        </TableCell>
+        {/* <TableCell></TableCell> */}
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <ListItemText
@@ -98,7 +83,7 @@ export default function UserTableRow({
           />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Stack direction="row" spacing={0.4} flexWrap="wrap">
             {permissions.map((permission) => (
               <Button
@@ -123,9 +108,9 @@ export default function UserTableRow({
               </Button>
             ))}
           </Stack>
-        </TableCell>
+        </TableCell> */}
 
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        {/* <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edit" placement="top" arrow>
             <IconButton
               color={quickEdit.value ? 'inherit' : 'default'}
@@ -137,16 +122,16 @@ export default function UserTableRow({
             </IconButton>
           </Tooltip>
 
-          {/* <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
 
-          {/* <Tooltip title="Quick Edit" placement="top" arrow>
+          <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:trash-bin-trash-bold" sx={{ color: 'error.main' }} />
             </IconButton>
-          </Tooltip> */}
-        </TableCell>
+          </Tooltip>
+        </TableCell> */}
       </TableRow>
 
       {/* <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={quickEdit.onFalse} /> */}

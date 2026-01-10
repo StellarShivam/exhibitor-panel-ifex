@@ -504,10 +504,10 @@ export default function FormsNewEditForm({
 
   useEffect(() => {
     if (formId === '5' && values.powerLoadRequired > 0) {
-      const base = values.powerLoadRequired * 3000;
+      const base = (values.powerLoadRequired + values.powerLoadRequiredBeforeEvent) * 3000;
       setBaseAmount(base);
     }
-  }, [values.powerLoadRequired, formId]);
+  }, [values.powerLoadRequired, values.powerLoadRequiredBeforeEvent, formId]);
 
   useEffect(() => {
     if (formId === '7' && values.airPerConnectionRequired > 0) {
@@ -1341,6 +1341,13 @@ export default function FormsNewEditForm({
                                     (Any gadget requiring 24 hours electric load to be included in
                                     power load requirement and the numbers intimated to organizer
                                     while taking possession, charges applicable as per requirement)
+                                  </Typography>
+                                </>
+                              )}
+                              {field.name === 'powerLoadRequiredBeforeEvent' && (
+                                <>
+                                  <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                                  Electricity Requirement For Days Before The Event (KW)
                                   </Typography>
                                 </>
                               )}

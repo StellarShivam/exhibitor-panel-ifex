@@ -527,6 +527,7 @@ const electricityFormSchema: IFormConfig = {
     powerLoadRequired: Yup.number()
       .required('Power Load Required is required')
       .min(1, 'Power Load Required must be at least 1'),
+    powerLoadRequiredBeforeEvent: Yup.number().optional(),
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
       .oneOf([true], 'You must confirm the details before submitting'),
@@ -541,6 +542,7 @@ const electricityFormSchema: IFormConfig = {
     phone: formData?.phone || '',
     email: formData?.email || '',
     powerLoadRequired: formData?.powerLoadRequired || 0,
+    powerLoadRequiredBeforeEvent: formData?.powerLoadRequiredBeforeEvent || 0,
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
@@ -623,7 +625,16 @@ const electricityFormSchema: IFormConfig = {
       },
       {
         name: 'powerLoadRequired',
-        label: 'POWER LOAD REQUIRED - kw @ Rs. 3000/- + 18 % GST',
+        label: 'POWER LOAD REQUIRED - kw @ Rs. 3000/- + 18 % GST *',
+        type: 'number',
+        required: true,
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
+        name: 'powerLoadRequiredBeforeEvent',
+        label: 'POWER LOAD REQUIRED BEFORE EVENT - kw @ Rs. 3000/- + 18 % GST',
         type: 'number',
         required: true,
         gridItem: {

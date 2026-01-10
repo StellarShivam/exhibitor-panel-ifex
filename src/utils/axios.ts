@@ -122,6 +122,7 @@ export const apiEndpoints = {
     sessions: '/getAllMeetings',
     tasks: '/exhibitorUserTasks/',
     updateTask: '/updateTask',
+    generateAllotMentForm: '/generateAllotmentLetter',
   },
   connect: {
     listing: '/exhibitorScannedUsers/',

@@ -129,3 +129,16 @@ export function useUpdateTask() {
     updateTask,
   };
 }
+
+export async function generateAllotmentLetterApi(exhibitorId: number) {
+  const token = tokenManager.getToken();
+  const url = apiEndpoints.overview.generateAllotMentForm + '?exhibitorId=' + exhibitorId;
+  const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+  try {
+    const response = await axiosInstance2.get(url, { headers });
+    return response.data.data;
+  } catch (error) {
+    console.error('Error generating allotment letter:', error);
+    throw error;
+  }
+}

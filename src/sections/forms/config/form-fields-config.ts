@@ -89,7 +89,8 @@ const standDesignSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
 
@@ -310,19 +311,20 @@ const basicCatalogueEntrySchema: IFormConfig = {
       'Registered name of Exhibitor/Company is required'
     ),
     hallNo: Yup.string(),
-    stallNo: Yup.string().required('Stall no. is required'),
+    stallNo: Yup.string(),
     addressLine1: Yup.string().required('Address is required'),
     stateProvinceRegion: Yup.string().required('State is required'),
     country: Yup.string().required('Country is required'),
     postalCode: Yup.string().required('Pin code is required'),
 
-    productIndexNo: Yup.string()
-      .required('Product Index No. is required')
-      .matches(/^(\d+)(\.(\d+))*$/, 'Only numbers and dots allowed, e.g., 2.3.4'),
-    productIndexNo2: Yup.string().matches(
-      /^(\d+)(\.(\d+))*$/,
-      'Only numbers and dots allowed, e.g., 2.3.4'
-    ),
+    // productIndexNo: Yup.string()
+    //   .required('Product Index No. is required')
+    //   .matches(/^(\d+)(\.(\d+))*$/, 'Only numbers and dots allowed, e.g., 2.3.4'),
+    // productIndexNo2: Yup.string().matches(
+    //   /^(\d+)(\.(\d+))*$/,
+    //   'Only numbers and dots allowed, e.g., 2.3.4'
+    // ),
+    companyProfile: Yup.string().required('Company Profile is required'),
     phone: Yup.string().required('Phone is required'),
     fax: Yup.string(),
     email: Yup.string().email('Invalid email format').required('Email is required'),
@@ -335,10 +337,10 @@ const basicCatalogueEntrySchema: IFormConfig = {
       .oneOf([true], 'You must confirm the details before submitting'),
   }),
   defaultValues: (formData: any) => ({
-    productIndexNo: formData?.productIndexNo || '',
-    productIndexNo2: formData?.productIndexNo2 || '',
-    companyOrganizationName:
-      formData?.companyOrganizationName || '',
+    // productIndexNo: formData?.productIndexNo || '',
+    // productIndexNo2: formData?.productIndexNo2 || '',
+    companyProfile: formData?.companyProfile || '',
+    companyOrganizationName: formData?.companyOrganizationName || '',
     addressLine1: formData?.billingAddressLine1 || formData?.addressLine1 || '',
     stateProvinceRegion:
       formData?.billingStateProvinceRegion || formData?.stateProvinceRegion || '',
@@ -347,7 +349,7 @@ const basicCatalogueEntrySchema: IFormConfig = {
     phone: formData?.phone || '',
     fax: formData?.fax || '',
     email: formData?.email || '',
-    hallNo:formData?.hallNo || '',
+    hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     website: formData?.data?.corporateWebsite || formData?.website || '',
     organizationHeadName: formData?.organizationHeadName || '',
@@ -363,46 +365,6 @@ const basicCatalogueEntrySchema: IFormConfig = {
         type: 'text',
         required: true,
         disabled: true,
-      },
-      {
-        name: 'addressLine1',
-        label: 'Address*',
-        type: 'text',
-        required: true,
-        disabled: true,
-      },
-      {
-        name: 'stateProvinceRegion',
-        label: 'State*',
-        type: 'text',
-        required: true,
-        disabled: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'country',
-        label: 'Country*',
-        type: 'text',
-        disabled: true,
-        required: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
-      },
-      {
-        name: 'postalCode',
-        label: 'Pin code*',
-        type: 'text',
-        required: true,
-        disabled: true,
-        gridItem: {
-          xs: 12,
-          sm: 6,
-        },
       },
       {
         name: 'hallNo',
@@ -427,11 +389,46 @@ const basicCatalogueEntrySchema: IFormConfig = {
         },
       },
       {
+        name: 'addressLine1',
+        label: 'Address*',
+        type: 'text',
+        required: true,
+      },
+      {
+        name: 'stateProvinceRegion',
+        label: 'State*',
+        type: 'text',
+        required: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'country',
+        label: 'Country*',
+        type: 'text',
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+      {
+        name: 'postalCode',
+        label: 'Pin code*',
+        type: 'text',
+        required: true,
+        gridItem: {
+          xs: 12,
+          sm: 6,
+        },
+      },
+
+      {
         name: 'phone',
         label: 'Phone (with area code)*',
         type: 'text',
         required: true,
-        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -452,7 +449,6 @@ const basicCatalogueEntrySchema: IFormConfig = {
         label: 'E-mail*',
         type: 'email',
         required: true,
-        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -484,17 +480,24 @@ const basicCatalogueEntrySchema: IFormConfig = {
           sm: 6,
         },
       },
+      // {
+      //   name: 'productIndexNo',
+      //   label: 'Product Index No.*',
+      //   type: 'text',
+      //   required: true,
+      // },
+      // {
+      //   name: 'productIndexNo2',
+      //   label: 'Product Index No. 2',
+      //   type: 'text',
+      //   required: true,
+      // },
       {
-        name: 'productIndexNo',
-        label: 'Product Index No.*',
-        type: 'text',
+        name: 'companyProfile',
+        label: 'Company Profile',
+        type: 'textarea',
         required: true,
-      },
-      {
-        name: 'productIndexNo2',
-        label: 'Product Index No. 2',
-        type: 'text',
-        required: true,
+        maxSize: 180,
       },
       {
         name: 'finalConfirmation',
@@ -514,7 +517,7 @@ const basicCatalogueEntrySchema: IFormConfig = {
 const electricityFormSchema: IFormConfig = {
   schema: Yup.object().shape({
     companyOrganizationName: Yup.string(),
-    hallNo:Yup.string(),
+    hallNo: Yup.string(),
     stallNo: Yup.string(),
     contactPersonName: Yup.string(),
     contactPersonDesignation: Yup.string(),
@@ -533,7 +536,8 @@ const electricityFormSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     powerLoadRequired: formData?.powerLoadRequired || 0,
@@ -640,7 +644,7 @@ const electricityFormSchema: IFormConfig = {
 const waterConnectionServicesSchema: IFormConfig = {
   schema: Yup.object().shape({
     companyOrganizationName: Yup.string(),
-    hallNo:Yup.string(),
+    hallNo: Yup.string(),
     stallNo: Yup.string(),
     contactPersonName: Yup.string(),
     contactPersonDesignation: Yup.string(),
@@ -659,7 +663,8 @@ const waterConnectionServicesSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     waterPerPointRequired: formData?.waterPerPointRequired || 0,
@@ -773,7 +778,6 @@ const additionalCatalogueEntrySchema: IFormConfig = {
     phone: Yup.string(),
     email: Yup.string(),
 
-
     additionalProductIndexNo: Yup.string()
       .required('Additional Product Index No. is required')
       .test(
@@ -809,7 +813,8 @@ const additionalCatalogueEntrySchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
 
@@ -991,19 +996,19 @@ const badgesForConstruction: IFormConfig = {
     email: Yup.string(),
 
     worker1Name: Yup.string(),
-    worker1Address: Yup.string(),
+    worker1AadhaarNumber: Yup.string(),
     worker1Mobile: Yup.string(),
     worker2Name: Yup.string(),
-    worker2Address: Yup.string(),
+    worker2AadhaarNumber: Yup.string(),
     worker2Mobile: Yup.string(),
     worker3Name: Yup.string(),
-    worker3Address: Yup.string(),
+    worker3AadhaarNumber: Yup.string(),
     worker3Mobile: Yup.string(),
     worker4Name: Yup.string(),
-    worker4Address: Yup.string(),
+    worker4AadhaarNumber: Yup.string(),
     worker4Mobile: Yup.string(),
     worker5Name: Yup.string(),
-    worker5Address: Yup.string(),
+    worker5AadhaarNumber: Yup.string(),
     worker5Mobile: Yup.string(),
     standContractorName: Yup.string().required('Stand Contractor / Architect is required'),
     standContractorContactPerson: Yup.string().required('Contractor Contact Person is required'),
@@ -1022,24 +1027,25 @@ const badgesForConstruction: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
 
     worker1Name: formData?.worker1Name || '',
-    worker1Address: formData?.worker1Address || '',
+    worker1AadhaarNumber: formData?.worker1AadhaarNumber || '',
     worker1Mobile: formData?.worker1Mobile || '',
     worker2Name: formData?.worker2Name || '',
-    worker2Address: formData?.worker2Address || '',
+    worker2AadhaarNumber: formData?.worker2AadhaarNumber || '',
     worker2Mobile: formData?.worker2Mobile || '',
     worker3Name: formData?.worker3Name || '',
-    worker3Address: formData?.worker3Address || '',
+    worker3AadhaarNumber: formData?.worker3AadhaarNumber || '',
     worker3Mobile: formData?.worker3Mobile || '',
     worker4Name: formData?.worker4Name || '',
-    worker4Address: formData?.worker4Address || '',
+    worker4AadhaarNumber: formData?.worker4AadhaarNumber || '',
     worker4Mobile: formData?.worker4Mobile || '',
     worker5Name: formData?.worker5Name || '',
-    worker5Address: formData?.worker5Address || '',
+    worker5AadhaarNumber: formData?.worker5AadhaarNumber || '',
     worker5Mobile: formData?.worker5Mobile || '',
     standContractorName:
       formData?.standContractorName || formData?.standContractorCompanyName || '',
@@ -1143,8 +1149,8 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
-        name: 'worker1Address',
-        label: 'Worker 1 - Address',
+        name: 'worker1AadhaarNumber',
+        label: 'Worker 1 - Aadhaar Number',
         type: 'text',
         required: false,
         gridItem: {
@@ -1173,8 +1179,8 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
-        name: 'worker2Address',
-        label: 'Worker 2 - Address',
+        name: 'worker2AadhaarNumber',
+        label: 'Worker 2 - Aadhaar Number',
         type: 'text',
         required: false,
         gridItem: {
@@ -1203,8 +1209,8 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
-        name: 'worker3Address',
-        label: 'Worker 3 - Address',
+        name: 'worker3AadhaarNumber',
+        label: 'Worker 3 - Aadhaar Number',
         type: 'text',
         required: false,
         gridItem: {
@@ -1233,8 +1239,8 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
-        name: 'worker4Address',
-        label: 'Worker 4 - Address',
+        name: 'worker4AadhaarNumber',
+        label: 'Worker 4 - Aadhaar Number',
         type: 'text',
         required: false,
         gridItem: {
@@ -1263,8 +1269,8 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
-        name: 'worker5Address',
-        label: 'Worker 5 - Address',
+        name: 'worker5AadhaarNumber',
+        label: 'Worker 5 - Aadhaar Number',
         type: 'text',
         required: false,
         gridItem: {
@@ -1283,6 +1289,14 @@ const badgesForConstruction: IFormConfig = {
         },
       },
       {
+        name: 'workerNote',
+        label: 'Disclaimer: If Additional Badges are required, please contact your hall manager.',
+        type: 'note',
+        gridItem: {
+          xs: 12,
+        },
+      },
+      {
         name: 'contractorNote',
         label: 'We have appointed the following agency for stand construction.',
         type: 'note',
@@ -1292,7 +1306,7 @@ const badgesForConstruction: IFormConfig = {
       },
       {
         name: 'standContractorName',
-        label: 'Stand Contractor / Architect*',
+        label: 'Company Name of Stand Contractor / Architect*',
         type: 'text',
         required: true,
       },
@@ -1401,7 +1415,8 @@ const authorityLetterSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     authorityLetter: formData?.authorityLetter || [],
@@ -1526,7 +1541,7 @@ const securityServicesSchema: IFormConfig = {
         return dayShifts.length > 0 || (value && value.length > 0);
       }
     ),
-    noOfDayShiftGuards_09: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_09: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('09th February 2026'),
       then: (schema) =>
@@ -1535,7 +1550,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftGuards_09: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_09: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('09th February 2026'),
       then: (schema) =>
@@ -1544,7 +1559,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftGuards_10: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_10: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('10th February 2026'),
       then: (schema) =>
@@ -1553,7 +1568,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftGuards_10: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_10: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('10th February 2026'),
       then: (schema) =>
@@ -1562,7 +1577,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftGuards_11: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_11: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('11th February 2026'),
       then: (schema) =>
@@ -1571,7 +1586,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftGuards_11: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_11: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('11th February 2026'),
       then: (schema) =>
@@ -1580,7 +1595,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftGuards_12: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_12: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('12th February 2026'),
       then: (schema) =>
@@ -1589,7 +1604,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftGuards_12: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_12: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('12th February 2026'),
       then: (schema) =>
@@ -1598,7 +1613,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftGuards_13: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_13: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('13th February 2026'),
       then: (schema) =>
@@ -1607,7 +1622,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftGuards_13: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_13: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('13th February 2026'),
       then: (schema) =>
@@ -1616,7 +1631,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftGuards_14: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_14: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('14th February 2026'),
       then: (schema) =>
@@ -1625,7 +1640,7 @@ const securityServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftGuards_14: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_14: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('14th February 2026'),
       then: (schema) =>
@@ -1643,29 +1658,30 @@ const securityServicesSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     dayShifts: formData?.dayShifts || [],
     nightShifts: formData?.nightShifts || [],
-    noOfDayShiftGuards_09: formData?.noOfDayShiftGuards_09 || formData?.dayShiftGuards_09 || 0,
-    noOfNightShiftGuards_09:
-      formData?.noOfNightShiftGuards_09 || formData?.nightShiftGuards_09 || 0,
-    noOfDayShiftGuards_10: formData?.noOfDayShiftGuards_10 || formData?.dayShiftGuards_10 || 0,
-    noOfNightShiftGuards_10:
-      formData?.noOfNightShiftGuards_10 || formData?.nightShiftGuards_10 || 0,
-    noOfDayShiftGuards_11: formData?.noOfDayShiftGuards_11 || formData?.dayShiftGuards_11 || 0,
-    noOfNightShiftGuards_11:
-      formData?.noOfNightShiftGuards_11 || formData?.nightShiftGuards_11 || 0,
-    noOfDayShiftGuards_12: formData?.noOfDayShiftGuards_12 || formData?.dayShiftGuards_12 || 0,
-    noOfNightShiftGuards_12:
-      formData?.noOfNightShiftGuards_12 || formData?.nightShiftGuards_12 || 0,
-    noOfDayShiftGuards_13: formData?.noOfDayShiftGuards_13 || formData?.dayShiftGuards_13 || 0,
-    noOfNightShiftGuards_13:
-      formData?.noOfNightShiftGuards_13 || formData?.nightShiftGuards_13 || 0,
-    noOfDayShiftGuards_14: formData?.noOfDayShiftGuards_14 || formData?.dayShiftGuards_14 || 0,
-    noOfNightShiftGuards_14:
-      formData?.noOfNightShiftGuards_14 || formData?.nightShiftGuards_14 || 0,
+    noOfDayShiftStaffs_09: formData?.noOfDayShiftStaffs_09 || formData?.dayShiftGuards_09 || 0,
+    noOfNightShiftStaffs_09:
+      formData?.noOfNightShiftStaffs_09 || formData?.nightShiftGuards_09 || 0,
+    noOfDayShiftStaffs_10: formData?.noOfDayShiftStaffs_10 || formData?.dayShiftGuards_10 || 0,
+    noOfNightShiftStaffs_10:
+      formData?.noOfNightShiftStaffs_10 || formData?.nightShiftGuards_10 || 0,
+    noOfDayShiftStaffs_11: formData?.noOfDayShiftStaffs_11 || formData?.dayShiftGuards_11 || 0,
+    noOfNightShiftStaffs_11:
+      formData?.noOfNightShiftStaffs_11 || formData?.nightShiftGuards_11 || 0,
+    noOfDayShiftStaffs_12: formData?.noOfDayShiftStaffs_12 || formData?.dayShiftGuards_12 || 0,
+    noOfNightShiftStaffs_12:
+      formData?.noOfNightShiftStaffs_12 || formData?.nightShiftGuards_12 || 0,
+    noOfDayShiftStaffs_13: formData?.noOfDayShiftStaffs_13 || formData?.dayShiftGuards_13 || 0,
+    noOfNightShiftStaffs_13:
+      formData?.noOfNightShiftStaffs_13 || formData?.nightShiftGuards_13 || 0,
+    noOfDayShiftStaffs_14: formData?.noOfDayShiftStaffs_14 || formData?.dayShiftGuards_14 || 0,
+    noOfNightShiftStaffs_14:
+      formData?.noOfNightShiftStaffs_14 || formData?.nightShiftGuards_14 || 0,
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
@@ -1707,7 +1723,7 @@ const securityServicesSchema: IFormConfig = {
         label: 'Contact Person Name*',
         type: 'text',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1718,7 +1734,7 @@ const securityServicesSchema: IFormConfig = {
         label: 'Contact Person Designation*',
         type: 'text',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1740,7 +1756,7 @@ const securityServicesSchema: IFormConfig = {
         label: 'Mobile No.*',
         type: 'phone',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -1764,7 +1780,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftGuards_09',
+        name: 'noOfDayShiftStaffs_09',
         label: 'Day Shift No. of Guards on 09/02/2026',
         type: 'number',
         required: false,
@@ -1776,7 +1792,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftGuards_10',
+        name: 'noOfDayShiftStaffs_10',
         label: 'Day Shift No. of Guards on 10/02/2026',
         type: 'number',
         required: false,
@@ -1788,7 +1804,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftGuards_11',
+        name: 'noOfDayShiftStaffs_11',
         label: 'Day Shift No. of Guards on 11/02/2026',
         type: 'number',
         required: false,
@@ -1800,7 +1816,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftGuards_12',
+        name: 'noOfDayShiftStaffs_12',
         label: 'Day Shift No. of Guards on 12/02/2026',
         type: 'number',
         required: false,
@@ -1812,7 +1828,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftGuards_13',
+        name: 'noOfDayShiftStaffs_13',
         label: 'Day Shift No. of Guards on 13/02/2026',
         type: 'number',
         required: false,
@@ -1824,7 +1840,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftGuards_14',
+        name: 'noOfDayShiftStaffs_14',
         label: 'Day Shift No. of Guards on 14/02/2026',
         type: 'number',
         required: false,
@@ -1853,7 +1869,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftGuards_09',
+        name: 'noOfNightShiftStaffs_09',
         label: 'Night Shift No. of Guards on 09/02/2026',
         type: 'number',
         required: false,
@@ -1865,7 +1881,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftGuards_10',
+        name: 'noOfNightShiftStaffs_10',
         label: 'Night Shift No. of Guards on 10/02/2026',
         type: 'number',
         required: false,
@@ -1877,7 +1893,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftGuards_11',
+        name: 'noOfNightShiftStaffs_11',
         label: 'Night Shift No. of Guards on 11/02/2026',
         type: 'number',
         required: false,
@@ -1889,7 +1905,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftGuards_12',
+        name: 'noOfNightShiftStaffs_12',
         label: 'Night Shift No. of Guards on 12/02/2026',
         type: 'number',
         required: false,
@@ -1901,7 +1917,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftGuards_13',
+        name: 'noOfNightShiftStaffs_13',
         label: 'Night Shift No. of Guards on 13/02/2026',
         type: 'number',
         required: false,
@@ -1913,7 +1929,7 @@ const securityServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftGuards_14',
+        name: 'noOfNightShiftStaffs_14',
         label: 'Night Shift No. of Guards on 14/02/2026',
         type: 'number',
         required: false,
@@ -1952,7 +1968,7 @@ const cleaningServicesSchema: IFormConfig = {
         return dayShifts.length > 0 || (value && value.length > 0);
       }
     ),
-    noOfDayShiftCleaners_09: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_09: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('09th February 2026'),
       then: (schema) =>
@@ -1961,7 +1977,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftCleaners_09: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_09: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('09th February 2026'),
       then: (schema) =>
@@ -1970,7 +1986,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftCleaners_10: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_10: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('10th February 2026'),
       then: (schema) =>
@@ -1979,7 +1995,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftCleaners_10: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_10: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('10th February 2026'),
       then: (schema) =>
@@ -1988,7 +2004,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftCleaners_11: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_11: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('11th February 2026'),
       then: (schema) =>
@@ -1997,7 +2013,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftCleaners_11: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_11: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('11th February 2026'),
       then: (schema) =>
@@ -2006,7 +2022,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftCleaners_12: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_12: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('12th February 2026'),
       then: (schema) =>
@@ -2015,7 +2031,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftCleaners_12: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_12: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('12th February 2026'),
       then: (schema) =>
@@ -2024,7 +2040,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftCleaners_13: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_13: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('13th February 2026'),
       then: (schema) =>
@@ -2033,7 +2049,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftCleaners_13: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_13: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('13th February 2026'),
       then: (schema) =>
@@ -2042,7 +2058,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfDayShiftCleaners_14: Yup.number().when('dayShifts', {
+    noOfDayShiftStaffs_14: Yup.number().when('dayShifts', {
       is: (dayShifts: any[]) =>
         Array.isArray(dayShifts) && dayShifts.includes('14th February 2026'),
       then: (schema) =>
@@ -2051,7 +2067,7 @@ const cleaningServicesSchema: IFormConfig = {
           .min(1, 'This field is required'),
       otherwise: (schema) => schema.min(0, 'Must be 0 or greater'),
     }),
-    noOfNightShiftCleaners_14: Yup.number().when('nightShifts', {
+    noOfNightShiftStaffs_14: Yup.number().when('nightShifts', {
       is: (nightShifts: any[]) =>
         Array.isArray(nightShifts) && nightShifts.includes('14th February 2026'),
       then: (schema) =>
@@ -2069,35 +2085,30 @@ const cleaningServicesSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     dayShifts: formData?.dayShifts || [],
     nightShifts: formData?.nightShifts || [],
-    noOfDayShiftCleaners_09:
-      formData?.noOfDayShiftCleaners_09 || formData?.dayShiftCleaners_09 || 0,
-    noOfNightShiftCleaners_09:
-      formData?.noOfNightShiftCleaners_09 || formData?.nightShiftCleaners_09 || 0,
-    noOfDayShiftCleaners_10:
-      formData?.noOfDayShiftCleaners_10 || formData?.dayShiftCleaners_10 || 0,
-    noOfNightShiftCleaners_10:
-      formData?.noOfNightShiftCleaners_10 || formData?.nightShiftCleaners_10 || 0,
-    noOfDayShiftCleaners_11:
-      formData?.noOfDayShiftCleaners_11 || formData?.dayShiftCleaners_11 || 0,
-    noOfNightShiftCleaners_11:
-      formData?.noOfNightShiftCleaners_11 || formData?.nightShiftCleaners_11 || 0,
-    noOfDayShiftCleaners_12:
-      formData?.noOfDayShiftCleaners_12 || formData?.dayShiftCleaners_12 || 0,
-    noOfNightShiftCleaners_12:
-      formData?.noOfNightShiftCleaners_12 || formData?.nightShiftCleaners_12 || 0,
-    noOfDayShiftCleaners_13:
-      formData?.noOfDayShiftCleaners_13 || formData?.dayShiftCleaners_13 || 0,
-    noOfNightShiftCleaners_13:
-      formData?.noOfNightShiftCleaners_13 || formData?.nightShiftCleaners_13 || 0,
-    noOfDayShiftCleaners_14:
-      formData?.noOfDayShiftCleaners_14 || formData?.dayShiftCleaners_14 || 0,
-    noOfNightShiftCleaners_14:
-      formData?.noOfNightShiftCleaners_14 || formData?.nightShiftCleaners_14 || 0,
+    noOfDayShiftStaffs_09: formData?.noOfDayShiftStaffs_09 || formData?.dayShiftCleaners_09 || 0,
+    noOfNightShiftStaffs_09:
+      formData?.noOfNightShiftStaffs_09 || formData?.nightShiftCleaners_09 || 0,
+    noOfDayShiftStaffs_10: formData?.noOfDayShiftStaffs_10 || formData?.dayShiftCleaners_10 || 0,
+    noOfNightShiftStaffs_10:
+      formData?.noOfNightShiftStaffs_10 || formData?.nightShiftCleaners_10 || 0,
+    noOfDayShiftStaffs_11: formData?.noOfDayShiftStaffs_11 || formData?.dayShiftCleaners_11 || 0,
+    noOfNightShiftStaffs_11:
+      formData?.noOfNightShiftStaffs_11 || formData?.nightShiftCleaners_11 || 0,
+    noOfDayShiftStaffs_12: formData?.noOfDayShiftStaffs_12 || formData?.dayShiftCleaners_12 || 0,
+    noOfNightShiftStaffs_12:
+      formData?.noOfNightShiftStaffs_12 || formData?.nightShiftCleaners_12 || 0,
+    noOfDayShiftStaffs_13: formData?.noOfDayShiftStaffs_13 || formData?.dayShiftCleaners_13 || 0,
+    noOfNightShiftStaffs_13:
+      formData?.noOfNightShiftStaffs_13 || formData?.nightShiftCleaners_13 || 0,
+    noOfDayShiftStaffs_14: formData?.noOfDayShiftStaffs_14 || formData?.dayShiftCleaners_14 || 0,
+    noOfNightShiftStaffs_14:
+      formData?.noOfNightShiftStaffs_14 || formData?.nightShiftCleaners_14 || 0,
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
@@ -2139,7 +2150,7 @@ const cleaningServicesSchema: IFormConfig = {
         label: 'Contact Person Name*',
         type: 'text',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2150,7 +2161,7 @@ const cleaningServicesSchema: IFormConfig = {
         label: 'Contact Person Designation*',
         type: 'text',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2161,7 +2172,7 @@ const cleaningServicesSchema: IFormConfig = {
         label: 'Email ID*',
         type: 'email',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2172,7 +2183,7 @@ const cleaningServicesSchema: IFormConfig = {
         label: 'Mobile No.*',
         type: 'phone',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2196,7 +2207,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftCleaners_09',
+        name: 'noOfDayShiftStaffs_09',
         label: 'Day Shift No. of Cleaners on 09/02/2026',
         type: 'number',
         required: false,
@@ -2208,7 +2219,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftCleaners_10',
+        name: 'noOfDayShiftStaffs_10',
         label: 'Day Shift No. of Cleaners on 10/02/2026',
         type: 'number',
         required: false,
@@ -2220,7 +2231,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftCleaners_11',
+        name: 'noOfDayShiftStaffs_11',
         label: 'Day Shift No. of Cleaners on 11/02/2026',
         type: 'number',
         required: false,
@@ -2232,7 +2243,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftCleaners_12',
+        name: 'noOfDayShiftStaffs_12',
         label: 'Day Shift No. of Cleaners on 12/02/2026',
         type: 'number',
         required: false,
@@ -2244,7 +2255,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftCleaners_13',
+        name: 'noOfDayShiftStaffs_13',
         label: 'Day Shift No. of Cleaners on 13/02/2026',
         type: 'number',
         required: false,
@@ -2256,7 +2267,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfDayShiftCleaners_14',
+        name: 'noOfDayShiftStaffs_14',
         label: 'Day Shift No. of Cleaners on 14/02/2026',
         type: 'number',
         required: false,
@@ -2285,7 +2296,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftCleaners_09',
+        name: 'noOfNightShiftStaffs_09',
         label: 'Night Shift No. of Cleaners on 09/02/2026',
         type: 'number',
         required: false,
@@ -2297,7 +2308,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftCleaners_10',
+        name: 'noOfNightShiftStaffs_10',
         label: 'Night Shift No. of Cleaners on 10/02/2026',
         type: 'number',
         required: false,
@@ -2309,7 +2320,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftCleaners_11',
+        name: 'noOfNightShiftStaffs_11',
         label: 'Night Shift No. of Cleaners on 11/02/2026',
         type: 'number',
         required: false,
@@ -2321,7 +2332,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftCleaners_12',
+        name: 'noOfNightShiftStaffs_12',
         label: 'Night Shift No. of Cleaners on 12/02/2026',
         type: 'number',
         required: false,
@@ -2333,7 +2344,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftCleaners_13',
+        name: 'noOfNightShiftStaffs_13',
         label: 'Night Shift No. of Cleaners on 13/02/2026',
         type: 'number',
         required: false,
@@ -2345,7 +2356,7 @@ const cleaningServicesSchema: IFormConfig = {
         },
       },
       {
-        name: 'noOfNightShiftCleaners_14',
+        name: 'noOfNightShiftStaffs_14',
         label: 'Night Shift No. of Cleaners on 14/02/2026',
         type: 'number',
         required: false,
@@ -2533,7 +2544,8 @@ const itFormSchema: IFormConfig = {
   defaultValues: (formData: any) => ({
     companyOrganizationName: formData?.companyOrganizationName || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     stallNo: formData?.stallNo || '',
@@ -2555,7 +2567,7 @@ const itFormSchema: IFormConfig = {
         label: 'Contact Person Name*',
         type: 'text',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2566,7 +2578,7 @@ const itFormSchema: IFormConfig = {
         label: 'Contact Person Designation*',
         type: 'text',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2577,7 +2589,7 @@ const itFormSchema: IFormConfig = {
         label: 'Email ID*',
         type: 'email',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2588,7 +2600,7 @@ const itFormSchema: IFormConfig = {
         label: 'Mobile No.*',
         type: 'phone',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2635,7 +2647,7 @@ const itFormSchema: IFormConfig = {
 const airConnectionServicesSchema: IFormConfig = {
   schema: Yup.object().shape({
     companyOrganizationName: Yup.string(),
-    hallNo:Yup.string(),
+    hallNo: Yup.string(),
     stallNo: Yup.string(),
     contactPersonName: Yup.string(),
     contactPersonDesignation: Yup.string(),
@@ -2654,7 +2666,8 @@ const airConnectionServicesSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     airPerConnectionRequired: formData?.airPerConnectionRequired || 0,
@@ -2781,7 +2794,8 @@ const undertakingNoRetailSaleSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     undertakingOfNoRetailSale: formData?.undertakingOfNoRetailSale || [],
@@ -2826,7 +2840,7 @@ const undertakingNoRetailSaleSchema: IFormConfig = {
         label: 'Contact Person Name*',
         type: 'text',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2837,7 +2851,7 @@ const undertakingNoRetailSaleSchema: IFormConfig = {
         label: 'Contact Person Designation*',
         type: 'text',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2848,7 +2862,7 @@ const undertakingNoRetailSaleSchema: IFormConfig = {
         label: 'Email ID*',
         type: 'email',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2859,7 +2873,7 @@ const undertakingNoRetailSaleSchema: IFormConfig = {
         label: 'Mobile No.*',
         type: 'phone',
         required: true,
-        disabled:true,
+        disabled: true,
         gridItem: {
           xs: 12,
           sm: 6,
@@ -2910,7 +2924,8 @@ const gatePassFormSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
     gatePassLetter: formData?.gatePassLetter || [],
@@ -3046,7 +3061,8 @@ const heavyLargeExhibitsFormSchema: IFormConfig = {
     hallNo: formData?.hallNo || '',
     stallNo: formData?.stallNo || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
-    contactPersonDesignation: formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
+    contactPersonDesignation:
+      formData?.contactPersonDesignation || formData?.primaryContactPersonDesignation || '',
     phone: formData?.phone || '',
     email: formData?.email || '',
 
@@ -3141,7 +3157,7 @@ const formConfigs: { [key: string]: IFormConfig } = {
   '3': standDesignSchema,
   '4': badgesForConstruction,
   '5': electricityFormSchema,
-  '6': authorityLetterSchema,
+  // '6': authorityLetterSchema,
   '7': airConnectionServicesSchema,
   '8': waterConnectionServicesSchema,
   '9': undertakingNoRetailSaleSchema,

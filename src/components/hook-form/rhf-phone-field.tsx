@@ -10,9 +10,14 @@ import { Theme, styled } from '@mui/material/styles';
 interface StyledPhoneInputProps {
   theme?: Theme;
   $error?: boolean;
+  $disabled?: boolean;
 }
 
-const StyledPhoneInput = styled(PhoneInput)<StyledPhoneInputProps>(({ theme, $error }) => {
+const StyledPhoneInput = styled(PhoneInput)<StyledPhoneInputProps>(({
+  theme,
+  $error,
+  $disabled,
+}) => {
   const getFocusBoxShadowColor = () => {
     if ($error) return theme?.palette.error.lighter;
     return theme?.palette.mode === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)';
@@ -20,6 +25,7 @@ const StyledPhoneInput = styled(PhoneInput)<StyledPhoneInputProps>(({ theme, $er
 
   const getBorderColor = () => {
     if ($error) return theme?.palette.error.main;
+    if (!$disabled) return '#262626';
     return theme?.palette.mode === 'dark' ? theme?.palette.grey[700] : theme?.palette.grey[300];
   };
 
@@ -73,6 +79,9 @@ const StyledPhoneInput = styled(PhoneInput)<StyledPhoneInputProps>(({ theme, $er
     '& .arrow': {
       borderTopColor: theme?.palette.text.primary,
     },
+    '& fieldset': {
+      borderColor: '#262626',
+    },
   };
 });
 
@@ -120,6 +129,7 @@ export default function RHFPhoneField({
             disabled={disabled}
             specialLabel={label}
             $error={!!error}
+            $disabled={disabled}
             inputProps={{
               required: true,
             }}

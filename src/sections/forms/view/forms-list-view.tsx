@@ -28,6 +28,9 @@ import { useGetExhibitorUsers } from 'src/api/team-management';
 
 import { useEventContext } from 'src/components/event-context';
 
+import StallAllotmentCard from 'src/sections/overview/StallAllotmentCard';
+import Dialog from '@mui/material/Dialog';
+
 // import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -56,7 +59,7 @@ import { useGetFormsList } from 'src/api/forms';
 import { IFormListItem } from 'src/types/forms';
 import Label from 'src/components/label';
 import { fDate } from 'src/utils/format-time';
-
+import { useGetEventList1 } from 'src/api/event';
 // ----------------------------------------------------------------------
 
 // const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
@@ -103,9 +106,9 @@ const getFormRequirement = (formId: number, scheme: string | undefined) => {
       return { isMandatory: true, isClickable: true };
     case 2:
       // if (normalizedScheme === 'pre_fitted') {
-        return { isMandatory: true, isClickable: true };
-      // }
-      // return { isMandatory: false, isClickable: false };
+      return { isMandatory: true, isClickable: true };
+    // }
+    // return { isMandatory: false, isClickable: false };
     case 3:
       if (normalizedScheme === 'space_only') {
         return { isMandatory: true, isClickable: true };
@@ -160,15 +163,26 @@ export default function FormsListView() {
   const scheme = (eventData?.state as any)?.scheme?.toLowerCase();
 
   const { forms, formsLoading, reFetchForms } = useGetFormsList();
+  const { events, reFetchEventList } = useGetEventList1();
 
   console.log(forms, '******************8');
 
   const [formList, setFormList] = useState<IFormListItem[]>([]);
+  const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    const exhibitorStatus = events.find(
+      (event) => event.eventId === eventData.state.eventId
+    )?.status;
+
+    setStatus(exhibitorStatus);
+  }, [events, eventData.state.eventId]);
 
   useEffect(() => {
     setFormList(forms);
   }, [forms]);
 
+  const [openStallAllotmentDialog, setOpenStallAllotmentDialog] = useState(false);
   // const [filters, setFilters] = useState(defaultFilters);
 
   // const dataFiltered = applyFilter({
@@ -243,14 +257,14 @@ export default function FormsListView() {
 
             const formRequirement = getFormRequirement(form.formId, scheme);
             // const isClickable = false; //Dissable all forms for now
-            const isClickable = formRequirement.isClickable; 
+            const isClickable = formRequirement.isClickable;
             return (
               <Grid item xs={12} md={6} lg={4} key={form.formId}>
                 <Card
                   sx={{
                     p: 2,
                     border: `1.5px solid ${!form.status || form.status === 'REJECTED' ? 'red' : '#00B8D920'}`,
-                    height: 170,
+                    height: 180,
                     display: 'flex',
                     flexDirection: 'column',
                     cursor: isClickable ? 'pointer' : 'not-allowed',
@@ -258,12 +272,24 @@ export default function FormsListView() {
                     backgroundColor: isClickable ? 'background.paper' : 'action.disabledBackground',
                     '&:hover': isClickable
                       ? {
-                        scale: 1.05,
-                        transition: 'all 0.3s ease',
-                      }
+                          scale: 1.05,
+                          transition: 'all 0.3s ease',
+                        }
                       : {},
                   }}
                   onClick={() => {
+                    if (form?.formId === 6) {
+                      if (status === 'APPROVED') {
+                        setOpenStallAllotmentDialog(true);
+                        return;
+                      }
+                      router.push(paths.dashboard.transactions);
+                      return;
+                    }
+                    if (form?.formId === 14) {
+                      router.push('/dashboard/team-management/new/');
+                      return;
+                    }
                     if (isClickable) {
                       router.push(paths.dashboard.forms.detail(form.formId.toString()));
                     }
@@ -272,21 +298,37 @@ export default function FormsListView() {
                   <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <Iconify icon="fluent:form-28-filled" width={40} height={40} />
                     <Label
-                      color={
-                        form.isAutoApproved
-                          ? getStatusColorAutoApprove(form.status)
-                          : getStatusColor(form.status)
-                      }
+                      color={(() => {
+                        if (form.formId === 6) {
+                          if (status === 'APPROVED') {
+                            return 'success';
+                          }
+                          return 'warning';
+                        }
+                        if (form.isAutoApproved) {
+                          return getStatusColorAutoApprove(form.status);
+                        }
+                        return getStatusColor(form.status);
+                      })()}
                     >
-                      {form.isAutoApproved
-                        ? getStatusTextAutoApprove(form.status)
-                        : getStatusText(form.status)}
+                      {(() => {
+                        if (form.formId === 6) {
+                          if (status === 'APPROVED') {
+                            return 'Download Now';
+                          }
+                          return 'Clear Dues';
+                        }
+                        if (form.isAutoApproved) {
+                          return getStatusTextAutoApprove(form.status);
+                        }
+                        return getStatusText(form.status);
+                      })()}
                     </Label>
                   </Stack>
 
                   <Stack
                     direction="column"
-                    justifyContent="space-between"
+                    // justifyContent="space-between"
                     height="100%"
                     spacing={0}
                   >
@@ -294,6 +336,11 @@ export default function FormsListView() {
                       {form.name}
                       {formRequirement.isMandatory ? '*' : ''}
                     </Typography>
+                    {form.formId === 3 && (
+                      <Typography variant="body2" fontSize={'13px'}>
+                        (Mandatory For Bare Space Holders)
+                      </Typography>
+                    )}
                   </Stack>
                   <Typography
                     variant="body2"
@@ -310,7 +357,7 @@ export default function FormsListView() {
               </Grid>
             );
           })}
-          <Grid item xs={12} md={6} lg={4}>
+          {/* <Grid item xs={12} md={6} lg={4}>
             <Card
               sx={{
                 p: 2,
@@ -325,7 +372,7 @@ export default function FormsListView() {
                 '&:hover': {
                   scale: 1.05,
                   transition: 'all 0.3s ease',
-                }
+                },
               }}
               onClick={() => {
                 router.push('/dashboard/team-management/new/');
@@ -335,14 +382,9 @@ export default function FormsListView() {
                 <Iconify icon="fluent:form-28-filled" width={40} height={40} />
               </Stack>
 
-              <Stack
-                direction="column"
-                justifyContent="space-between"
-                height="100%"
-                spacing={0}
-              >
+              <Stack direction="column" justifyContent="space-between" height="100%" spacing={0}>
                 <Typography variant="h6" sx={{ mt: 1, flex: 1 }}>
-                Form 14 – Exhibitor Badges Generation
+                  Form 14 – Exhibitor Badges Generation
                 </Typography>
               </Stack>
               <Typography
@@ -356,7 +398,7 @@ export default function FormsListView() {
                 Due : 01 Feb 2026
               </Typography>
             </Card>
-          </Grid>
+          </Grid> */}
         </Grid>
 
         {/* <Card>
@@ -371,6 +413,10 @@ export default function FormsListView() {
           </CardContent>
         </Card> */}
       </Container>
+
+      <Dialog open={openStallAllotmentDialog} onClose={() => setOpenStallAllotmentDialog(false)}>
+        <StallAllotmentCard />
+      </Dialog>
 
       {/* <ConfirmDialog
         open={confirm.value}

@@ -10,6 +10,8 @@ import Iconify from 'src/components/iconify';
 import { useEventContext } from 'src/components/event-context';
 import { useGetExhibitor } from 'src/api/exhibitor-profile';
 import { useExhibitorForm } from 'src/api/form';
+import { generateAllotmentLetterApi } from 'src/api/overview';
+import { enqueueSnackbar } from 'src/components/snackbar';
 
 export default function StallAllotmentCard() {
   const [totalAreaRequired, setTotalAreaRequired] = useState(0);
@@ -35,6 +37,20 @@ export default function StallAllotmentCard() {
       setBoothTypePreference(boothTypeLabel);
     }
   }, [exhibitorForm]);
+
+  const handleDownloadAllotment = async () => {
+    enqueueSnackbar('Processing allotment letter...', { variant: 'info' });
+    try {
+      const res = await generateAllotmentLetterApi(eventData?.state.exhibitorId);
+      enqueueSnackbar('Allotment letter processed!!', { variant: 'success' });
+      if (res?.allotmentLetterUrl) {
+        window.open(res.allotmentLetterUrl, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error) {
+      console.error('Failed to generate allotment letter:', error);
+      enqueueSnackbar('Failed to generate allotment letter!', { variant: 'error' });
+    }
+  };
 
   return (
     <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
@@ -87,6 +103,7 @@ export default function StallAllotmentCard() {
             variant="contained"
             color="success"
             disabled
+            onClick={handleDownloadAllotment}
             startIcon={<Iconify icon="mingcute:arrow-down-line" width={24} />}
             // fullWidth
             sx={{ width: '100%' }}

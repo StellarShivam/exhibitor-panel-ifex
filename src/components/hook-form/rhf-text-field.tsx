@@ -42,20 +42,20 @@ export default function RHFTextField({ name, helperText, type, ...other }: Props
           //     },
           //   },
           // }}
-          // sx={{
-          //   '& .MuiOutlinedInput-root': {
-          //     '& fieldset': {
-          //       borderColor: '#262626',
-          //     },
-          //     '&:hover fieldset': {
-          //       borderColor: 'black',
-          //     },
-          //     '&.Mui-focused fieldset': {
-          //       fontSize: '1.1rem',
-          //       borderColor: 'black',
-          //     },
-          //   },
-          // }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: '#262626',
+              },
+              // '&:hover fieldset': {
+              //   borderColor: 'black',
+              // },
+              // '&.Mui-focused fieldset': {
+              //   fontSize: '1.1rem',
+              //   borderColor: 'black',
+              // },
+            },
+          }}
         />
       )}
     />

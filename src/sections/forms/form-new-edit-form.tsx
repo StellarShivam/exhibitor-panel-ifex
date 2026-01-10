@@ -147,6 +147,9 @@ export default function FormsNewEditForm({
   const [states, setStates] = useState<IState[]>([]);
   const [cities, setCities] = useState<ICity[]>([]);
 
+  const gstAmount = Number(baseAmount) * 0.18;
+  const totalAmount = Number(baseAmount) + Number(gstAmount);
+
   const formatAllowedTypes = (allowed?: { [key: string]: string[] }): string => {
     if (!allowed) return '';
     const allExts = Object.values(allowed).flat();
@@ -422,8 +425,8 @@ export default function FormsNewEditForm({
       let totalBaseAmount = 0;
 
       dates.forEach((date) => {
-        const dayGuards = values[`noOfDayShiftGuards_${date.split(' ')[0]}`] || 0;
-        const nightGuards = values[`noOfNightShiftGuards_${date.split(' ')[0]}`] || 0;
+        const dayGuards = values[`noOfDayShiftStaffs_${date.split(' ')[0]}`] || 0;
+        const nightGuards = values[`noOfNightShiftStaffs_${date.split(' ')[0]}`] || 0;
         const dayAmount = dayGuards * dayShiftRate;
         const nightAmount = nightGuards * nightShiftRate;
         totalBaseAmount += dayAmount + nightAmount;
@@ -435,18 +438,18 @@ export default function FormsNewEditForm({
     formId,
     values.dayShifts,
     values.nightShifts,
-    values.noOfDayShiftGuards_09,
-    values.noOfDayShiftGuards_10,
-    values.noOfDayShiftGuards_11,
-    values.noOfDayShiftGuards_12,
-    values.noOfDayShiftGuards_13,
-    values.noOfDayShiftGuards_14,
-    values.noOfNightShiftGuards_09,
-    values.noOfNightShiftGuards_10,
-    values.noOfNightShiftGuards_11,
-    values.noOfNightShiftGuards_12,
-    values.noOfNightShiftGuards_13,
-    values.noOfNightShiftGuards_14,
+    values.noOfDayShiftStaffs_09,
+    values.noOfDayShiftStaffs_10,
+    values.noOfDayShiftStaffs_11,
+    values.noOfDayShiftStaffs_12,
+    values.noOfDayShiftStaffs_13,
+    values.noOfDayShiftStaffs_14,
+    values.noOfNightShiftStaffs_09,
+    values.noOfNightShiftStaffs_10,
+    values.noOfNightShiftStaffs_11,
+    values.noOfNightShiftStaffs_12,
+    values.noOfNightShiftStaffs_13,
+    values.noOfNightShiftStaffs_14,
   ]);
 
   useEffect(() => {
@@ -465,8 +468,8 @@ export default function FormsNewEditForm({
       let totalBaseAmount = 0;
 
       dates.forEach((date) => {
-        const dayCleaners = values[`noOfDayShiftCleaners_${date.split(' ')[0]}`] || 0;
-        const nightCleaners = values[`noOfNightShiftCleaners_${date.split(' ')[0]}`] || 0;
+        const dayCleaners = values[`noOfDayShiftStaffs_${date.split(' ')[0]}`] || 0;
+        const nightCleaners = values[`noOfNightShiftStaffs_${date.split(' ')[0]}`] || 0;
         const dayAmount = dayCleaners * dayShiftRate;
         const nightAmount = nightCleaners * nightShiftRate;
         totalBaseAmount += dayAmount + nightAmount;
@@ -478,18 +481,18 @@ export default function FormsNewEditForm({
     formId,
     values.dayShifts,
     values.nightShifts,
-    values.noOfDayShiftCleaners_09,
-    values.noOfDayShiftCleaners_10,
-    values.noOfDayShiftCleaners_11,
-    values.noOfDayShiftCleaners_12,
-    values.noOfDayShiftCleaners_13,
-    values.noOfDayShiftCleaners_14,
-    values.noOfNightShiftCleaners_09,
-    values.noOfNightShiftCleaners_10,
-    values.noOfNightShiftCleaners_11,
-    values.noOfNightShiftCleaners_12,
-    values.noOfNightShiftCleaners_13,
-    values.noOfNightShiftCleaners_14,
+    values.noOfDayShiftStaffs_09,
+    values.noOfDayShiftStaffs_10,
+    values.noOfDayShiftStaffs_11,
+    values.noOfDayShiftStaffs_12,
+    values.noOfDayShiftStaffs_13,
+    values.noOfDayShiftStaffs_14,
+    values.noOfNightShiftStaffs_09,
+    values.noOfNightShiftStaffs_10,
+    values.noOfNightShiftStaffs_11,
+    values.noOfNightShiftStaffs_12,
+    values.noOfNightShiftStaffs_13,
+    values.noOfNightShiftStaffs_14,
   ]);
 
   useEffect(() => {
@@ -512,9 +515,6 @@ export default function FormsNewEditForm({
       setBaseAmount(base);
     }
   }, [values.airPerConnectionRequired, formId]);
-
-  const gstAmount = Number(baseAmount) * 0.18;
-  const totalAmount = Number(baseAmount) + Number(gstAmount);
 
   useEffect(() => {
     if (!values.dedicatedPorts || !values.dedicatedPorts.includes('1mbps')) {
@@ -635,11 +635,11 @@ export default function FormsNewEditForm({
         // enqueueSnackbar('Form submitted successfully', { variant: 'success' });
         reFetchForms();
         reFetchFormData();
-        if (formId === '2' || formId === '5' || formId === '8' || formId === '7' || formId === '11' || formId === '12') {
-          setTimeout(() => {
-            setPaymentDialogOpen(true);
-          }, 1000);
-        }
+        // if (formId === '2' || formId === '5' || formId === '8' || formId === '7' || formId === '11' || formId === '12') {
+        //   setTimeout(() => {
+        //     setPaymentDialogOpen(true);
+        //   }, 1000);
+        // }
       } else {
         enqueueSnackbar('Form submission failed', { variant: 'error' });
       }
@@ -692,7 +692,10 @@ export default function FormsNewEditForm({
   };
 
   // console.log(currentForm, 'currentForm*******');
-  const isFormDisabled = currentForm?.status === 'SUBMITTED' || currentForm?.status === 'PENDING' || currentForm?.status === 'APPROVED';
+  const isFormDisabled =
+    currentForm?.status === 'SUBMITTED' ||
+    currentForm?.status === 'PENDING' ||
+    currentForm?.status === 'APPROVED';
 
   return (
     <>
@@ -784,8 +787,19 @@ export default function FormsNewEditForm({
                               {...commonProps}
                               multiline
                               rows={4}
-                              inputProps={{ maxLength: 120 }}
-                              helperText={`${values[field.name]?.length || 0}/120`}
+                              inputProps={{ maxLength: field.maxSize || 120 }}
+                              helperText={`${values[field.name]?.length || 0}/${field.maxSize || 120}`}
+                              sx={{
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#1a1a1a',
+                                  borderWidth: '2px',
+                                },
+                                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '3px',
+                                  },
+                              }}
                             />
                           );
                         case 'country':
@@ -818,6 +832,14 @@ export default function FormsNewEditForm({
                                       InputProps={{
                                         ...params.InputProps,
                                         readOnly: isFormDisabled,
+                                      }}
+                                      sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: '#1a1a1a',
+                                            borderWidth: '2px',
+                                          },
+                                        },
                                       }}
                                     />
                                   )}
@@ -858,6 +880,17 @@ export default function FormsNewEditForm({
                                         ...params.InputProps,
                                         readOnly: isFormDisabled,
                                       }}
+                                      sx={{
+                                        '& .MuiOutlinedInput-notchedOutline': {
+                                          borderColor: '#1a1a1a',
+                                          borderWidth: '2px',
+                                        },
+                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                          {
+                                            borderColor: '#1a1a1a',
+                                            borderWidth: '3px',
+                                          },
+                                      }}
                                     />
                                   )}
                                 />
@@ -897,6 +930,17 @@ export default function FormsNewEditForm({
                                         ...params.InputProps,
                                         readOnly: isFormDisabled,
                                       }}
+                                      sx={{
+                                        '& .MuiOutlinedInput-notchedOutline': {
+                                          borderColor: '#1a1a1a',
+                                          borderWidth: '2px',
+                                        },
+                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                          {
+                                            borderColor: '#1a1a1a',
+                                            borderWidth: '3px',
+                                          },
+                                      }}
                                     />
                                   )}
                                 />
@@ -905,7 +949,22 @@ export default function FormsNewEditForm({
                           );
                         case 'grouped-select':
                           return (
-                            <RHFTextField {...commonProps} select SelectProps={{ native: true }}>
+                            <RHFTextField
+                              {...commonProps}
+                              select
+                              SelectProps={{ native: true }}
+                              sx={{
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#1a1a1a',
+                                  borderWidth: '2px',
+                                },
+                                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '3px',
+                                  },
+                              }}
+                            >
                               {(() => {
                                 type GroupedOption = {
                                   label: string;
@@ -939,7 +998,22 @@ export default function FormsNewEditForm({
                           );
                         case 'select':
                           return (
-                            <RHFTextField {...commonProps} select SelectProps={{ native: false }}>
+                            <RHFTextField
+                              {...commonProps}
+                              select
+                              SelectProps={{ native: false }}
+                              sx={{
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#1a1a1a',
+                                  borderWidth: '2px',
+                                },
+                                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '3px',
+                                  },
+                              }}
+                            >
                               {(field as { options?: string[] }).options?.map((option: string) => (
                                 <MenuItem key={option} value={option}>
                                   {option}
@@ -1133,6 +1207,17 @@ export default function FormsNewEditForm({
                                                       disabled={commonProps.disabled || !isChecked}
                                                       type="number"
                                                       inputProps={{ min: 1, step: 1 }}
+                                                      sx={{
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                          borderColor: '#1a1a1a',
+                                                          borderWidth: '2px',
+                                                        },
+                                                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                                          {
+                                                            borderColor: '#1a1a1a',
+                                                            borderWidth: '3px',
+                                                          },
+                                                      }}
                                                     />
                                                   )}
                                                 </Stack>
@@ -1294,6 +1379,17 @@ export default function FormsNewEditForm({
                                   min: 1,
                                   step: 1,
                                 }}
+                                sx={{
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '2px',
+                                  },
+                                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                    {
+                                      borderColor: '#1a1a1a',
+                                      borderWidth: '3px',
+                                    },
+                                }}
                               />
                             </>
                           );
@@ -1333,15 +1429,15 @@ export default function FormsNewEditForm({
                                 {formId === '9' && field.name === 'undertakingOfNoRetailSale' && (
                                   <Typography variant="subtitle2" sx={{ mb: 1 }}>
                                     (Note: Must be on the company's letterhead and for more
-                                    information refer to page 35 of{' '}
+                                    information refer to{' '}
                                     <a
                                       className="underline"
-                                      href="https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf"
+                                      href="https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1768032082863_1767611198208_IFEX-2026-Exhibitors_final_manual-36.pdf"
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
                                       {' '}
-                                      Exhibitor's Manual
+                                      Instructions
                                     </a>{' '}
                                     )
                                   </Typography>
@@ -1349,15 +1445,15 @@ export default function FormsNewEditForm({
                                 {formId === '10' && field.name === 'gatePassLetter' && (
                                   <Typography variant="subtitle2" sx={{ mb: 1 }}>
                                     (Note: Must be on the company's letterhead and for more
-                                    information refer to page 36 of{' '}
+                                    information refer to{' '}
                                     <a
                                       className="underline"
-                                      href="https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf"
+                                      href="https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1768032126463_1767611198208_IFEX-2026-Exhibitors_final_manual-37.pdf"
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
                                       {' '}
-                                      Exhibitor's Manual
+                                      Instructions
                                     </a>{' '}
                                     )
                                   </Typography>
@@ -1546,7 +1642,45 @@ export default function FormsNewEditForm({
                                 </Typography>
                               )}
 
-                              <RHFTextField {...commonProps} />
+                              <RHFTextField
+                                {...commonProps}
+                                sx={{
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '2px',
+                                  },
+                                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                    {
+                                      borderColor: '#1a1a1a',
+                                      borderWidth: '3px',
+                                    },
+                                }}
+                              />
+
+                              {(formId === '2' || formId === '1') &&
+                                (field.name === 'additionalProductIndexNo' ||
+                                  field.name === 'productIndexNo') && (
+                                  <Box sx={{ mt: 2 }}>
+                                    <a
+                                      href="https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1768027085523_1767611198208_IFEX-2026-Exhibitors_final_manual-24-28.pdf"
+                                      target="_blank"
+                                      style={{
+                                        fontSize: '0.85rem',
+                                        color: '#222',
+                                        textDecoration: 'none',
+                                        cursor: 'pointer',
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.textDecoration = 'underline';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.textDecoration = 'none';
+                                      }}
+                                    >
+                                      Click here to download Product Index Numbers
+                                    </a>
+                                  </Box>
+                                )}
                             </>
                           );
                       }
@@ -1615,28 +1749,11 @@ export default function FormsNewEditForm({
                       Please list all items to be brought in. At least one entry is required.
                     </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                    <Button
-                      variant="outlined"
-                      onClick={() =>
-                        appendLargeExhibit({
-                          item: '',
-                          dimensions: '',
-                          weightKg: '',
-                          dateOfArrival: '',
-                        })
-                      }
-                      disabled={isFormDisabled}
-                      startIcon={<Iconify icon="mdi:plus" />}
-                    >
-                      Add Entry
-                    </Button>
-                  </Box>
                   <Grid container spacing={2}>
                     {largeExhibitFields.length === 0 && (
                       <Grid item xs={12}>
                         <Card sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>
-                          No entries yet. Click "Add Entry" to add one.
+                          No entries yet. Click "Add More" to add one.
                         </Card>
                       </Grid>
                     )}
@@ -1664,6 +1781,17 @@ export default function FormsNewEditForm({
                                 name={`largeExhibitEntries.${index}.item`}
                                 label="Items*"
                                 disabled={isFormDisabled}
+                                sx={{
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '2px',
+                                  },
+                                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                    {
+                                      borderColor: '#1a1a1a',
+                                      borderWidth: '3px',
+                                    },
+                                }}
                               />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -1671,6 +1799,17 @@ export default function FormsNewEditForm({
                                 name={`largeExhibitEntries.${index}.dimensions`}
                                 label="Dimensions*"
                                 disabled={isFormDisabled}
+                                sx={{
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '2px',
+                                  },
+                                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                    {
+                                      borderColor: '#1a1a1a',
+                                      borderWidth: '3px',
+                                    },
+                                }}
                               />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -1679,6 +1818,17 @@ export default function FormsNewEditForm({
                                 label="Weight (Kg)*"
                                 type="number"
                                 disabled={isFormDisabled}
+                                sx={{
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '2px',
+                                  },
+                                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                    {
+                                      borderColor: '#1a1a1a',
+                                      borderWidth: '3px',
+                                    },
+                                }}
                               />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -1688,12 +1838,41 @@ export default function FormsNewEditForm({
                                 type="date"
                                 InputLabelProps={{ shrink: true }}
                                 disabled={isFormDisabled}
+                                sx={{
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#1a1a1a',
+                                    borderWidth: '2px',
+                                  },
+                                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                    {
+                                      borderColor: '#1a1a1a',
+                                      borderWidth: '3px',
+                                    },
+                                }}
                               />
                             </Grid>
                           </Grid>
                         </Card>
                       </Grid>
                     ))}
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        appendLargeExhibit({
+                          item: '',
+                          dimensions: '',
+                          weightKg: '',
+                          dateOfArrival: '',
+                        })
+                      }
+                      disabled={isFormDisabled}
+                      startIcon={<Iconify icon="mdi:plus" />}
+                      sx={{
+                        width: '100%',
+                      }}
+                    >
+                      Add More
+                    </Button>
                   </Grid>
                 </>
               )}
@@ -1785,13 +1964,9 @@ export default function FormsNewEditForm({
                                 .filter((item) => item.isDaySelected || item.isNightSelected)
                                 .map((item) => {
                                   const dayPeople =
-                                    values[
-                                      `noOfDayShift${formId === '11' ? 'Guards' : 'Cleaners'}_${item.dayKey}`
-                                    ] || 0;
+                                    values[`noOfDayShiftStaffs_${item.dayKey}`] || 0;
                                   const nightPeople =
-                                    values[
-                                      `noOfNightShift${formId === '11' ? 'Guards' : 'Cleaners'}_${item.dayKey}`
-                                    ] || 0;
+                                    values[`noOfNightShiftStaffs_${item.dayKey}`] || 0;
                                   const dayShiftRate = formId === '11' ? 2000 : 1000;
                                   const nightShiftRate = formId === '11' ? 2000 : 1000;
                                   const dayAmount = dayPeople * dayShiftRate;
@@ -1849,7 +2024,9 @@ export default function FormsNewEditForm({
                     Cost Calculation
                   </Typography>
                   <Grid container spacing={2}>
-                    {(values?.waterPerPointRequired > 0 || values?.airPerConnectionRequired > 0 || values?.powerLoadRequired > 0) && (
+                    {(values?.waterPerPointRequired > 0 ||
+                      values?.airPerConnectionRequired > 0 ||
+                      values?.powerLoadRequired > 0) && (
                       <Grid xs={12}>
                         <Stack direction="row" alignItems="center" justifyContent="space-between">
                           <Typography variant="subtitle2" sx={{ textAlign: 'left' }}>
@@ -2046,19 +2223,20 @@ export default function FormsNewEditForm({
                       formId === '7' ||
                       formId === '11' ||
                       formId === '12'
-                        ? 'Submit & Pay'
+                        ? 'Submit & Generate PI'
                         : 'Submit'}
                     </LoadingButton>
                   </Stack>
                 </>
               )}
 
-              {(formId === '2' ||
-                formId === '5' ||
-                formId === '8' ||
-                formId === '7' ||
-                formId === '11' ||
-                formId === '12') &&
+              {currentForm?.status !== 'REJECTED' &&
+                (formId === '2' ||
+                  formId === '5' ||
+                  formId === '8' ||
+                  formId === '7' ||
+                  formId === '11' ||
+                  formId === '12') &&
                 formData &&
                 formData?.formDetail &&
                 formData?.formDetail?.paymentStatus !== 'captured' &&
@@ -2066,7 +2244,8 @@ export default function FormsNewEditForm({
                 formData?.formDetail?.paymentStatus !== 'pending' && (
                   <>
                     <Divider sx={{ my: 3, borderBottom: '1px dashed rgba(0, 0, 0, 0.12)' }} />
-                    <Stack sx={{ mt: 3 }}>
+                    <Stack sx={{ mt: 3 }} gap={1}>
+                      <Button variant="contained">Download Proforma Invoice</Button>
                       <Button variant="contained" onClick={() => setPaymentDialogOpen(true)}>
                         Pay Now
                       </Button>
@@ -2076,24 +2255,81 @@ export default function FormsNewEditForm({
             </Card>
           </Grid>
           <Grid xs={12} md={4} spacing={3}>
-            {/* {formId === '5' && (
+            {(formId === '2' ||
+                  formId === '5' ||
+                  formId === '8' ||
+                  formId === '7' ||
+                  formId === '11' ||
+                  formId === '12') && (
               <Card sx={{ p: 3, mb: 3 }}>
-                <Typography variant="h6">Note:</Typography>
-                <Typography variant="body1">
-                  For dedicated Internet Bandwidth, Please contact to
+                <Typography variant="h6" gutterBottom>
+                  Bank Details
                 </Typography>
-                <Typography variant="body1">
-                  <br />
-                  Charan Singh (Senior Manager | IT)
-                  <br />
-                  India Exposition Mart Limited
-                  <br />
-                  <b>Mob :</b> +91-9289137552
-                  <br />
-                  <b>Email :</b> it1@indiaexpocentre.com
-                </Typography>
+                <Box sx={{ bgcolor: '#e3f3fc', p: 2, borderRadius: 1, mb: 2 }}>
+                  <Grid container spacing={1}>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" fontWeight={600}>
+                        Bank Name
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">
+                        Federal Towers, H-362, Shopping Complex, Sector 22, Noida, Gautam Buddha
+                        Nagar - 201301, Uttar Pradesh
+                      </Typography>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant="body2" fontWeight={600}>
+                        Beneficiary Name &amp; Address
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">
+                        M/S. INDIA EXPOSITION MART LTD., Plot No. 25 &amp; 27-29, Knowledge Park 2,
+                        Gr. Noida - 201306
+                      </Typography>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant="body2" fontWeight={600}>
+                        Account No.
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">13400200026760</Typography>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant="body2" fontWeight={600}>
+                        IFSC Code
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">FDRL0001340</Typography>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant="body2" fontWeight={600}>
+                        PAN No.
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">AAACI8678M</Typography>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant="body2" fontWeight={600}>
+                        GST No.
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">09AAACI8678M1ZR</Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
               </Card>
-            )} */}
+            )}
 
             {/* <Card sx={{ p: 3 }}>
             <Chip label="Information" variant="outlined" color="info" sx={{ mb: 2 }} />

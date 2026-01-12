@@ -98,44 +98,46 @@ const getStatusText = (status: string | null) => {
   return 'Not Started';
 };
 
-const getFormRequirement = (formId: number, scheme: string | undefined) => {
-  const normalizedScheme = scheme?.toLowerCase();
+const getFormRequirement = (formId: number, scheme: string | undefined, required: boolean | undefined, isMandatoryForBare: boolean | undefined, isMandatoryForShell: boolean | undefined) => {
+  const normalizedScheme = scheme;
+
+  const isRequired = required || (isMandatoryForBare && normalizedScheme === 'Bare Space') || (isMandatoryForShell && normalizedScheme === 'Shell');
 
   switch (formId) {
     case 1:
-      return { isMandatory: true, isClickable: true };
+      return { isMandatory: isRequired, isClickable: true };
     case 2:
       // if (normalizedScheme === 'pre_fitted') {
-      return { isMandatory: true, isClickable: false };
+      return { isMandatory: isRequired, isClickable: false };
     // }
     // return { isMandatory: false, isClickable: false };
     case 3:
       // if (normalizedScheme === 'space_only') {
       //   return { isMandatory: true, isClickable: true };
       // }
-      return { isMandatory: false, isClickable: true };
+      return { isMandatory: isRequired, isClickable: true };
     case 4:
       // if (normalizedScheme === 'space_only') {
       //   return { isMandatory: true, isClickable: true };
       // }
-      return { isMandatory: false, isClickable: true };
+      return { isMandatory: isRequired, isClickable: true };
     case 5:
-      return { isMandatory: false, isClickable: false };
+      return { isMandatory: isRequired, isClickable: false };
     case 6:
     case 7:
-      return { isMandatory: false, isClickable: false };
+      return { isMandatory: isRequired, isClickable: false };
     case 8:
-      return { isMandatory: false, isClickable: false };
+      return { isMandatory: isRequired, isClickable: false };
     case 9:
-      return { isMandatory: false, isClickable: true };
+      return { isMandatory: isRequired, isClickable: true };
     case 11:
-      return { isMandatory: false, isClickable: false };
+      return { isMandatory: isRequired, isClickable: false };
     case 12:
-      return { isMandatory: false, isClickable: false };
+      return { isMandatory: isRequired, isClickable: false };
     case 14:
-      return { isMandatory: false, isClickable: false };
+      return { isMandatory: isRequired, isClickable: false };
     default:
-      return { isMandatory: false, isClickable: true };
+      return { isMandatory: isRequired, isClickable: true };
   }
 };
 
@@ -168,7 +170,7 @@ export default function FormsListView() {
 
   const { eventData } = useEventContext();
 
-  const scheme = (eventData?.state as any)?.scheme?.toLowerCase();
+  const scheme = (eventData?.state as any)?.areaType;
 
   const { forms, formsLoading, reFetchForms } = useGetFormsList();
   const { events, reFetchEventList } = useGetEventList1();
@@ -263,7 +265,7 @@ export default function FormsListView() {
             // if (form.formId === 5 || form.formId === 7 || form.formId === 8 || form.formId === 9)
             //   return null;
 
-            const formRequirement = getFormRequirement(form.formId, scheme);
+            const formRequirement = getFormRequirement(form.formId, scheme, form?.required, form?.isMandatoryForBare, form?.isMandatoryForShell);
             // const isClickable = false; //Dissable all forms for now
             const isClickable = formRequirement.isClickable;
             return (

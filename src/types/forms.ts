@@ -75,6 +75,9 @@ export interface IFormListItem {
   exhibitorFormId: number | null;
   dueDate: string | null;
   isAutoApproved: boolean;
+  isMandatoryForBare: boolean;
+  isMandatoryForShell: boolean;
+  required: boolean;
 }
 
 export type IFormList = IFormListItem[];

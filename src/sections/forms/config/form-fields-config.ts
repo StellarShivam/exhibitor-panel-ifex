@@ -332,6 +332,7 @@ const basicCatalogueEntrySchema: IFormConfig = {
     organizationHeadName: Yup.string().required("Name of the Organization's Head is required"),
     contactPersonName: Yup.string().required('Contact Person Name is required'),
     city: Yup.string(),
+    fasciaName: Yup.string(),
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
       .oneOf([true], 'You must confirm the details before submitting'),
@@ -355,6 +356,7 @@ const basicCatalogueEntrySchema: IFormConfig = {
     organizationHeadName: formData?.organizationHeadName || '',
     contactPersonName: formData?.firstName || formData?.contactPersonName || '',
     city: formData?.billingCity || formData?.city || '',
+    fasciaName:formData?.fasciaName || '',
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
@@ -494,10 +496,19 @@ const basicCatalogueEntrySchema: IFormConfig = {
       // },
       {
         name: 'companyProfile',
-        label: 'Company Profile',
+        label: 'Company Profile*',
         type: 'textarea',
         required: true,
         maxSize: 180,
+      },
+      {
+        name: 'fasciaName',
+        label: 'Fascia Name (as required on built-up stall)',
+        type: 'text',
+        required: false,
+        gridItem: {
+          xs: 12,
+        },
       },
       {
         name: 'finalConfirmation',

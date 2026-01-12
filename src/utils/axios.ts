@@ -157,6 +157,7 @@ export const apiEndpoints = {
     saveForm: '/exhibitorForm/exhibitor/saveForm',
     formData: '/exhibitorForm/exhibitor/formDetail?formDetailId=',
     resubmit: '/exhibitorForm/exhibitor/resubmit',
+    generatePerformaInvoice: '/generateServiceFormPI?exhibitorFormDetailId=',
   },
   pricing: {
     detail: '/eventpricing/',

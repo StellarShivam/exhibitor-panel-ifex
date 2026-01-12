@@ -106,26 +106,34 @@ const getFormRequirement = (formId: number, scheme: string | undefined) => {
       return { isMandatory: true, isClickable: true };
     case 2:
       // if (normalizedScheme === 'pre_fitted') {
-      return { isMandatory: true, isClickable: true };
+      return { isMandatory: true, isClickable: false };
     // }
     // return { isMandatory: false, isClickable: false };
     case 3:
-      if (normalizedScheme === 'space_only') {
-        return { isMandatory: true, isClickable: true };
-      }
+      // if (normalizedScheme === 'space_only') {
+      //   return { isMandatory: true, isClickable: true };
+      // }
       return { isMandatory: false, isClickable: true };
     case 4:
-      if (normalizedScheme === 'space_only') {
-        return { isMandatory: true, isClickable: true };
-      }
+      // if (normalizedScheme === 'space_only') {
+      //   return { isMandatory: true, isClickable: true };
+      // }
       return { isMandatory: false, isClickable: true };
     case 5:
-      return { isMandatory: false, isClickable: true };
+      return { isMandatory: false, isClickable: false };
     case 6:
     case 7:
+      return { isMandatory: false, isClickable: false };
     case 8:
+      return { isMandatory: false, isClickable: false };
     case 9:
       return { isMandatory: false, isClickable: true };
+    case 11:
+      return { isMandatory: false, isClickable: false };
+    case 12:
+      return { isMandatory: false, isClickable: false };
+    case 14:
+      return { isMandatory: false, isClickable: false };
     default:
       return { isMandatory: false, isClickable: true };
   }
@@ -278,7 +286,7 @@ export default function FormsListView() {
                       : {},
                   }}
                   onClick={() => {
-                    if (form?.formId === 6) {
+                    if (isClickable && form?.formId === 6) {
                       if (status === 'APPROVED') {
                         setOpenStallAllotmentDialog(true);
                         return;
@@ -286,7 +294,7 @@ export default function FormsListView() {
                       router.push(paths.dashboard.transactions);
                       return;
                     }
-                    if (form?.formId === 14) {
+                    if (isClickable && form?.formId === 14) {
                       router.push('/dashboard/team-management/new/');
                       return;
                     }

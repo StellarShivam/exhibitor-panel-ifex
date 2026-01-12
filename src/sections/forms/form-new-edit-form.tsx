@@ -66,6 +66,7 @@ import {
   useGetFormsList,
   useResubmitForm,
   useSaveForm,
+    generatePerformaInvoice,
 } from 'src/api/forms';
 import { fDateTime } from 'src/utils/format-time';
 import { getFormSchema, getFormDefaultValues, getFormStructure } from './config/form-fields-config';
@@ -571,6 +572,28 @@ export default function FormsNewEditForm({
       }
     }
   }, [values.dedicatedPorts, values.numberOf50MbpsPorts, setValue]);
+
+  const handleDownloadPerformaInvoice = async () => {
+    enqueueSnackbar('Processing performa invoice...', { variant: 'info' });
+    try {
+      if (typeof currentForm?.exhibitorFormId === 'number') {
+        const res = await generatePerformaInvoice(currentForm?.exhibitorFormId);
+
+        console.log('RES: ', res);
+
+        enqueueSnackbar('Performa invoice processed!!', { variant: 'success' });
+
+        if (res) {
+          window.open(res, '_blank', 'noopener,noreferrer');
+        }
+      } else {
+        enqueueSnackbar('Failed to generate performa invoice!', { variant: 'error' });
+      }
+    } catch (error) {
+      console.error('Failed to generate performa invoice:', error);
+      enqueueSnackbar('Failed to generate performa invoice!', { variant: 'error' });
+    }
+  };
 
   console.log(errors, 'errors*******');
   const onSubmit = handleSubmit(async (data) => {
@@ -2252,7 +2275,7 @@ export default function FormsNewEditForm({
                   <>
                     <Divider sx={{ my: 3, borderBottom: '1px dashed rgba(0, 0, 0, 0.12)' }} />
                     <Stack sx={{ mt: 3 }} gap={1}>
-                      <Button variant="contained">Download Proforma Invoice</Button>
+                      <Button variant="contained" onClick={handleDownloadPerformaInvoice}>Download Proforma Invoice</Button>
                       <Button variant="contained" onClick={() => setPaymentDialogOpen(true)}>
                         Pay Now
                       </Button>

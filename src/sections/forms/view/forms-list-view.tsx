@@ -108,9 +108,9 @@ const getFormRequirement = (formId: number, scheme: string | undefined, required
       return { isMandatory: isRequired, isClickable: true };
     case 2:
       // if (normalizedScheme === 'pre_fitted') {
-      return { isMandatory: isRequired, isClickable: false };
+      return { isMandatory: isRequired, isClickable: true };
     // }
-    // return { isMandatory: false, isClickable: false };
+    // return { isMandatory: true, isClickable: true };
     case 3:
       // if (normalizedScheme === 'space_only') {
       //   return { isMandatory: true, isClickable: true };
@@ -122,20 +122,20 @@ const getFormRequirement = (formId: number, scheme: string | undefined, required
       // }
       return { isMandatory: isRequired, isClickable: true };
     case 5:
-      return { isMandatory: isRequired, isClickable: false };
+      return { isMandatory: isRequired, isClickable: true };
     case 6:
     case 7:
-      return { isMandatory: isRequired, isClickable: false };
+      return { isMandatory: isRequired, isClickable: true };
     case 8:
-      return { isMandatory: isRequired, isClickable: false };
+      return { isMandatory: isRequired, isClickable: true };
     case 9:
       return { isMandatory: isRequired, isClickable: true };
     case 11:
-      return { isMandatory: isRequired, isClickable: false };
+      return { isMandatory: isRequired, isClickable: true };
     case 12:
-      return { isMandatory: isRequired, isClickable: false };
+      return { isMandatory: isRequired, isClickable: true };
     case 14:
-      return { isMandatory: isRequired, isClickable: false };
+      return { isMandatory: isRequired, isClickable: true };
     default:
       return { isMandatory: isRequired, isClickable: true };
   }

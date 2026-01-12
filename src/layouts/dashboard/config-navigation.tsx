@@ -125,11 +125,11 @@ export function useNavData() {
               path: paths.dashboard.exhibitorProfile.root,
               icon: ICONS.job,
             },
-            // {
-            //   title: 'Exhibitor Manual',
-            //   path: 'https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf',
-            //   icon: ICONS.external,
-            // },
+            {
+              title: 'Exhibitor Manual',
+              path: 'https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf',
+              icon: ICONS.external,
+            },
             {
               title: 'Service Request Forms',
               path: paths.dashboard.forms.root,

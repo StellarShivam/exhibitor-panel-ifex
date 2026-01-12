@@ -1083,6 +1083,7 @@ export default function FormsNewEditForm({
                                     </FormLabel>
                                     {field.name === 'dayShifts' ||
                                     field.name === 'nightShifts' ||
+                                    field.name === 'powerSupplyBeforeEventDates' ||
                                     field.name === 'dates' ||
                                     field.name === 'temporaryPowerDates' ? (
                                       <Box

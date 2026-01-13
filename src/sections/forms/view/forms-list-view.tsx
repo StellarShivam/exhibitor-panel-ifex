@@ -110,7 +110,7 @@ const getFormRequirement = (formId: number, scheme: string | undefined, required
       // if (normalizedScheme === 'pre_fitted') {
       return { isMandatory: isRequired, isClickable: true };
     // }
-    // return { isMandatory: true, isClickable: true };
+    // return { isMandatory: false, isClickable: false };
     case 3:
       // if (normalizedScheme === 'space_only') {
       //   return { isMandatory: true, isClickable: true };
@@ -122,10 +122,10 @@ const getFormRequirement = (formId: number, scheme: string | undefined, required
       // }
       return { isMandatory: isRequired, isClickable: true };
     case 5:
-      return { isMandatory: isRequired, isClickable: true };
+      // return { isMandatory: isRequired, isClickable: false };
     case 6:
     case 7:
-      return { isMandatory: isRequired, isClickable: true };
+      // return { isMandatory: isRequired, isClickable: false };
     case 8:
       return { isMandatory: isRequired, isClickable: true };
     case 9:

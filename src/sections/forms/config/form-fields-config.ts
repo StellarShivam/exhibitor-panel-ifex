@@ -283,17 +283,17 @@ const standDesignSchema: IFormConfig = {
         required: true,
         maxSize: 5242880,
       },
-      {
-        name: 'safeStabilityStructureCertificate',
-        label: 'Safe Stability Structure Certificate',
-        type: 'file',
-        allowedTypes: {
-          'application/pdf': ['.pdf'],
-          'word/document': ['.doc', '.docx'],
-        },
-        required: false,
-        maxSize: 5242880,
-      },
+      // {
+      //   name: 'safeStabilityStructureCertificate',
+      //   label: 'Safe Stability Structure Certificate',
+      //   type: 'file',
+      //   allowedTypes: {
+      //     'application/pdf': ['.pdf'],
+      //     'word/document': ['.doc', '.docx'],
+      //   },
+      //   required: false,
+      //   maxSize: 5242880,
+      // },
       {
         name: 'finalConfirmation',
         label:
@@ -539,13 +539,7 @@ const electricityFormSchema: IFormConfig = {
       .required('Power Load Required is required')
       .min(1, 'Power Load Required must be at least 1'),
     powerLoadRequiredBeforeEvent: Yup.number().optional(),
-    powerSupplyBeforeEventDates: Yup.array()
-      .of(Yup.string())
-      .when('powerLoadRequiredBeforeEvent', {
-        is: (val: any) => Number(val) >= 1,
-        then: schema => schema.min(1, 'Please select the dates when power supply is required before event'),
-        otherwise: schema => schema.optional(),
-      }),
+
     finalConfirmation: Yup.boolean()
       .required('You must confirm the details before submitting')
       .oneOf([true], 'You must confirm the details before submitting'),
@@ -561,7 +555,7 @@ const electricityFormSchema: IFormConfig = {
     email: formData?.email || '',
     powerLoadRequired: formData?.powerLoadRequired || 0,
     powerLoadRequiredBeforeEvent: formData?.powerLoadRequiredBeforeEvent || 0,
-    powerSupplyBeforeEventDates: formData?.powerSupplyBeforeEventDates || [],
+
     finalConfirmation: formData?.finalConfirmation || false,
   }),
   structure: {
@@ -656,20 +650,6 @@ const electricityFormSchema: IFormConfig = {
         label: 'POWER LOAD REQUIRED BEFORE EVENT - kw @ Rs. 3000/- + 18 % GST',
         type: 'number',
         required: true,
-        gridItem: {
-          xs: 12,
-        },
-      },
-      {
-        name: 'powerSupplyBeforeEventDates',
-        label: 'Select the date(s) on which you require power supply before the event',
-        type: 'checkbox-group',
-        options: [
-          'Mon|09|09th February 2026',
-          'Tue|10|10th February 2026',
-          'Wed|11|11th February 2026',
-        ],
-        required: false,
         gridItem: {
           xs: 12,
         },

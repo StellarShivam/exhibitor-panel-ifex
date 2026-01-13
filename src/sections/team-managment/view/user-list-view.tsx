@@ -50,6 +50,8 @@ import { IUserItem, IUserTableFilters, IUserTableFilterValue } from 'src/types/u
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import { useGetEventList1 } from 'src/api/event';
+import { useGetExhibitor } from 'src/api/exhibitor-profile';
+import { useExhibitorForm } from 'src/api/forms';
 
 // ----------------------------------------------------------------------
 
@@ -85,26 +87,13 @@ export default function UserListView() {
   const confirm = useBoolean();
 
   const { eventData } = useEventContext();
-  const { events, reFetchEventList } = useGetEventList1();
 
   const { exhibitorUsers, exhibitorUsersLoading, reFetchExhibitorUsers } = useGetExhibitorUsers(
     eventData?.state.exhibitorId
   );
 
-  const [totalBadgeCount, setTotalBadgeCount] = useState(0);
-  const [usedBadgeCount, setUsedBadgeCount] = useState(0);
-
-  useEffect(() => {
-    const totalCount = events.find(
-      (event) => event.eventId === eventData.state.eventId
-    )?.totalBadgeCount;
-    const usedCount = events.find(
-      (event) => event.eventId === eventData.state.eventId
-    )?.usedBadgeCount;
-
-    setTotalBadgeCount(totalCount);
-    setUsedBadgeCount(usedCount);
-  }, [events, eventData.state.eventId]);
+  const { exhibitor } = useGetExhibitor(eventData?.state.exhibitorId);
+  const { exhibitorForm } = useExhibitorForm(exhibitor?.supportEmail, eventData?.state.eventId);
 
   const [tableData, setTableData] = useState<IUserItem[]>([]);
 
@@ -233,18 +222,18 @@ export default function UserListView() {
         <Stack direction="row" alignItems="start" spacing={1}>
           <Iconify icon="fa7-solid:people-group" />
           <Typography variant="subtitle2" sx={{ color: 'info.main' }}>
-            Total Members Allowed : <strong>{totalBadgeCount}</strong>
+            Total Members Allowed : <strong>{exhibitorForm?.totalBadgeCount}</strong>
           </Typography>
         </Stack>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ ml: 4 }}>
           <Iconify icon="ic:twotone-add-box" />
           <Typography variant="subtitle2" sx={{ color: 'info.main'}}>
-            Members Added: <strong>{usedBadgeCount}</strong>
+            Members Added: <strong>{exhibitorForm?.usedBadgeCount}</strong>
           </Typography>
         </Stack>
       </Stack>
 
-      {totalBadgeCount > 0 && usedBadgeCount >= totalBadgeCount && (
+      {exhibitorForm?.totalBadgeCount > 0 && exhibitorForm?.usedBadgeCount >= exhibitorForm?.totalBadgeCount && (
         <Stack
           direction="row"
           // alignItems="center"

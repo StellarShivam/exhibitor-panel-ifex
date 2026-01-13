@@ -1359,7 +1359,7 @@ export default function FormsNewEditForm({
                               {field.name === 'powerLoadRequired' && (
                                 <>
                                   <Typography variant="subtitle2">
-                                    Power Load Required (KW)*
+                                  Power Load Required (KW) During Event Days 12th - 14th Feb *
                                   </Typography>
                                   <Typography variant="body2" sx={{ mb: 2 }}>
                                     (Any gadget requiring 24 hours electric load to be included in
@@ -1371,7 +1371,7 @@ export default function FormsNewEditForm({
                               {field.name === 'powerLoadRequiredBeforeEvent' && (
                                 <>
                                   <Typography variant="subtitle2" sx={{ mb: 2 }}>
-                                  Electricity Requirement For Days Before The Event (KW)
+                                  Electricity Requirement (KW) During Setup Days 9th - 11th Feb
                                   </Typography>
                                 </>
                               )}
@@ -1494,14 +1494,14 @@ export default function FormsNewEditForm({
                                     (Note: It is recommended to upload the image in a 1:1 ratio)
                                   </Typography>
                                 )}
-                                {formId === '3' &&
+                                {/* {formId === '3' &&
                                   field.name === 'safeStabilityStructureCertificate' && (
                                     <Typography variant="subtitle2" sx={{ mb: 1 }}>
                                       (Note: If the floor is a mezzanine floor, it is mandatory to
                                       upload a Safe Stability Structure Certificate issued by a
                                       Registered Structural Engineer.)
                                     </Typography>
-                                  )}
+                                  )} */}
                                 <Controller
                                   name={field.name}
                                   control={control}

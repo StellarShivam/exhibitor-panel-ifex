@@ -200,22 +200,22 @@ export default function PaymentDialog({
   };
 
   const getMembershipAmount = () => {
-    const calculatedAmount = paymentDetails?.calculatedAmount || 0;
-    const gstAmount = paymentDetails?.gstAmount || 0;
-    const totalAmount = paymentDetails?.totalAmount || 0;
-    const membershipAmount = totalAmount - (calculatedAmount + gstAmount);
-    return membershipAmount > 0 ? membershipAmount : 0;
+    return (paymentDetails?.calculatedAmountIifMember + paymentDetails?.gstAmountIifMember) || 0;
   };
 
   const calculateAmountToPay = (percentage: number) => {
     const totalAmountToPay = paymentDetails?.totalAmount || 0;
     const paidAmount = paymentDetails?.paidAmount || 0;
     if (paidAmount === 0) {
-      const calculatedAmount = paymentDetails?.calculatedAmount || 0;
-      const gstAmount = paymentDetails?.gstAmount || 0;
-      const baseAmount = calculatedAmount + gstAmount;
+      const baseAmount = paymentDetails?.calculatedAmount || 0;
+      const gstAmount = (paymentDetails?.gstAmount + paymentDetails?.gstAmountPlc || 0) || 0;
+      const plcAmount = paymentDetails?.calculatedAmountPlc || 0;
+      const tdsAmount = paymentDetails?.tdsAmount || 0;
+
+      const boothAmount = baseAmount + gstAmount + plcAmount - tdsAmount;
+      
       const membershipAmount = getMembershipAmount();
-      const stageAmount = (percentage / 100) * baseAmount;
+      const stageAmount = (percentage / 100) * boothAmount;
       return roundHalfUp(stageAmount + membershipAmount);
     }
     return roundHalfUp((percentage / 100) * totalAmountToPay);
@@ -879,7 +879,7 @@ export default function PaymentDialog({
          * If exhibitor has allotmentLetter, force full remaining payment
          * by pre-filling maximum unpaid amount and hiding percentage options.
          */}
-{exhibitorForm.paidAmount === 0 && getMembershipAmount() > 0 && (
+{exhibitorForm?.paidAmount === 0 && getMembershipAmount() > 0 && (
                   <p className="text-sm text-gray-700 mt-6">
                     Note: First installment is selected % of stall amount + full membership amount.
                   </p>

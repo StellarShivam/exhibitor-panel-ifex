@@ -249,27 +249,20 @@ export default function PaymentSummaryListView() {
             </Box>
 
             <Box fontWeight={'bold'} fontSize={12} color="text.primary">
-              GST: {fCurrencyWithType(paymentDetails?.gstAmount, paymentDetails?.currency || "INR").formatted}{' '}
+              GST: {fCurrencyWithType((paymentDetails?.gstAmount + paymentDetails?.gstAmountPlc), paymentDetails?.currency || "INR").formatted}{' '}
             </Box>
 
-            {membershipAmount > 0 && (
-              <Box fontWeight={'bold'} fontSize={12} color="text.primary">
-                Membership Amount :{' '}
-                {fCurrencyWithType(membershipAmount, paymentDetails?.currency || 'INR').formatted}{' '}
-              </Box>
-            )}
-
             {
-              exhibitorForm?.metaData?.data?.formData?.hallNumber &&
-              exhibitorForm?.metaData?.data?.formData?.stallNumber &&
+              // exhibitorForm?.metaData?.data?.formData?.hallNumber &&
+              // exhibitorForm?.metaData?.data?.formData?.stallNumber &&
               <>
                 <Box fontWeight={'bold'} fontSize={12} color="text.primary">
-                  PLC Amount : {fCurrencyWithType(paymentDetails?.plcAmount, paymentDetails?.currency || "INR").formatted}{' '}
+                  PLC : {fCurrencyWithType((paymentDetails?.calculatedAmountPlc), paymentDetails?.currency || "INR").formatted}{' '}
                 </Box>
 
-                <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+                {/* <Box fontWeight={'bold'} fontSize={12} color="text.primary">
                   GST (PLC Amount) : {fCurrencyWithType(paymentDetails?.gstAmountPlc || 0, paymentDetails?.currency || "INR").formatted}{' '}
-                </Box>
+                </Box> */}
               </>
             }
 
@@ -277,6 +270,13 @@ export default function PaymentSummaryListView() {
             <Box fontWeight={'bold'} fontSize={12} color="text.primary">
               TDS : {fCurrencyWithType(paymentDetails?.tdsAmount || 0, paymentDetails?.currency || "INR").formatted}{' '}
             </Box>
+
+            {paymentDetails?.calculatedAmountIifMember > 0 && (
+              <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+                Membership Fee :{' '}
+                {fCurrencyWithType((paymentDetails?.calculatedAmountIifMember + paymentDetails?.gstAmountIifMember), paymentDetails?.currency || 'INR').formatted}{' '}
+              </Box>
+            )}
 
           </Box>
           <Iconify icon="solar:bill-list-bold-duotone" width={46} color="#3ec1f3" />

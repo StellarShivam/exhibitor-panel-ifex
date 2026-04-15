@@ -1,6 +1,43 @@
 /* scrollbar */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import 'simplebar-react/dist/simplebar.min.css';
+
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* ─── Theme tokens (CSS custom properties) ────────────────────────────────── */
+:root {
+  /* Primary colors */
+  --color-primary: #ffa201;
+  --color-primary-hover: #000000;
+  --color-secondary: #febd1f;
+  
+  /* Status colors */
+  --color-error: #EF4444;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  
+  /* Surface colors */
+  --color-surface: #F6F6F6;
+  --color-surface-alt: #F3F4F6;
+  
+  /* Border colors */
+  --color-border: #521D49;
+  --color-border-strong: #9CA3AF;
+  
+  /* Text colors */
+  --color-text: #374151;
+  --color-text-muted: #6B7280;
+  --color-text-light: #9CA3AF;
+  
+  /* Badge colors */
+  --color-badge-error-bg: #FEE2E2;
+  --color-badge-error-text: #B91C1C;
+  --color-badge-success-bg: #DCFCE7;
+  --color-badge-success-text: #166534;
+  --color-badge-info-bg: #DBEAFE;
+  --color-badge-info-text: #1E40AF;
+  
+  /* Accent colors */
+  --color-accent: #d22027;
+  --color-accent-light: #febd1f;
+}

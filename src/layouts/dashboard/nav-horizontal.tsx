@@ -10,10 +10,12 @@ import { bgBlur } from 'src/theme/css';
 
 import Scrollbar from 'src/components/scrollbar';
 import { NavSectionHorizontal } from 'src/components/nav-section';
+import SponsorContactDialog from 'src/components/sponsor-contact-dialog';
 
 import { HEADER } from '../config-layout';
 import { useNavData } from './config-navigation';
 import HeaderShadow from '../common/header-shadow';
+import BuyerInviteDialog from 'src/components/buyer-invite-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +24,7 @@ function NavHorizontal() {
 
   const { user } = useMockedUser();
 
-  const navData = useNavData();
+  const { data: navData, sponsorDialog, buyerDialog } = useNavData();
 
   return (
     <AppBar
@@ -58,6 +60,9 @@ function NavHorizontal() {
       </Toolbar>
 
       <HeaderShadow />
+      
+      <SponsorContactDialog open={sponsorDialog.value} onClose={sponsorDialog.onFalse} />
+      <BuyerInviteDialog open={buyerDialog.value} onClose={buyerDialog.onFalse} />
     </AppBar>
   );
 }

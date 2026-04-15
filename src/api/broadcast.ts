@@ -1,0 +1,1 @@
+export const broadCastContsantURL = "https://notification-wfi.eventstrat.ai/api/v1/notification/broadcast"

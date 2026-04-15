@@ -38,7 +38,7 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { fullName, email, profileUrl, updatedAt, designation, phone } = row;
+  const { firstName, lastName, email, profileUrl, updatedAt, designation, mobile } = row;
 
   const confirm = useBoolean();
 
@@ -53,9 +53,9 @@ export default function UserTableRow({
 
         <TableCell>
           <Stack direction="row" alignItems="center">
-            <Avatar alt={fullName} src={profileUrl} sx={{ mr: 2 }} />
+            <Avatar alt={`${firstName} ${lastName}`} src={profileUrl} sx={{ mr: 2 }} />
             <ListItemText
-              primary={fullName}
+              primary={`${firstName} ${lastName}`}
               secondary={email}
               primaryTypographyProps={{ typography: 'body2' }}
               secondaryTypographyProps={{
@@ -66,11 +66,15 @@ export default function UserTableRow({
           </Stack>
         </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{designation}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{phone}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{mobile}</TableCell>
 
-        {/* <TableCell></TableCell> */}
+        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
+        </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <ListItemText
             primary={fDate(updatedAt)}
             secondary={fTime(updatedAt)}
@@ -81,7 +85,7 @@ export default function UserTableRow({
               typography: 'caption',
             }}
           />
-        </TableCell>
+        </TableCell> */}
 
         {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Stack direction="row" spacing={0.4} flexWrap="wrap">
@@ -148,12 +152,13 @@ export default function UserTableRow({
             popover.onClose();
           }}
           sx={{ color: 'error.main' }}
+          disabled
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete
         </MenuItem>
 
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             onEditRow();
             popover.onClose();
@@ -161,7 +166,7 @@ export default function UserTableRow({
         >
           <Iconify icon="solar:pen-bold" />
           Edit
-        </MenuItem>
+        </MenuItem> */}
       </CustomPopover>
 
       <ConfirmDialog

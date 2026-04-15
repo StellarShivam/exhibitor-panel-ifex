@@ -1,9 +1,15 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 
 import { paths } from 'src/routes/paths';
 
 import SvgColor from 'src/components/svg-color';
 import { useEventContext } from 'src/components/event-context';
+import { usePaymentByExhibitorID } from 'src/api/payment-summary';
+import { useExhibitorForm, useBuyerForm } from 'src/api/form';
+import { useBoolean } from 'src/hooks/use-boolean';
+
+import SponsorContactDialog from 'src/components/sponsor-contact-dialog';
+import { featureFlags } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
@@ -47,47 +53,29 @@ const ICONS = {
 export function useNavData() {
   const { eventData } = useEventContext();
 
-  // console.log(eventData, 'jhugyf');
+  // const { payment, paymentLoading, refetchPayment } = usePaymentByExhibitorID(
+  //   eventData.state.exhibitorId
+  // );
+  const { exhibitorForm, exhibitorFormLoading, reFetchExhibitorForm } = useExhibitorForm();
+  const [formStatus, setFormStatus] = useState('PENDING');
 
-  const { installments = [], currentDate } = eventData.state || {};
-  const status = eventData.state?.status;
+  const sponsorDialog = useBoolean();
+  const buyerDialog = useBoolean();
 
-  // Sort installments by dueDate ascending
-  const sortedInstallments = [...(installments || [])].sort(
-    (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-  );
-
-  // Find the nearest installment whose dueDate is <= currentDate
-  const now = new Date(currentDate);
-  const nearestInstallmentIdx = sortedInstallments.findIndex(
-    (inst) => new Date(inst.dueDate).getTime() <= now.getTime()
-  );
-  const nearestInstallment =
-    nearestInstallmentIdx !== -1
-      ? sortedInstallments[nearestInstallmentIdx]
-      : sortedInstallments[0];
-
-  // Find all installmentTypes from nearestInstallment onwards (including higher)
-  const allowedInstallmentTypes = sortedInstallments
-    .slice(nearestInstallmentIdx)
-    .map((inst) => inst.installmentType);
-
-  // If status is approved, or matches nearestInstallment or any higher, allow navigation
-  const isApproved =
-    status === 'APPROVED' ||
-    status === 'AUTO_APPROVED' ||
-    status === 'ACTIVE' ||
-    (allowedInstallmentTypes && allowedInstallmentTypes.includes(status));
-
-  // console.log("isDeadlineReached", isDeadlineReached);
-
-  console.log("Is Approved", isApproved);
+  useEffect(() => {
+    const status = exhibitorForm?.metaData?.data?.status;
+    if (exhibitorForm) {
+      setFormStatus(status);
+    }
+  }, [exhibitorForm]);
 
   const data = useMemo(() => {
-    if (isApproved) {
+    console.log(eventData)
+    const isBuyer = eventData.state?.roles?.includes('BUYER');
+    const isExhibitor = eventData.state?.roles?.includes('EXHIBITOR');
+    const isSponsor = eventData.state?.roles?.includes('SPONSOR');
+    if (isExhibitor) {
       return [
-        // OVERVIEW
-        // ----------------------------------------------------------------------
         {
           subheader: '',
           items: [
@@ -106,103 +94,137 @@ export function useNavData() {
             //     { title: 'Add Member', path: paths.dashboard.teamManagement.new },
             //   ],
             // },
+            ...(formStatus !== 'PENDING'
+              ? [
+                {
+                  title: 'Transactions',
+                  path: paths.dashboard.transactions,
+                  icon: ICONS.banking,
+                },
+              ]
+              : []),
             // {
-            //   title: 'Facia',
-            //   path: paths.dashboard.facia,
-            //   icon: ICONS.kanban,
-            // },
-            {
-              title: 'Transactions',
-              path: paths.dashboard.transactions,
-              icon: ICONS.banking,
-              children: [
-                { title: 'All', path: paths.dashboard.transactions },
-                { title: 'Service Request Forms', path: paths.dashboard.formsTransactions },
-              ],
-            },
-            {
-              title: 'Exhibitor Profile',
-              path: paths.dashboard.exhibitorProfile.root,
-              icon: ICONS.job,
-            },
-            {
-              title: 'Exhibitor Manual',
-              path: 'https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf',
-              icon: ICONS.external,
-            },
-            {
-              title: 'Service Request Forms',
-              path: paths.dashboard.forms.root,
-              icon: ICONS.blog,
-            },
-            // {
-            //   title: 'Production Requirements',
-            //   path: paths.dashboard.productionRequirements.root,
-            //   icon: ICONS.banking,
-            //   children: [
-            //     { title: 'Products', path: paths.dashboard.productionRequirements.root },
-            //     { title: 'Orders', path: paths.dashboard.productionRequirements.orderList },
-            //   ],
+            //   title: 'General Rules & Regulations',
+            //   path: "https://bharat-tex.com/general-regulation/",
+            //   icon: ICONS.menuItem,
             // },
             // {
-            //   title: 'Help & Support',
-            //   path: paths.dashboard.helpAndSupport.root,
-            //   icon: ICONS.external,
+            //   title: 'Download Center',
+            //   path: "https://bharat-tex.com/downloads/",
+            //   icon: ICONS.menuItem,
             // },
             // {
-            //   title: 'My Connects',
-            //   path: paths.dashboard.myConnects,
-            //   icon: ICONS.user,
+            //   title: 'Download Web Banners',
+            //   path: "https://bharat-tex.com/web-banners/",
+            //   icon: ICONS.menuItem,
             // },
             // {
-            //   title: 'Chat',
-            //   path: paths.dashboard.chat,
-            //   icon: ICONS.chat,
+            //   title: 'Become a Sponsor',
+            //   path: '#',
+            //   icon: ICONS.menuItem,
+            //   onClick: sponsorDialog.onTrue,
             // },
             // {
-            //   title: 'Admin',
-            //   path: paths.dashboard.setupTasks,
-            //   icon: ICONS.tour,
-            // },
-            // {
-            //   title: 'Product Portfolio',
-            //   path: paths.dashboard.productPortfolio.root,
-            //   icon: ICONS.product,
-            // },
-            // {
-            //   title: 'Listing Order',
-            //   path: paths.dashboard.marketingAddOns,
-            //   icon: ICONS.order,
-            // },
-            // {
-            //   title: 'Invitation Coupons',
-            //   path: paths.dashboard.invitationCoupons,
-            //   icon: ICONS.label,
+            //   title: 'Invite Buyers',
+            //   icon: ICONS.menuItem,
+            //   path: '#',
+            //   onClick: buyerDialog.onTrue,
             // },
           ],
         },
-
-        // MANAGEMENT
-        // ----------------------------------------------------------------------
-        // {
-        //   subheader: 'management',
-        //   items: [
-        //     {
-        //       title: 'user',
-        //       path: paths.dashboard.group.root,
-        //       icon: ICONS.user,
-        //       children: [
-        //         { title: 'four', path: paths.dashboard.group.root },
-        //         { title: 'five', path: paths.dashboard.group.five },
-        //         { title: 'six', path: paths.dashboard.group.six },
-        //       ],
-        //     },
-        //   ],
-        // },
       ];
     }
-    return [];
-  }, [eventData.state?.status, isApproved]);
 
-  return data;
+    // if (isBuyer) {
+    //   return [
+    //     {
+    //       subheader: '',
+    //       items: [
+    //         { title: 'Overview', path: paths.dashboard.overview, icon: ICONS.analytics },
+    //         {
+    //           title: 'Application Form',
+    //           path: paths.dashboard.buyer.form,
+    //           icon: ICONS.file,
+    //         },
+    //         ...((isOverseasBuyer && featureFlags.planYourVisit) 
+    //           ? [
+    //               {
+    //                 title: 'Plan Your Travel',
+    //                 path: paths.dashboard.buyer.planYourVisit,
+    //                 icon: ICONS.booking,
+    //               },
+    //             ]
+    //           : []),
+    //         ...(
+    //             featureFlags.exhibitorDirectory ? [
+    //               {
+    //                 title: 'Pre-fair Directory',
+    //                 path: paths.dashboard.buyer.exhibitorDirectory,
+    //                 icon: ICONS.calendar,
+    //               },
+    //             ] : []
+    //           )
+    //       ],
+    //     },
+    //   ];
+    // }
+
+    // if (isSponsor) {
+    //   return [
+    //     {
+    //       subheader: '',
+    //       items: [
+    //         { title: 'Overview', path: paths.dashboard.overview, icon: ICONS.analytics },
+    //         {
+    //           title: 'Sponsor Application Form',
+    //           path: paths.dashboard.sponsor.form,
+    //           icon: ICONS.file,
+    //         },
+    //         ...(formStatus !== 'PENDING'
+    //           ? [
+    //               {
+    //                 title: 'Transactions',
+    //                 path: paths.dashboard.transactions,
+    //                 icon: ICONS.banking,
+    //               },
+    //             ]
+    //           : []),
+    //       ],
+    //     },
+    //   ];
+    // }
+    return [
+      {
+        subheader: '',
+        items: [
+          { title: 'Overview', path: paths.dashboard.overview, icon: ICONS.analytics },
+          {
+            title: 'Application Form',
+            path: paths.dashboard.form,
+            icon: ICONS.file,
+          },
+          // {
+          //   title: 'Exhibitor Members',
+          //   path: paths.dashboard.teamManagement.root,
+          //   icon: ICONS.user,
+          //   children: [
+          //     { title: 'Members', path: paths.dashboard.teamManagement.root },
+          //     { title: 'Add Member', path: paths.dashboard.teamManagement.new },
+          //   ],
+          // },
+          ...(formStatus !== 'PENDING'
+            ? [
+              {
+                title: 'Transactions',
+                path: paths.dashboard.transactions,
+                icon: ICONS.banking,
+              },
+            ]
+            : []),
+        ],
+      },
+    ];
+  }, [formStatus, sponsorDialog.onTrue, buyerDialog.onTrue]);
+
+  return { data, sponsorDialog, buyerDialog };
 }

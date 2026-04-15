@@ -53,14 +53,9 @@ export default function ProfileCover({ name, avatarUrl, role, coverUrl }: IUserP
               width: { xs: 64, md: 128 },
               height: { xs: 64, md: 128 },
               border: `solid 2px ${theme.palette.common.white}`,
-              textAlign: 'center',
-              fontSize: { xs: '0.75rem' },
             }}
           >
-            {/* {name?.charAt(0).toUpperCase()} */}
-            Upload
-            <br />
-            Company&nbsp;Logo
+            {name?.charAt(0).toUpperCase()}
           </Avatar>
           <IconButton
             onClick={() =>

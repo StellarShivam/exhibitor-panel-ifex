@@ -133,7 +133,10 @@ export function useUpdateTask() {
 export async function generateAllotmentLetterApi(exhibitorId: number) {
   const token = tokenManager.getToken();
   const url = apiEndpoints.overview.generateAllotMentForm + '?exhibitorId=' + exhibitorId;
-  const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
   try {
     const response = await axiosInstance2.get(url, { headers });
     return response.data.data;

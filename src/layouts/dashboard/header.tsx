@@ -19,7 +19,9 @@ import { useEventContext } from 'src/components/event-context';
 // import Searchbar from '../common/searchbar';
 import { NAV, HEADER } from '../config-layout';
 import SettingsButton from '../common/settings-button';
+import ResourcesPopover from '../common/resources-popover';
 import AccountPopover from '../common/account-popover';
+import SocialMediaIcons from '../common/social-media-icons';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +35,7 @@ export default function Header({ onOpenNav }: Props) {
   const settings = useSettingsContext();
 
   const { eventData } = useEventContext();
-  const { exhibitor } = useGetTeamMembersCount(eventData?.state?.exhibitorId);
+  
 
   const isNavHorizontal = settings.themeLayout === 'horizontal';
 
@@ -55,9 +57,9 @@ export default function Header({ onOpenNav }: Props) {
         </IconButton>
       )}
 
-      <Typography variant="h4" sx={{ flexGrow: 1, ml: 0 }}>
-        Exhibitor Panel - {exhibitor?.companyName}
-      </Typography>
+      {/* <Typography variant="h4" sx={{ flexGrow: 1, ml: 0 }}>
+         Panel
+      </Typography> */}
 
       {/* <Searchbar /> */}
 
@@ -74,6 +76,7 @@ export default function Header({ onOpenNav }: Props) {
 
         {/* <ContactsPopover /> */}
 
+        <ResourcesPopover />
         <SettingsButton />
 
         <AccountPopover />

@@ -44,6 +44,7 @@ export default function NavList({ data, depth, slotProps }: NavListProps) {
         open={openMenu}
         onMouseEnter={handleOpenMenu}
         onMouseLeave={handleCloseMenu}
+        onClick={data.onClick}
         //
         title={data.title}
         path={data.path}

@@ -34,7 +34,6 @@ interface Props extends DialogProps {
   exhibitorFormDetailId: number;
   email: string;
   reFetchFormData?: () => void;
-  offlineOnly?: boolean;
 }
 
 const paymentMethodOptions = [
@@ -64,12 +63,11 @@ export default function PaymentDialog({
   exhibitorFormDetailId,
   email,
   reFetchFormData,
-  offlineOnly,
 }: Props) {
   const { createPayment } = useCreatePayment();
   const { verifyPayment } = useVerifyPayment();
   const { enqueueSnackbar } = useSnackbar();
-  const [showOfflineForm, setShowOfflineForm] = useState(true);
+  const [showOfflineForm, setShowOfflineForm] = useState(false);
   const [onlinePaymentLoading, setOnlinePaymentLoading] = useState(false);
   const { Razorpay } = useRazorpay();
   console.log('Total Amount: ', totalAmount);
@@ -140,7 +138,7 @@ export default function PaymentDialog({
         email,
       },
       theme: {
-        color: '#FF4421',
+        color: '#ffa206',
       },
     };
 
@@ -190,7 +188,6 @@ export default function PaymentDialog({
       paymentOption: 'offline',
     };
 
-
     try {
       const response = await createPayment(payload);
       if (response?.status === 'success') {
@@ -225,50 +222,46 @@ export default function PaymentDialog({
         <Typography variant="h4">How would you like to Pay?</Typography>
         <Divider sx={{ my: 2 }} />
         <Stack spacing={2}>
-          {/* {
-            !offlineOnly && (
-              <Stack spacing={1} sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 2 }}>
-                <Typography variant="h5">Option 1: Pay Online</Typography>
-                <Typography variant="body1">
-                  Use UPI, debit/credit card, or net banking, get instant confirmation.
-                </Typography>
-                <Stack spacing={1} direction="row" alignItems="center">
-                  <TextField label="Amount" value={totalAmount} fullWidth disabled />
-                  <LoadingButton
-                    variant="contained"
-                    size="large"
-                    sx={{ whiteSpace: 'nowrap' }}
-                    onClick={() => handleOnlinePayment()}
-                    loading={onlinePaymentLoading}
-                  >
-                    Pay Online
-                  </LoadingButton>
-                </Stack>
-              </Stack>
-            )
-          } */}
+          <Stack spacing={1} sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 2 }}>
+            <Typography variant="h5">Option 1: Pay Online</Typography>
+            <Typography variant="body1">
+              Use UPI, debit/credit card, or net banking, get instant confirmation.
+            </Typography>
+            <Stack spacing={1} direction="row" alignItems="center">
+              <TextField label="Amount" value={totalAmount} fullWidth disabled />
+              <LoadingButton
+                variant="contained"
+                size="large"
+                sx={{ whiteSpace: 'nowrap' }}
+                onClick={() => handleOnlinePayment()}
+                loading={onlinePaymentLoading}
+              >
+                Pay Online
+              </LoadingButton>
+            </Stack>
+          </Stack>
           <Stack spacing={2} sx={{ bgcolor: 'background.paper', p: 2, borderRadius: 2 }}>
             <Stack
               direction="row"
               alignItems="center"
               justifyContent="space-between"
-              // onClick={() => setShowOfflineForm(!showOfflineForm)}
+              onClick={() => setShowOfflineForm(!showOfflineForm)}
               sx={{ cursor: 'pointer' }}
             >
               <Box>
-                <Typography variant="h5">{offlineOnly ? "" : "Option 2:"} Pay Offline</Typography>
+                <Typography variant="h5">Option 2: Pay Offline</Typography>
                 <Typography variant="body1">
                   Submit details of your manual payment (bank transfer, cheque, etc.)
                 </Typography>
               </Box>
-              {/* <IconButton
+              <IconButton
                 sx={{
                   transform: showOfflineForm ? 'rotate(180deg)' : 'rotate(0deg)',
                   transition: 'transform 0.3s ease',
                 }}
               >
                 <Iconify icon="eva:arrow-down-fill" />
-              </IconButton> */}
+              </IconButton>
             </Stack>
 
             <Collapse in={showOfflineForm}>
@@ -299,7 +292,7 @@ export default function PaymentDialog({
                           setValue('transactionDate', date ? date.format('YYYY-MM-DD') : '')
                         }
                         slotProps={{ textField: { fullWidth: true } }}
-                        // maxDate={dayjs()}
+                      // maxDate={dayjs()}
                       />
                     </LocalizationProvider>
                   </Grid>

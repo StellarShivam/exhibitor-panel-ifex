@@ -128,14 +128,12 @@ export default function UserNewEditForm({ currentUser }: Props) {
 
     try {
       const formData = {
-        exhibitorId: eventData?.state.exhibitorId,
-        eventId: eventData?.state.eventId,
         firstName: data.firstName,
         lastName: data.lastName,
         designation: data.designation,
         email: data.email,
         // country: data.country,
-        phone: data.phoneNumber,
+        mobile: data.phoneNumber,
         // state: data.state,
         // city: data.city,
         // permissions: data.permissions,
@@ -157,7 +155,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
         }
       } else {
         const response = await createExhibitorUser(formData);
-        if (response?.data.status === 'success') {
+        if (response?.status) {
           enqueueSnackbar('User created successfully!');
           router.push(paths.dashboard.teamManagement.root);
         } else {
@@ -167,7 +165,7 @@ export default function UserNewEditForm({ currentUser }: Props) {
       }
     } catch (error: any) {
       console.error(error);
-      enqueueSnackbar(error.message || 'Something went wrong', { variant: 'error' });
+      enqueueSnackbar(error || 'Something went wrong', { variant: 'error' });
     }
 
     reFetchExhibitorUsers();

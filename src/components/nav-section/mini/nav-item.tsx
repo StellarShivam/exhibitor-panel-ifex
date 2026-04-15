@@ -23,6 +23,7 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
       disabled,
       caption,
       roles,
+      onClick,
       //
       open,
       depth,
@@ -44,6 +45,7 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
         depth={depth}
         active={active}
         disabled={disabled}
+        onClick={onClick}
         {...other}
       >
         {icon && (
@@ -77,6 +79,11 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
     // Hidden item by role
     if (roles && !roles.includes(`${currentRole}`)) {
       return null;
+    }
+
+    // Handle custom onClick (when no children and onClick is provided)
+    if (onClick) {
+      return renderContent;
     }
 
     if (externalLink)

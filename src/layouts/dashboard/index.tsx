@@ -10,6 +10,7 @@ import Header from './header';
 import NavMini from './nav-mini';
 import NavVertical from './nav-vertical';
 import NavHorizontal from './nav-horizontal';
+import Footer from 'src/components/footer/footer';
 
 // ----------------------------------------------------------------------
 
@@ -75,12 +76,14 @@ export default function DashboardLayout({ children }: Props) {
           minHeight: 1,
           display: 'flex',
           flexDirection: { xs: 'column', lg: 'row' },
+          mb: { xs: 0, lg: '60px' },
         }}
       >
         {renderNavVertical}
 
         <Main>{children}</Main>
       </Box>
+      {/* <Footer left={"280"}/> */}
     </>
   );
 }

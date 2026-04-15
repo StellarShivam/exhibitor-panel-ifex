@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  node:
+    image: 905418181015.dkr.ecr.ap-south-1.amazonaws.com/ifex-2027-frontend:exhibitor-panel-latest
+    container_name: ifex-2027-exhibitor-panel
+    ports:
+      - "8083:8083"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

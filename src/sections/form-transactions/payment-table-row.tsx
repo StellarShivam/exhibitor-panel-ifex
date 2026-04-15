@@ -4,7 +4,7 @@ import { fDate, fDateTime } from 'src/utils/format-time';
 import { IPaymentSummaryTransaction } from 'src/types/payment-summary';
 import {
   generateMultiReceipt,
-  // generateReceipt,
+  generateReceipt,
   updatePaymentDetails,
 } from 'src/api/payment-summary';
 import { enqueueSnackbar } from 'notistack';

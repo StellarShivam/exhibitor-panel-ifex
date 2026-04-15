@@ -5,7 +5,6 @@ export interface IExhibitorFormData {
   companyGstin: string | null;
   companyOrganizationName: string;
   companyPanNo: string;
-  plcAmount: number;
   data: {
     udyogAadhaarNumber: string;
     accountPersonEmailAddress: string;
@@ -40,7 +39,7 @@ export interface IExhibitorFormData {
     tanNumber: string;
     tds: string;
     totalAreaRequired: number;
-    proformaInvoice: string;
+    proformaInvoice:string;
   };
   directorName: string;
   email: string;

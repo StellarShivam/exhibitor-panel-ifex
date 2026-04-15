@@ -4,33 +4,29 @@ import Stack, { StackProps } from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
 
 import { bgGradient } from 'src/theme/css';
+import { Grid } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
 type Props = StackProps & {
   title?: string;
-  description?: string;
-  img?: React.ReactNode;
-  action?: React.ReactNode;
+  contactPersonName?: string;
+  companyName?: string;
+  contactPersonAddress?: string;
 };
 
-export default function AppWelcome({ title, description, action, img, ...other }: Props) {
+export default function AppWelcome({ title, contactPersonName, companyName, contactPersonAddress, ...other }: Props) {
   const theme = useTheme();
 
   return (
     <Stack
       flexDirection={{ xs: 'column', md: 'row' }}
       sx={{
-        ...bgGradient({
-          direction: '135deg',
-          startColor: alpha(theme.palette.primary.light, 0.2),
-          endColor: alpha(theme.palette.primary.main, 0.2),
-        }),
         height: { md: 1 },
         borderRadius: 2,
         position: 'relative',
-        color: 'primary.darker',
-        backgroundColor: 'common.white',
+        color: 'white',
+        backgroundColor: 'primary.main',
       }}
       {...other}
     >
@@ -39,44 +35,48 @@ export default function AppWelcome({ title, description, action, img, ...other }
         justifyContent="center"
         alignItems={{ xs: 'center', md: 'flex-start' }}
         sx={{
-          p: {
-            xs: theme.spacing(5, 3, 0, 3),
-            md: theme.spacing(3, 0, 3, 3),
-          },
-          textAlign: { xs: 'center', md: 'left' },
+          p: { xs: 2, md: 3 },
         }}
       >
         <Typography variant="h4" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
           {title}
         </Typography>
 
-        {/* <Typography
-          variant="body2"
-          sx={{
-            opacity: 0.8,
-            maxWidth: 360,
-            mb: { xs: 3, xl: 5 },
-          }}
-        >
-          {description}
-        </Typography> */}
+        <Grid container rowSpacing={1}>
+          <Grid item xs={5} md={4}>
+            <Typography variant="body2">
+              Contact Person :
+            </Typography>
+          </Grid>
+          <Grid item xs={7}>
+            <Typography variant="body2">
+              {contactPersonName || "Full Name"}
+            </Typography>
+          </Grid>
 
-        {/* {action && action} */}
+          <Grid item xs={5} md={4}>
+            <Typography variant="body2">
+              Company Name :
+            </Typography>
+          </Grid>
+          <Grid item xs={7}>
+            <Typography variant="body2">
+              {companyName || "Name"}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={5} md={4}>
+            <Typography variant="body2">
+              Complete Address:
+            </Typography>
+          </Grid>
+          <Grid item xs={7}>
+            <Typography variant="body2">
+              {contactPersonAddress || "Address"}
+            </Typography>
+          </Grid>
+        </Grid>
       </Stack>
-
-      {img && (
-        <Stack
-          component="span"
-          justifyContent="center"
-          sx={{
-            p: { xs: 1, md: 1 },
-            maxWidth: 360,
-            mx: 'auto',
-          }}
-        >
-          {img}
-        </Stack>
-      )}
     </Stack>
   );
 }

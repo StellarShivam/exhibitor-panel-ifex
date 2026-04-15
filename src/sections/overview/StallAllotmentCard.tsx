@@ -10,10 +10,11 @@ import Iconify from 'src/components/iconify';
 import { useEventContext } from 'src/components/event-context';
 import { useGetExhibitor } from 'src/api/exhibitor-profile';
 import { useExhibitorForm } from 'src/api/form';
+import { useSnackbar } from 'notistack';
 import { generateAllotmentLetterApi } from 'src/api/overview';
-import { enqueueSnackbar } from 'src/components/snackbar';
 
 export default function StallAllotmentCard() {
+  const { enqueueSnackbar } = useSnackbar();
   const [totalAreaRequired, setTotalAreaRequired] = useState(0);
   const [boothTypePreference, setBoothTypePreference] = useState('');
 
@@ -26,23 +27,13 @@ export default function StallAllotmentCard() {
     eventData.state.eventId
   );
 
-  console.log('eventData', eventData);
-
-  useEffect(() => {
-    if (exhibitorForm) {
-      let boothTypeLabel = exhibitorForm?.data.areaType;
-      // if (boothTypeLabel === 'space_only') boothTypeLabel = 'Space Only';
-      // else if (boothTypeLabel === 'pre_fitted') boothTypeLabel = 'Pre-Fitted';
-      setTotalAreaRequired(exhibitorForm?.data.areaRequired);
-      setBoothTypePreference(boothTypeLabel);
-    }
-  }, [exhibitorForm]);
-
   const handleDownloadAllotment = async () => {
     enqueueSnackbar('Processing allotment letter...', { variant: 'info' });
     try {
       const res = await generateAllotmentLetterApi(eventData?.state.exhibitorId);
+
       enqueueSnackbar('Allotment letter processed!!', { variant: 'success' });
+
       if (res?.allotmentLetterUrl) {
         window.open(res.allotmentLetterUrl, '_blank', 'noopener,noreferrer');
       }
@@ -52,14 +43,25 @@ export default function StallAllotmentCard() {
     }
   };
 
+  useEffect(() => {
+    if (exhibitorForm) {
+      let boothTypeLabel = exhibitorForm?.data.boothTypePreference;
+      if (boothTypeLabel === 'space_only') boothTypeLabel = 'Space Only';
+      else if (boothTypeLabel === 'pre_fitted') boothTypeLabel = 'Pre-Fitted';
+      setTotalAreaRequired(exhibitorForm?.data.totalAreaRequired);
+      setBoothTypePreference(boothTypeLabel);
+    }
+  }, [exhibitorForm]);
+
   return (
     <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
       <CardContent>
         <Typography variant="h5" fontWeight={700} gutterBottom>
-          My Stall Allotment – IFEX 2026
+          My Stall Allotment – IFEX 2025
         </Typography>
         <Typography variant="body2" color="text.secondary" mb={3}>
-          Below are the details of your stall allotment for IFEX 2026 .
+          Below are the details of your stall allotment for IFEX 2025, scheduled from 25th to 29th
+          September 2025 at India Expo Centre & Mart, Greater Noida.
         </Typography>
         <Stack spacing={2} mb={2}>
           <Box display="flex" justifyContent="space-between">
@@ -93,7 +95,7 @@ export default function StallAllotmentCard() {
           {/* <Box display="flex" justifyContent="space-between">
             <Typography color="error">Reference</Typography>
             <Typography color="error">
-              UPITS /2026/{eventData?.state?.hallNo}/{eventData?.state?.stallNo}
+              IFEX /2026/{eventData?.state?.hallNo}/{eventData?.state?.stallNo}
             </Typography>
           </Box> */}
         </Stack>
@@ -102,13 +104,11 @@ export default function StallAllotmentCard() {
           <Button
             variant="contained"
             color="success"
-            disabled
+            // startIcon={<Iconify icon="mingcute:arrow-down-line" width={24} />}
             onClick={handleDownloadAllotment}
-            startIcon={<Iconify icon="mingcute:arrow-down-line" width={24} />}
-            // fullWidth
             sx={{ width: '100%' }}
           >
-            Allotment Letter
+            Download Allotment Letter
           </Button>
           {/* <Button variant="outlined" color="inherit" fullWidth>
             View Exhibitor Guidelines

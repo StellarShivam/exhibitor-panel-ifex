@@ -1,8 +1,8 @@
 'use client';
 
 import * as Yup from 'yup';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import Link from '@mui/material/Link';
@@ -14,16 +14,25 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import RadioGroup from '@mui/material/RadioGroup';
+import Grid from '@mui/material/Grid';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Radio from '@mui/material/Radio';
+import { AlertColor } from '@mui/material';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useAuthContext } from 'src/auth/hooks';
-import { PATH_AFTER_LOGIN } from 'src/config-global';
+import { PATH_AFTER_LOGIN, BASE_URL } from 'src/config-global';
 
 import Iconify from 'src/components/iconify';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import FormProvider, { RHFTextField, RHFPhoneField, RHFOTPField } from 'src/components/hook-form';
+import axios, { apiEndpoints } from 'src/utils/axios';
+import { useEventContext } from 'src/components/event-context';
 
 const fontFamily = "'Poppins', sans-serif";
 
@@ -32,37 +41,156 @@ const fontFamily = "'Poppins', sans-serif";
 export default function JwtLoginView() {
   const { login } = useAuthContext();
   const router = useRouter();
-  const [errorMsg, setErrorMsg] = useState('');
+  const { eventData } = useEventContext();
+  // const [errorMsg, setErrorMsg] = useState('');
+  // const [successMsg, setSuccessMsg] = useState('');
+
+  const [message, setMessage] = useState({
+    type: '',
+    msg: '',
+  });
   const password = useBoolean();
+  const [otp, setOtp] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   const LoginSchema = Yup.object().shape({
-    username: Yup.string().required('Username is required'),
-    password: Yup.string().required('Password is required'),
+    type: Yup.string().required('Select login method'),
+    email: Yup.string().when('type', {
+      is: 'Email',
+      then: (schema) => schema.email('Enter valid email').required('Email is required'),
+      otherwise: (schema) => schema.optional(),
+    }),
+    mobile: Yup.string().when('type', {
+      is: 'Phone',
+      then: (schema) =>
+        schema.min(4, 'Enter valid mobile number').required('Mobile number is required'),
+      otherwise: (schema) => schema.optional(),
+    }),
   });
 
   const defaultValues = {
-    username: '',
-    password: '',
+    email: '',
+    mobile: '',
+    type: 'Email',
   };
 
   const methods = useForm({
     resolver: yupResolver(LoginSchema),
     defaultValues,
+    mode: 'onChange',
   });
 
   const {
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
+    watch,
+    setValue,
+    resetField,
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
+  const sendOtp = async () => {
+    setIsLoading(true);
+    const data: any = {};
+    if (watch('type') === 'Email') {
+      data.identifier = watch('email');
+    } else {
+      data.identifier = watch('mobile');
+    }
+
+    console.log(data);
+
     try {
-      const usernameWithSuffix = `${data.username}18`;
-      await login?.(usernameWithSuffix, data.password);
-      router.push(PATH_AFTER_LOGIN);
+      const res = await axios.post(`${BASE_URL}${apiEndpoints.auth.sendOtp}`, data);
+      console.log(res);
+      setMessage({
+        type: 'success',
+        msg: res.data.msg || res.data.message,
+      });
+      setOtpSent(true);
+      setCountdown(30);
+    } catch (error: any) {
+      console.error(error);
+      setMessage({
+        type: 'error',
+        msg:
+          typeof error === 'string'
+            ? error
+            : error?.response?.data?.msg || error?.message || 'Failed to send OTP',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [countdown]);
+
+  useEffect(() => {
+    if (watch('type') === 'Email') {
+      resetField('mobile');
+    } else {
+      resetField('email');
+    }
+  }, [watch('type'), resetField]);
+
+  const handleResendOtp = () => {
+    if (countdown === 0) {
+      sendOtp();
+    }
+  };
+
+  const tryAnotherMethod = (type: string) => {
+    resetField('email');
+    resetField('mobile');
+    if (type === 'Email') {
+      setOtpSent(false);
+      setOtp('');
+      setCountdown(0);
+      setMessage({ type: '', msg: '' });
+      setValue('type', 'Phone');
+    }
+    if (type === 'Phone') {
+      setOtpSent(false);
+      setOtp('');
+      setCountdown(0);
+      setMessage({ type: '', msg: '' });
+      setValue('type', 'Email');
+    }
+  };
+
+  const onSubmit = handleSubmit(async (data) => {
+    let res;
+    try {
+      if (data.type === 'Email') {
+        res = await login?.(data.email, '', otp);
+      } else {
+        res = await login?.('', data.mobile, otp);
+      }
+      eventData.setState({
+        ...res?.data?.userInfo,
+      });
+      if( res?.data?.userInfo?.roles.length > 0 && res?.data?.userInfo?.roles?.includes('COUNCIL_BUYER')){
+        router.push('/dashboard/buyer/OVERSEAS_BUYER');
+        return;
+      }
+      router.push('/dashboard/overview');
     } catch (error) {
       console.error(error);
-      setErrorMsg(typeof error === 'string' ? error : error.message);
+      setMessage({
+        type: 'error',
+        msg: typeof error === 'string' ? error : error.message,
+      });
     }
   });
 
@@ -74,7 +202,7 @@ export default function JwtLoginView() {
         flexDirection: { xs: 'column', md: 'row' },
       }}
     >
-      {/* Left Section with Background */}
+      {/* Left Section with Image */}
       <Box
         sx={{
           flex: { xs: 0, md: 1 },
@@ -103,7 +231,7 @@ export default function JwtLoginView() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'linear-gradient(180deg, #3090C8 0%, rgba(0, 0, 0, 0.8) 100%)',
+            background: 'linear-gradient(180deg, #febd1f 0%, rgba(0, 0, 0, 0.8) 100%)',
             opacity: 0.95,
             zIndex: 1,
           },
@@ -197,141 +325,263 @@ export default function JwtLoginView() {
         </Box>
       </Box>
 
-      {/* Right Section with Login Form */}
+      {/* Right Section with Form */}
       <Box
         sx={{
           width: { xs: '100%', md: '50%' },
-          bgcolor: 'white',
+          bgcolor: 'transparent',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          p: 4,
+          // p: { xs: 2, sm: 3, md: 4 },
+          minHeight: 'auto',
         }}
       >
         <Box
           sx={{
-            maxWidth: 450,
+            maxWidth: 480,
             width: '100%',
             backgroundColor: 'white',
             borderRadius: '16px',
-            boxShadow: '0px 4px 30px rgba(0, 0, 0, 0.08)',
-            p: { xs: 2, md: 3, lg: 6 },
+            px: { xs: 1.5, md: 2, lg: 3 },
+            py: { xs: 2, md: 4, lg: 5 },
           }}
         >
-          <Typography variant="h4" sx={{ mb: 4, fontWeight: 600 }}>
-            Sign in
+          <Box sx={{ mb: 2.5 }}>
+            <Typography
+              variant="h4"
+              sx={{
+                mb: 1,
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                gap: 1,
+              }}
+            >
+              Welcome to the IFEX Event <br /> Management Platform
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                fontSize: '0.875rem',
+                textAlign: 'center',
+              }}
+            >
+              Your control center for workforce insights and operations.
+            </Typography>
+          </Box>
+
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, textAlign: 'center' }}>
+            Sign In
           </Typography>
 
-          {errorMsg && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {errorMsg}
+          {message.type && message.msg && (
+            <Alert severity={message.type as AlertColor} sx={{ mb: 1 }}>
+              {message.msg}
             </Alert>
           )}
 
           <FormProvider methods={methods} onSubmit={onSubmit}>
-            <Stack spacing={3}>
+            <Stack spacing={1.5} sx={{ width: '100%' }}>
               <RHFTextField
-                name="username"
-                label="Enter User Name"
+                name="email"
+                placeholder="Enter Your Email"
+                disabled={otpSent}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    bgcolor: '#3090C833',
                     borderRadius: '8px',
-                    '&:hover fieldset': {
-                      borderColor: '#3090C8',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#3090C8',
-                    },
+                    bgcolor: 'grey.100',
+                    // '& fieldset': {
+                    //   borderColor: 'transparent',
+                    // },
+                    // '&:hover fieldset': {
+                    //   borderColor: 'grey.300',
+                    // },
+                    // '&.Mui-focused fieldset': {
+                    //   borderColor: '#E91E8C',
+                    // },
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    paddingY: '12px',
                   },
                 }}
               />
 
-              <RHFTextField
-                name="password"
-                label="Password"
-                type={password.value ? 'text' : 'password'}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    bgcolor: '#3090C833',
-                    borderRadius: '8px',
-                    '&:hover fieldset': {
-                      borderColor: '#3090C8',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#3090C8',
-                    },
-                  },
-                }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={password.onToggle} edge="end">
-                        <Iconify
-                          icon={password.value ? 'solar:eye-bold' : 'mdi:eye-off'}
-                          sx={{ color: '#3090C8' }}
-                        />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              {otpSent && (
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}
+                >
+                  <span>Enter OTP:</span>
+                  <RHFOTPField
+                    separator={<span>-</span>}
+                    value={otp}
+                    onChange={setOtp}
+                    length={6}
+                  />
+                </Box>
+              )}
 
-              {/* <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Link
-                  variant="body2"
-                  href={paths.auth.jwt.forgotPassword}
+              {!otpSent && (
+                <LoadingButton
+                  fullWidth
+                  color="primary"
+                  size="medium"
+                  type="submit"
+                  variant="contained"
+                  loading={isLoading}
+                  disabled={
+                    isSubmitting ||
+                    !!errors.email ||
+                    !!errors.mobile ||
+                    (!watch('email') && !watch('mobile'))
+                  }
+                  onClick={() => sendOtp()}
+                  endIcon={<Iconify icon="eva:arrow-forward-fill" />}
                   sx={{
-                    color: 'text.secondary',
-                    fontSize: '0.875rem',
-                    textDecoration: 'none',
+                    bgcolor: '#ffa206',
+                    borderRadius: '8px',
                     '&:hover': {
-                      textDecoration: 'underline',
+                      bgcolor: '#ffa206',
                     },
+                    '&:disabled': {
+                      bgcolor: 'grey.300',
+                    },
+                    py: 1,
+                    mt: 0.25,
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    textTransform: 'none',
+                    boxShadow: 'none',
                   }}
                 >
-                  Forgot password?
-                </Link>
-              </Box> */}
+                  Send OTP
+                </LoadingButton>
+              )}
 
-              <LoadingButton
-                fullWidth
-                color="primary"
-                size="large"
-                type="submit"
-                variant="contained"
-                loading={isSubmitting}
-                sx={{
-                  bgcolor: '#3090C8',
-                  borderRadius: '8px',
-                  '&:hover': {
-                    bgcolor: '#3090C8',
-                  },
-                  py: 1.5,
-                  mt: 2,
-                  boxShadow: '0px 8px 15px rgba(48, 144, 200, 0.6)',
-                }}
-              >
-                Login
-              </LoadingButton>
+              {!otpSent && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    textAlign: 'right',
+                    color: 'text.secondary',
+                    fontSize: '0.75rem',
+                    mt: -1,
+                  }}
+                >
+                  Need Help?{' '}
+                  <Link
+                    href="https://bharat-tex.com/contact-us/"
+                    sx={{
+                      color: 'text.secondary',
+                      textDecoration: 'underline',
+                      '&:hover': {
+                        color: 'text.primary',
+                      },
+                    }}
+                  >
+                    Contact IFEX Support
+                  </Link>
+                </Typography>
+              )}
+
+              {otpSent && (
+                <LoadingButton
+                  fullWidth
+                  color="primary"
+                  size="medium"
+                  type="submit"
+                  variant="contained"
+                  disabled={otp.length !== 6}
+                  loading={isSubmitting}
+                  endIcon={<Iconify icon="eva:arrow-forward-fill" />}
+                  sx={{
+                    bgcolor: '#ffa206',
+                    borderRadius: '8px',
+                    '&:hover': {
+                      bgcolor: '#ffa206',
+                    },
+                    '&:disabled': {
+                      bgcolor: 'grey.300',
+                    },
+                    py: 1,
+                    mt: 0.25,
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    textTransform: 'none',
+                    boxShadow: 'none',
+                  }}
+                >
+                  Verify OTP
+                </LoadingButton>
+              )}
+
+              {otpSent && countdown > 0 && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    textAlign: 'center',
+                    color: 'text.secondary',
+                    fontSize: '0.75rem',
+                  }}
+                >
+                  Resend OTP in {countdown}s
+                </Typography>
+              )}
+
+              {otpSent && countdown === 0 && (
+                <Box
+                  sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1.5 }}
+                >
+                  <Typography
+                    variant="body2"
+                    onClick={handleResendOtp}
+                    sx={{
+                      color: '#ffa206',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      '&:hover': {
+                        color: '#ffa206',
+                      },
+                    }}
+                  >
+                    Resend OTP
+                  </Typography>
+                  {message.type === 'error' && (
+                    <>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                          fontSize: '0.75rem',
+                        }}
+                      >
+                        |
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        onClick={() => tryAnotherMethod(watch('type'))}
+                        sx={{
+                          color: '#ffa206',
+                          fontSize: '0.75rem',
+                          cursor: 'pointer',
+                          textDecoration: 'underline',
+                          '&:hover': {
+                            color: '#ffa206',
+                          },
+                        }}
+                      >
+                        {watch('type') === 'Email' ? 'Use Phone instead' : 'Use Email instead'}
+                      </Typography>
+                    </>
+                  )}
+                </Box>
+              )}
             </Stack>
           </FormProvider>
-
-          {/* <Box sx={{ mt: 4, textAlign: 'center' }}>
-            <Link
-              href="#"
-              sx={{
-                color: 'text.secondary',
-                textDecoration: 'none',
-                fontSize: '0.875rem',
-                '&:hover': {
-                  textDecoration: 'underline',
-                },
-              }}
-            >
-              Need Help? Contact Support
-            </Link>
-          </Box> */}
         </Box>
       </Box>
     </Box>

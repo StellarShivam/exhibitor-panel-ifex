@@ -37,7 +37,7 @@ export function useGetFormsList() {
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
-  // console.log(data);
+  console.log(data);
 
   const reFetchForms = useCallback(() => mutate(URL), [URL]);
 
@@ -61,7 +61,7 @@ export function useGetFormData(formDetailId: number | null) {
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
-  // console.log(data);
+  console.log(data);
 
   const reFetchFormData = useCallback(() => mutate(URL), [URL]);
 
@@ -122,21 +122,4 @@ export function useResubmitForm() {
   return {
     resubmitForm,
   };
-}
-
-
-export async function generatePerformaInvoice(exhibitorFormDetailId: number) {
-  const token = tokenManager.getToken();
-  const url = apiEndpoints.forms.generatePerformaInvoice + exhibitorFormDetailId;
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
-  try {
-    const response = await axiosInstance2.get(url, { headers });
-    return response.data.data;
-  } catch (error) {
-    console.error('Error generating performa invoice:', error);
-    throw error;
-  }
 }

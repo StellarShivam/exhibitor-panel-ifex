@@ -4,21 +4,21 @@ import { useMemo, useCallback } from 'react';
 import axios, { fetcher, apiEndpoints, tokenManager, axiosInstance2 } from 'src/utils/axios';
 
 import { ITeamMember, ITeamMemberCreate } from 'src/types/team';
+import { BASE_URL } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
-export function useGetExhibitorUsers(id: number) {
-  const URL = apiEndpoints.teamManagement.listing + id;
+export function useGetExhibitorUsers() {
+  const URL = apiEndpoints.teamManagement.listing;
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
-
-  console.log(data);
 
   const reFetchExhibitorUsers = useCallback(() => mutate(URL), [URL]);
 
   const memoizedValue = useMemo(
     () => ({
-      exhibitorUsers: (data?.exhibitorUsers as ITeamMember[]) || [],
+      exhibitorUsers: (data?.members as ITeamMember[]) || [],
+      exhibitorUsersMemberCapping: data?.memberCapping || 0,
       exhibitorUsersLoading: isLoading,
       exhibitorUsersError: error,
       exhibitorUsersValidating: isValidating,
@@ -71,7 +71,7 @@ export function useupdateExhibitorUser() {
       );
       return response;
     } catch (err: any) {
-      return err;
+      throw err;
     }
   };
 
@@ -97,7 +97,7 @@ export function usecreateExhibitorUser() {
       );
       return response;
     } catch (err: any) {
-      return err;
+      throw err.response?.data?.msg || 'Failed to create user';
     }
   };
 
@@ -106,9 +106,33 @@ export function usecreateExhibitorUser() {
   };
 }
 
+const API_BASE_URL = `${BASE_URL}/bts/api/v1`;
+
+export function useDeleteExhibitorUser() {
+  const deleteExhibitorUser = async (memberId: number) => {
+    const AUTH_TOKEN = tokenManager.getToken();
+
+    try {
+      const response = await axiosInstance2.delete(`/api/v1/exhibitors/member/${memberId}`, {
+        headers: {
+          Authorization: `Bearer ${AUTH_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return response;
+    } catch (err: any) {
+      return err;
+    }
+  };
+
+  return {
+    deleteExhibitorUser,
+  };
+}
+
 export function useFileUpload() {
   const uploadFile = async (file: File) => {
-    const URL = `${apiEndpoints.base}${apiEndpoints.common.fileUpload}`;
+    const URL = `${API_BASE_URL}${apiEndpoints.common.fileUpload}`;
     const AUTH_TOKEN = tokenManager.getToken();
     const formData = new FormData();
     formData.append('file', file);
@@ -134,4 +158,3 @@ export function useFileUpload() {
     uploadFile,
   };
 }
-  

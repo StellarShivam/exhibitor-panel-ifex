@@ -43,7 +43,7 @@ import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [  
+const TABLE_HEAD = [
   { id: 'date', label: 'Date' },
   { id: 'formName', label: 'Form' },
   { id: 'paymentMode', label: 'Payment Mode' },

@@ -1,7 +1,16 @@
 import { paths } from 'src/routes/paths';
 
-export const BASE_URL = 'https://ifex-web-uat.eventstrat.ai/api';
-// export const BASE_URL = 'https://test.spicetrade.io/api';
+// export const BASE_URL = 'https://sit.spicetrade.io/api';
+// export const BASE_URL = 'https://upits-web.eventstrat.ai/api';
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://event-ifex-2027-svc-stg.eventstrat.ai';
+
+export const featureFlags = {
+  exhibitorDirectory: true,
+  showStallAllotmentCard: true,
+  enableStallAllotmentCard: false,
+  planYourVisit: false,
+  matchmakingMeetingButton: false,
+}
 // API
 // ----------------------------------------------------------------------
 
@@ -38,5 +47,4 @@ export const SUPABASE_API = {
 export const MAPBOX_API = process.env.NEXT_PUBLIC_MAPBOX_API;
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
-export const PATH_AFTER_LOGIN = paths.list.root; // as '/dashboard'
-
+export const PATH_AFTER_LOGIN = paths.dashboard.overview; // as '/dashboard/overview'

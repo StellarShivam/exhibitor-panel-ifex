@@ -1,12 +1,12 @@
-// import OverviewView from 'src/sections/overview/view';
-// ----------------------------------------------------------------------
-
-import PaymentSummaryListView from "src/sections/payment-summary/view/payment-list-view";
+import React from 'react';
+import TransactionsPage from './TransactionsPage';
 
 export const metadata = {
   title: 'Dashboard: Transactions',
 };
 
-export default function Page() {
-  return <PaymentSummaryListView />;
+function Page() {
+  return <TransactionsPage />;
 }
+
+export default Page;

@@ -30,6 +30,7 @@ export type NavItemBaseProps = {
   disabled?: boolean;
   roles?: string[];
   children?: any;
+  onClick?: () => void;
 };
 
 export type NavItemProps = ListItemButtonProps &

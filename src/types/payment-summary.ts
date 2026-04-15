@@ -4,13 +4,19 @@ export interface IPaymentSummaryTransaction {
   finalAmount: string;
   actualAmount: string;
   gst: string;
-  paymentMethod: string;
+  paymentMethod: string | null;
   orderId: string;
-  data: any; 
-  paymentStatus:  string;
-  paymentOption: string;
+  purchaseId: number;
+  data: any;
+  paymentStatus: string;
+  paymentOption?: string; // Legacy field, kept for backward compatibility
+  paymentMode?: string; // New field matching API response
   createdAt: string;
   updatedAt: string;
+  totalAmount?: number;
+  transactionId?: string | null;
+  paymentId?: string | null;
+  paymentReceiptUrl?: string | null;
 }
 
 export interface IPaymentSummaryData {
@@ -48,11 +54,8 @@ export interface IPaymentSummaryData {
   bookingViaAssociation: string;
   accountPersonEmailAddress: string;
   billingCity: string;
-  plcAmount: number;
-  gstAmount: number;
-  tdsAmount: number;
-  totalAmount: number;
-  buyPremiumLocation: string;
+  boothAreaCost: string;
+  boothElectricityCost: string;
 }
 
 export interface IPaymentSummaryDetailsData {
@@ -61,9 +64,8 @@ export interface IPaymentSummaryDetailsData {
 }
 
 export type IPaymentSummaryTableFilters = {
-    status: string;
-    paymentOption: string;
-    paymentMethod: string;
-    paymentReferenceNumber: string;
+  status: string;
+  paymentMode: string;
+  paymentMethod: string;
+  paymentReferenceNumber: string;
 };
-

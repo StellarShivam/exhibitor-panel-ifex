@@ -1,9 +1,9 @@
 'use client';
-
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMemo, useState, useEffect, useRef } from 'react';
+import { exhibitorRegistrationSchema } from './ExhibitorRegistration/schema';
 
 import {
   Box,
@@ -28,21 +28,24 @@ import {
   CircularProgress,
   Backdrop,
   Button,
+  MenuItem,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useSnackbar } from 'src/components/snackbar';
 
-import FormProvider, { RHFTextField, RHFRadioGroup } from 'src/components/hook-form';
-import { useExhibitorForm, updateRegistrationDetails, generateProformaInvoice } from 'src/api/form';
+import FormProvider, { RHFTextField, RHFRadioGroup, RHFSelect } from 'src/components/hook-form';
+import { RHFMultiCheckbox } from 'src/components/hook-form/rhf-checkbox';
+import { useExhibitorForm, updateRegistrationDetails, generateProformaInvoice, getViewFormData } from 'src/api/form';
 import { useEventContext } from 'src/components/event-context';
-import { useGetExhibitor } from 'src/api/exhibitor-profile';
 import { useParams } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import Iconify from 'src/components/iconify';
+import { useGetExhibitor } from 'src/api/exhibitor-profile';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(3),
   marginBottom: theme.spacing(1),
 }));
 
@@ -51,40 +54,83 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
-const StyledRHFTextField = styled(RHFTextField)(({ theme }) => ({
-  '& .MuiOutlinedInput-root': {
-    '& fieldset': {
-      borderColor: '#262626',
-    },
-    '&:hover fieldset': {
-      borderColor: 'black',
-    },
-    '&.Mui-focused fieldset': {
-      fontSize: '1.1rem',
-      borderColor: 'black',
-    },
+// Product Categories Data Structure
+const productCategories = {
+  '1': {
+    id: '1',
+    name: 'APPAREL & FASHION',
+    subCategories: [
+      { id: '1.1', label: '1.1 Menswear', value: '1.1' },
+      { id: '1.2', label: '1.2 Womenswear', value: '1.2' },
+      { id: '1.3', label: '1.3 Kidswear', value: '1.3' },
+      { id: '1.4', label: '1.4 Sarees', value: '1.4' },
+      { id: '1.5', label: '1.5 Innerwear & Sleepwear', value: '1.5' },
+      { id: '1.6', label: '1.6 Scarfs, Stoles and Shawls', value: '1.6' },
+      { id: '1.7', label: '1.7 Accessories', value: '1.7' },
+      { id: '1.8', label: '1.8 Brands of India', value: '1.8' },
+      { id: '1.9', label: '1.9 Combined', value: '1.9' },
+      { id: '1.10', label: '1.10 Others', value: '1.10' },
+    ],
   },
-  '& .MuiInputLabel-root': {
-    fontSize: '1rem',
-    '&.Mui-focused': {
-      fontSize: '1rem',
-    },
-    '&.MuiInputLabel-shrink': {
-      fontSize: '1rem',
-    },
+  '2': {
+    id: '2',
+    name: 'FABRICS & ACCESSORIES',
+    subCategories: [
+      { id: '2.1', label: '2.1 Knitted', value: '2.1' },
+      { id: '2.2', label: '2.2 Woven', value: '2.2' },
+      { id: '2.3', label: '2.3 Denim', value: '2.3' },
+      { id: '2.4', label: '2.4 Trim/Embellishments & Accessories', value: '2.4' },
+      { id: '2.5', label: '2.5 Recycled', value: '2.5' },
+      { id: '2.6', label: '2.6 Integrated (Units of Complete value chain)', value: '2.6' },
+      { id: '2.7', label: '2.7 Combined', value: '2.7' },
+      { id: '2.8', label: '2.8 Others', value: '2.8' },
+    ],
   },
-}));
-
-const capitalizeFirstLetter = (string: string | undefined | null): string => {
-  if (!string) return '';
-  return string.charAt(0).toUpperCase() + string.slice(1);
+  '3': {
+    id: '3',
+    name: 'HOME TEXTILES',
+    subCategories: [
+      { id: '3.1', label: '3.1 Bed Linen', value: '3.1' },
+      { id: '3.2', label: '3.2 Bath Linen', value: '3.2' },
+      { id: '3.3', label: '3.3 Kitchen Linen', value: '3.3' },
+      { id: '3.4', label: '3.4 Curtains & Drapes/Furnishing', value: '3.4' },
+      { id: '3.5', label: '3.5 Wall Decor', value: '3.5' },
+      { id: '3.6', label: '3.6 Combined', value: '3.6' },
+      { id: '3.7', label: '3.7 Others', value: '3.7' },
+    ],
+  },
+  '4': {
+    id: '4',
+    name: 'FIBRES & YARNS',
+    subCategories: [
+      { id: '4.1', label: '4.1 Fiber/Filament', value: '4.1' },
+      { id: '4.2', label: '4.2 Recycled', value: '4.2' },
+      { id: '4.3', label: '4.3 Yarns', value: '4.3' },
+      { id: '4.4', label: '4.4 Combined', value: '4.4' },
+      { id: '4.5', label: '4.5 Others', value: '4.5' },
+    ],
+  },
+  '5': {
+    id: '5',
+    name: 'TECHNICAL TEXTILES',
+    subCategories: [
+      { id: '5.1', label: '5.1 Fabric', value: '5.1' },
+      { id: '5.2', label: '5.2 Functional Wear', value: '5.2' },
+      { id: '5.3', label: '5.3 Footwear', value: '5.3' },
+      { id: '5.4', label: '5.4 Combined', value: '5.4' },
+      { id: '5.5', label: '5.5 Others', value: '5.5' },
+    ],
+  },
 };
 
 export default function ExhibitorForm() {
   const [loading, setLoading] = useState(false);
-  const [isEditable, setIsEditable] = useState(false);
-  const { enqueueSnackbar } = useSnackbar();
+  const [isEditable, setIsEditable] = useState(false); // State to toggle edit mode - always false for view-only
   const [pdfGenerating, setPdfGenerating] = useState(false); // State to manage PDF generation
+  const { enqueueSnackbar } = useSnackbar();
+  const [userIp, setUserIp] = useState<string>('');
+  const [viewFormData, setViewFormData] = useState<any>(null);
+  const [viewFormLoading, setViewFormLoading] = useState(true);
 
   const { eventData } = useEventContext();
   //   const { emailId } = useParams<{ emailId: string }>();
@@ -102,176 +148,186 @@ export default function ExhibitorForm() {
     // eslint-disable-next-line
   }, [exhibitor]);
 
+  // Fetch view form data
+  useEffect(() => {
+    const fetchViewFormData = async () => {
+      try {
+        setViewFormLoading(true);
+        const formData = await getViewFormData();
+        setViewFormData(formData);
+        console.log('View Form Data:', formData);
+      } catch (error) {
+        console.error('Error fetching view form data:', error);
+        enqueueSnackbar('Failed to fetch form data', { variant: 'error' });
+      } finally {
+        setViewFormLoading(false);
+      }
+    };
+
+    fetchViewFormData();
+  }, [enqueueSnackbar]);
+
   const { exhibitorForm, exhibitorFormLoading } = useExhibitorForm(
     exhibitor?.supportEmail,
     eventData.state.eventId
   );
 
-  // --- 1. Update Yup schema to match payload fields ---
-  const ExhibitorSchema = Yup.object().shape({
-    phone: Yup.string().required('Phone is required'),
-    eventId: Yup.number().required('Event ID is required'),
-    exhibitorId: Yup.number(),
-    userCohort: Yup.string().required('User Cohort is required'),
-    email: Yup.string().required('Email is required').email('Invalid email format'),
-    image: Yup.string().nullable(),
-    imgUrl: Yup.string().nullable(),
-    firstName: Yup.string().required('First name is required'),
-    lastName: Yup.string().required('Last name is required'),
-    companyOrganizationName: Yup.string().required('Company name is required'),
-    companyAddress: Yup.string().required('Company address is required'),
-    companyEmail: Yup.string().required('Company email is required').email('Invalid email format'),
-    companyContact: Yup.string().required('Company contact is required'),
-    companyPanNo: Yup.string().required('PAN number is required'),
-    companyGstin: Yup.string().required('GST number is required'),
-    directorName: Yup.string().nullable(),
-    plcAmount: Yup.number(),
-    data: Yup.object().shape({
-      secondaryContactPersonEmail: Yup.string(),
-      country: Yup.string().required('Country is required'),
-      tds: Yup.string().required('TDS is required'),
-      buyPremiumLocation: Yup.string(),
-      billingAddressLine1: Yup.string().required('Billing address is required'),
-      city: Yup.string().required('City is required'),
-      accountsPersonEmail: Yup.string(),
-      weProvide: Yup.string(),
-      fasciaName: Yup.string(),
-      postalCode: Yup.string().required('Postal code is required'),
-      accountsPersonDesignation: Yup.string(),
-      msmeUdyogNumber: Yup.string(),
-      accountsPersonPhone: Yup.string(),
-      primaryContactPersonEmail: Yup.string(),
-      secondaryContactPersonDesignation: Yup.string(),
-      iifMember: Yup.string(),
-      stateProvinceRegion: Yup.string().required('State is required'),
-      participationInterest: Yup.string(),
-      corporateWebsite: Yup.string(),
-      areaType: Yup.string(),
-      addressLine1: Yup.string().required('Address is required'),
-      billingCountry: Yup.string(),
-      secondaryContactPersonPhone: Yup.string(),
-      currency: Yup.string(),
-      pricePerSqm: Yup.string(),
-      iifMembershipNumber: Yup.string(),
-      otherBusinessEntityType: Yup.string(),
-      primaryContactPersonDesignation: Yup.string(),
-      billingStateProvinceRegion: Yup.string(),
-      businessEntityType: Yup.string(),
-      accountsPersonName: Yup.string(),
-      hasMsmeNumber: Yup.string(),
-      secondaryContactPersonName: Yup.string(),
-      hasGstNumber: Yup.string(),
-      tanNumber: Yup.string(),
-      calculatedTotalCost: Yup.string(),
-      areaRequired: Yup.string(),
-      billingPostalCode: Yup.string(),
-      corporateEmail: Yup.string(),
-      billingCity: Yup.string(),
-      proformaInvoice: Yup.string(),
-    }),
-  });
-
-  // --- 2. Update defaultValues to match payload fields ---
-  console.log(exhibitorForm);
   const defaultValues = useMemo(
-    () => ({
-      phone: exhibitorForm?.phone || '',
-      eventId: exhibitorForm?.eventId || '',
-      exhibitorId: exhibitorForm?.exhibitorId || '',
-      userCohort: exhibitorForm?.userCohort || '',
-      email: exhibitorForm?.email || '',
-      image: exhibitorForm?.image || '',
-      imgUrl: exhibitorForm?.imgUrl || '',
-      firstName: exhibitorForm?.firstName || '',
-      lastName: exhibitorForm?.lastName || '',
-      companyOrganizationName: exhibitorForm?.companyOrganizationName || '',
-      companyAddress: exhibitorForm?.companyAddress || '',
-      companyEmail: exhibitorForm?.companyEmail || '',
-      companyContact: exhibitorForm?.companyContact || '',
-      companyPanNo: exhibitorForm?.companyPanNo || '',
-      companyGstin: exhibitorForm?.companyGstin || '',
-      directorName: exhibitorForm?.directorName || '',
-      plcAmount: exhibitorForm?.plcAmount || '',
-      data: {
-        accountPersonEmailAddress: exhibitorForm?.data?.accountsPersonEmail || '',
-        country: exhibitorForm?.data?.country || '',
-        tds: exhibitorForm?.data?.tds || '',
-        buyPremiumLocation: capitalizeFirstLetter(exhibitorForm?.data?.buyPremiumLocation) || '',
-        billingAddressLine1: exhibitorForm?.data?.billingAddressLine1 || '',
-        city: exhibitorForm?.data?.city || '',
-        accountsPersonName: exhibitorForm?.data?.accountsPersonName || '',
-        accountsPersonPhone: exhibitorForm?.data?.accountsPersonPhone || '',
-        accountsPersonEmail: exhibitorForm?.data?.accountsPersonEmail || '',
-        accountsPersonDesignation: exhibitorForm?.data?.accountsPersonDesignation || '',
-        msmeUdyogNumber: exhibitorForm?.data?.msmeUdyogNumber || '',
-        contactPersonEmailAddress: exhibitorForm?.data?.primaryContactPersonEmail || '',
-        contactPersonDesignation: exhibitorForm?.data?.primaryContactPersonDesignation || '',
-        iifMember: capitalizeFirstLetter(exhibitorForm?.data?.iifMember) || '',
-        stateProvinceRegion: exhibitorForm?.data?.stateProvinceRegion || '',
-        participationInterest: exhibitorForm?.data?.participationInterest || '',
-        corporateWebsite: exhibitorForm?.data?.corporateWebsite || '',
-        areaType: exhibitorForm?.data?.areaType || '',
-        addressLine1: exhibitorForm?.data?.addressLine1 || '',
-        addressLine2: exhibitorForm?.data?.addressLine2 || '',
-        billingCountry: exhibitorForm?.data?.billingCountry || '',
-        contactPersonMobileNumber: exhibitorForm?.data?.secondaryContactPersonPhone || '',
-        currency: exhibitorForm?.data?.currency || '',
-        pricePerSqm: exhibitorForm?.data?.pricePerSqm || '',
-        iifMembershipNumber: exhibitorForm?.data?.iifMembershipNumber || '',
-        otherBusinessEntityType: exhibitorForm?.data?.otherBusinessEntityType || '',
-        primaryContactPersonDesignation: exhibitorForm?.data?.primaryContactPersonDesignation || '',
-        billingStateProvinceRegion: exhibitorForm?.data?.billingStateProvinceRegion || '',
-        businessEntityType: exhibitorForm?.data?.businessEntityType || '',
-        accountsPersonName: exhibitorForm?.data?.accountsPersonName || '',
-        hasMsmeNumber: capitalizeFirstLetter(exhibitorForm?.data?.hasMsmeNumber) || '',
-        secondaryContactPersonName: exhibitorForm?.data?.secondaryContactPersonName || '',
-        secondaryContactPersonEmail: exhibitorForm?.data?.secondaryContactPersonEmail || '',
-        secondaryContactPersonDesignation:
-          exhibitorForm?.data?.secondaryContactPersonDesignation || '',
-        secondaryContactPersonPhone: exhibitorForm?.data?.secondaryContactPersonPhone || '',
-        hasGstNumber: capitalizeFirstLetter(exhibitorForm?.data?.hasGstNumber) || '',
-        tanNumber: exhibitorForm?.data?.tanNumber || '',
-        calculatedTotalCost: exhibitorForm?.data?.calculatedTotalCost || '',
-        areaRequired: exhibitorForm?.data?.areaRequired || '',
-        billingPostalCode: exhibitorForm?.data?.billingPostalCode || '',
-        corporateEmail: exhibitorForm?.data?.corporateEmail || '',
-        billingCity: exhibitorForm?.data?.billingCity || '',
-        proformaInvoice: exhibitorForm?.data?.proformaInvoice || '',
-        postalCode: exhibitorForm?.data?.postalCode || '',
-        weProvide: exhibitorForm?.data?.weProvide || '',
-        otherWeProvide: exhibitorForm?.data?.otherWeProvide || '',
-        fasciaName: exhibitorForm?.data?.fasciaName || '',
-      },
-    }),
-    [exhibitorForm]
+    () => {
+      const formData = viewFormData || {};
+      
+      return {
+        participationType: formData.participationType || '',
+        councilId: formData.councilId ? String(formData.councilId) : '',
+        otherCouncilName: formData.otherCouncilName || '',
+        companyName: formData.companyName || '',
+        website: formData.website || '',
+        address: formData.address || '',
+        country: formData.country || '',
+        city: formData.city || '',
+        state: formData.state || '',
+        postalCode: formData.postalCode ? String(formData.postalCode) : '',
+        contactPersonPrefix: formData.contactPersonPrefix || '',
+        contactPersonFirstName: formData.contactPersonFirstName || '',
+        contactPersonMiddleName: formData.contactPersonMiddleName || '',
+        contactPersonLastName: formData.contactPersonLastName || '',
+        designation: formData.designation || '',
+        email: formData.email || '',
+        mobile: formData.mobile || '',
+        billingAddressSame: formData.billingAddressSame || false,
+        billingCompanyName: formData.billingCompanyName || '',
+        billingWebsiteAddress: formData.billingWebsiteAddress || '',
+        billingAddress: formData.billingAddress || '',
+        billingCountry: formData.billingCountry || '',
+        billingCity: formData.billingCity || '',
+        billingState: formData.billingState || '',
+        billingPostalCode: formData.billingPostalCode ? String(formData.billingPostalCode) : '',
+        billingContactPersonPrefix: formData.billingContactPersonPrefix || '',
+        billingContactPersonFirstName: formData.billingContactPersonFirstName || '',
+        billingContactPersonMiddleName: formData.billingContactPersonMiddleName || '',
+        billingContactPersonLastName: formData.billingContactPersonLastName || '',
+        billingContactPersonDesignation: formData.billingContactPersonDesignation || '',
+        billingEmail: formData.billingEmail || '',
+        billingContactNumber: formData.billingContactNumber || '',
+        panNumber: formData.panNumber || '',
+        tanNumber: formData.tanNumber || '',
+        gstNumber: formData.gstNumber || '',
+        vatNumber: formData.vatNumber || '',
+        gstState: formData.gstState || '',
+        stateCode: formData.stateCode ? String(formData.stateCode) : '',
+        exportMarkets: Array.isArray(formData.exportMarkets) ? formData.exportMarkets : [],
+        otherExportMarket: formData.otherExportMarket || '',
+        directorPrefix: formData.directorPrefix || '',
+        directorFirstName: formData.directorFirstName || '',
+        directorMiddleName: formData.directorMiddleName || '',
+        directorLastName: formData.directorLastName || '',
+        directors: Array.isArray(formData.directors) ? formData.directors : [],
+        isMsme: formData.isMsme === true || formData.isMsme === 'Yes' ? 'Yes' : 'No',
+        msmeNumber: formData.msmeNumber || '',
+        companyBio: formData.companyBio || '',
+        businessNature: Array.isArray(formData.businessNature) ? formData.businessNature : [],
+        otherBusinessNature: formData.otherBusinessNature || '',
+        productGroupId: formData.productGroupId ? String(formData.productGroupId) : '',
+        productCategory: Array.isArray(formData.productCategory) ? formData.productCategory : [],
+        otherProductCategory: formData.otherProductCategory || '',
+        productSubCategory: Array.isArray(formData.productSubCategory) ? formData.productSubCategory : [],
+        scheme: formData.scheme || '',
+        preferredFloor: formData.preferredFloor || '',
+        preferredStallSides: formData.preferredStallSides ? String(formData.preferredStallSides) : '',
+        area: formData.area ? String(formData.area) : '',
+        tds: formData.tds === true || formData.tds === 'Yes' ? 'Yes' : 'No',
+        termsAndConditions: formData.termsAndConditions || false,
+      };
+    },
+    [viewFormData]
   );
 
-  const methods = useForm({
-    resolver: yupResolver(ExhibitorSchema),
+  const methods = useForm<any>({
+    resolver: yupResolver(exhibitorRegistrationSchema),
     defaultValues,
   });
 
   const {
     reset,
-    setValue,
-    watch,
     handleSubmit,
+    watch,
+    setValue,
     formState: { isSubmitting },
   } = methods;
 
   useEffect(() => {
-    if (exhibitorForm && !exhibitorFormLoading) {
-      reset(defaultValues);
+    if (viewFormData && !viewFormLoading) {
+      reset(defaultValues); // Reset form with viewFormData values
     }
-  }, [exhibitorForm, exhibitorFormLoading, reset, defaultValues]);
+  }, [viewFormData, viewFormLoading, reset, defaultValues]);
 
-  // --- 3. Update onSubmit to match payload structure ---
   const onSubmit = handleSubmit(async (data) => {
     try {
       setLoading(true);
-      await updateRegistrationDetails(data);
+
+      // Construct the payload in the required format
+      const directorName = `${data.directorPrefix} ${data.directorFirstName} ${data.directorMiddleName || ''} ${data.directorLastName}`.trim();
+
+      const payload = {
+        phone: data.mobile || '',
+        eventId: exhibitorForm?.eventId || 0,
+        userCohort: exhibitorForm?.userCohort || '',
+        email: data.email || '',
+        image: exhibitorForm?.image || 'imgUrlPlaceholder',
+        imgUrl: exhibitorForm?.imgUrl || null,
+        firstName: data.contactPersonFirstName?.trim() || '',
+        lastName: data.contactPersonLastName?.trim() || '',
+        companyOrganizationName: data.companyName || '',
+        companyAddress: `${data.address || ''}, ${data.city || ''}, ${data.state || ''}, ${data.postalCode || ''}`.trim(),
+        companyEmail: data.email || '',
+        companyContact: data.mobile || '',
+        companyPanNo: data.panNumber || '',
+        companyGstin: data.gstNumber || null,
+        directorName: directorName || '',
+        data: {
+          country: data.country || '',
+          accountPersonFirstName: data.billingContactPersonFirstName?.trim() || '',
+          accountPersonLastName: data.billingContactPersonLastName?.trim() || '',
+          accountPersonMobileNumber: data.billingContactNumber || '',
+          accountPersonEmailAddress: data.billingEmail || '',
+          addressLine1: data.address || '',
+          addressLine2: '',
+          billingAddressLine1: data.billingAddress || '',
+          billingAddressLine2: '',
+          billingCity: data.billingCity || '',
+          billingCountry: data.billingCountry || '',
+          billingPostalCode: data.billingPostalCode || '',
+          billingStateProvinceRegion: data.billingState || '',
+          boothDisplayName: data.companyName || '',
+          boothTypePreference: data.scheme || '',
+          city: data.city || '',
+          contactPersonDesignation: data.designation || '',
+          productCategory: Array.isArray(data.productCategory) ? data.productCategory.join(', ') : (data.productCategory || ''),
+          registeredWithMsme: data.isMsme === 'Yes' ? 'yes' : 'no',
+          stateProvinceRegion: data.state || '',
+          tanNumber: data.tanNumber || '',
+          tds: data.tds || '',
+          totalAreaRequired: parseInt(data.area || '0', 10),
+          additionalDirectors: data.directors || [],
+          proformaInvoice: exhibitorForm?.data.proformaInvoice || '',
+          udyogAadhaarNumber: data.msmeNumber || '',
+          bookingViaAssociation: '',
+          calculatedTotalCost: 0,
+          departmentCategory: '',
+          hasGstNumber: data.gstNumber ? 'yes' : 'no',
+          interestedInSponsorship: '',
+          mainObjectives: [],
+          participatedEarlier: '',
+          postalCode: data.postalCode || '',
+          signatureUrl: exhibitorForm?.data.signatureUrl || '',
+        },
+      };
+
+      // Call the API with the updated payload
+      await updateRegistrationDetails(payload);
+
       enqueueSnackbar('Form submitted successfully!');
-      setIsEditable(false);
+      setIsEditable(false); // Disable edit mode after successful submission
     } catch (error) {
       console.error('Error submitting form:', error);
       enqueueSnackbar('Form submission failed!', { variant: 'error' });
@@ -281,13 +337,32 @@ export default function ExhibitorForm() {
   });
 
   const toggleEditMode = () => {
-    setIsEditable((prev) => !prev);
+    setIsEditable((prev) => !prev); // Toggle edit mode
   };
 
-  const pdfContentRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const handleDownloadProformaInvoice = async () => {
+    enqueueSnackbar('Processing proforma invoice...', { variant: 'info' });
+    try {
+      if (typeof eventData.state.exhibitorId === 'number') {
+        const res = await generateProformaInvoice(eventData.state.exhibitorId);
 
-  const [userIp, setUserIp] = useState<string>(''); // State to hold user's IP address
+        enqueueSnackbar('Proforma invoice processed!!', { variant: 'success' });
+
+        if (res) {
+          window.open(res, '_blank', 'noopener,noreferrer');
+        }
+        // Optionally, refresh data or show a notification here
+      } else {
+        enqueueSnackbar('Failed to generate proforma invoice!', { variant: 'error' });
+      }
+    } catch (error) {
+      console.error('Failed to generate proforma invoice:', error);
+      enqueueSnackbar('Failed to generate proforma invoice!', { variant: 'error' });
+    }
+  };
+
+  const pdfContentRef = useRef<HTMLDivElement>(null); // Ref for the PDF content
+  const buttonRef = useRef<HTMLButtonElement>(null); // Ref for the button
 
   useEffect(() => {
     fetch('https://api.ipify.org?format=json')
@@ -304,15 +379,6 @@ export default function ExhibitorForm() {
     }
 
     setPdfGenerating(true);
-
-    enqueueSnackbar('Please wait, we are generating your PDF...', {
-      variant: 'info',
-      action: (key) => (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <CircularProgress size={20} sx={{ color: 'white', mr: 1 }} />
-        </Box>
-      ),
-    });
 
     // Store original styles
     const originalStyles = {
@@ -389,7 +455,7 @@ export default function ExhibitorForm() {
         if (pageNum > 0) {
           pdf.addPage();
         }
-
+        
         const currentTopMargin = pageNum === 0 ? FIRST_PAGE_TOP_MARGIN : SUBSEQUENT_PAGE_TOP_MARGIN;
         const imageYPositionOnPdf = currentTopMargin;
 
@@ -503,57 +569,55 @@ export default function ExhibitorForm() {
     }
   };
 
-  const premiumLocation = watch('data.buyPremiumLocation');
+  const participationType = watch('participationType');
+  const councilId = watch('councilId');
+  const isMsme = watch('isMsme');
+  const exportMarkets = watch('exportMarkets');
+  const businessNature = watch('businessNature');
+  const productCategory = watch('productCategory');
+  const productGroupId = watch('productGroupId');
+  
+  // Get subcategories based on selected product group
+  const selectedProductGroup = productGroupId ? productCategories[productGroupId as keyof typeof productCategories] : null;
+  const productSubCategories = selectedProductGroup?.subCategories || [];
 
-  const [amountPostPremium, setAmountPostPremium] = useState<number>(
-    watch('data.calculatedTotalCost')
-  );
-
-  console.log('amountPostPremium', amountPostPremium);
-
+  // Clear product categories when product group changes
   useEffect(() => {
-    const totalCost = Number(watch('data.calculatedTotalCost')) || 0;
-    if (premiumLocation === 'Yes') {
-      const premiumPercentage = 0.125; // 12.5%
-      const premiumAmount = totalCost * premiumPercentage;
-      setAmountPostPremium(totalCost + premiumAmount);
-    } else {
-      setAmountPostPremium(totalCost);
-    }
-  }, [watch('data.buyPremiumLocation'), watch('data.calculatedTotalCost')]);
-
-  const handleDownloadProformaInvoice = async () => {
-    enqueueSnackbar('Processing proforma invoice...', { variant: 'info' });
-    try {
-      if (typeof eventData.state.exhibitorId === 'number') {
-        const res = await generateProformaInvoice(eventData.state.exhibitorId);
-
-        enqueueSnackbar('Proforma invoice processed!!', { variant: 'success' });
-
-        if (res) {
-          window.open(res, '_blank', 'noopener,noreferrer');
+    if (productGroupId) {
+      const currentCategories = methods.getValues('productCategory');
+      if (Array.isArray(currentCategories) && currentCategories.length > 0) {
+        // Check if any selected category belongs to a different group
+        const belongsToCurrentGroup = currentCategories.some((cat) => {
+          const catGroupId = cat.split('.')[0];
+          return catGroupId === productGroupId;
+        });
+        if (!belongsToCurrentGroup) {
+          setValue('productCategory', []);
+          setValue('otherProductCategory', '');
         }
-        // Optionally, refresh data or show a notification here
-      } else {
-        enqueueSnackbar('Failed to generate proforma invoice!', { variant: 'error' });
       }
-    } catch (error) {
-      console.error('Failed to generate proforma invoice:', error);
-      enqueueSnackbar('Failed to generate proforma invoice!', { variant: 'error' });
     }
-  };
+  }, [productGroupId, setValue, methods]);
+
+  if (viewFormLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
-      <></>
       <div id="pdf-content" ref={pdfContentRef}>
         {' '}
+        {/* This id is on the outer div, pdfContentRef is on the inner Box */}
         {(loading || isSubmitting) && (
           <Backdrop open sx={{ zIndex: (theme) => theme.zIndex.modal + 4 }}>
             <CircularProgress color="primary" />
           </Backdrop>
         )}
-        <Box sx={{ bgcolor: '#3090C8', color: 'white', p: 3 }}>
+        <Box sx={{ bgcolor: '#FF4D1C', color: 'white', p: 3 }}>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 500 }}>
             Exhibitor Submission Overview
           </Typography>
@@ -562,16 +626,19 @@ export default function ExhibitorForm() {
             verify booth preferences, company info, documents, and payment structure.
           </Typography>
         </Box>
-        <img src="/frame.png" alt="logo" />
+        <img src="/logo/frame.png" alt="logo" />
         <Box sx={{ px: 3, py: 2, display: 'flex', gap: 1 }}>
           {!pdfGenerating && (
             <>
               {/* <Button
                 variant="contained"
-                startIcon={<Box component="img" src="/Edit.svg" sx={{ width: 20, height: 20 }} />}
+                ref={buttonRef}
+                startIcon={
+                  <Box component="img" src="/logo/Edit.svg" sx={{ width: 20, height: 20 }} />
+                }
                 onClick={toggleEditMode}
                 sx={{
-                  bgcolor: isEditable ? '#3090C8' : '#2D3250',
+                  bgcolor: isEditable ? '#FF4D1C' : '#2D3250',
                   '&:hover': { bgcolor: isEditable ? '#FF3A0A' : '#1a1e30' },
                   textTransform: 'none',
                   px: 2,
@@ -608,6 +675,7 @@ export default function ExhibitorForm() {
                 }}
                 onClick={handleDownloadProformaInvoice}
                 ref={buttonRef}
+                disabled
               >
                 Proforma Invoice
               </Button>
@@ -615,621 +683,761 @@ export default function ExhibitorForm() {
           )}
         </Box>
         <FormProvider methods={methods} onSubmit={onSubmit}>
-          <Box sx={{ py: 2 }}>
-            {/* Top-level fields */}
+          <Box sx={{ p: 3 }}>
+            {/* This Box is what pdfContentRef points to */}
+            
+            {/* Step 1: Basic Information */}
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                mb: 1,
+                mx: 3,
+                pb: 2,
+                borderBottom: '1px solid',
+                borderColor: '#000000',
+              }}
+            >
+              Exhibitor Information
+            </Typography>
+            {/* Participation Type & Council */}
             <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
-                Exhibitor Details
-              </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Company Name*
+                    Exhibitor Category *
                   </Typography>
-                  <StyledRHFTextField
-                    name="companyOrganizationName"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <Box sx={{ pointerEvents: 'none', opacity: 0.7 }}>
+                    <RHFRadioGroup
+                      name="participationType"
+                      options={[
+                        { label: 'Indian Participant', value: 'INDIAN_PARTICIPANT' },
+                        { label: 'Overseas Participant', value: 'OVERSEAS_PARTICIPANT' },
+                      ]}
+                    />
+                  </Box>
                 </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Are you an existing member for IIF?*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.iifMember"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    IIF Company Membership Number*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.iifMembershipNumber"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
+                {participationType === 'INDIAN_PARTICIPANT' && (
+                  <>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        Your Export Promotion Council/ Association *
+                      </Typography>
+                      <RHFSelect
+                        name="councilId"
+                        disabled
+                      >
+                        <MenuItem value="">Select Council/ Association</MenuItem>
+                        <MenuItem value="AEPC">Apparel Export Promotion Council (AEPC)</MenuItem>
+                        <MenuItem value="CEPC">Carpet Export Promotion Council (CEPC)</MenuItem>
+                        <MenuItem value="CMAI">Clothing Manufacturers Association of India (CMAI)</MenuItem>
+                        <MenuItem value="CITI">Confederation of Indian Textile Industry (CITI)</MenuItem>
+                        <MenuItem value="EPCH">Export Promotion Council for Handicrafts (EPCH)</MenuItem>
+                        <MenuItem value="16">Others</MenuItem>
+                      </RHFSelect>
+                    </Grid>
+                    {councilId === '16' && (
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" gutterBottom>
+                          Other Council Name *
+                        </Typography>
+                        <RHFTextField name="otherCouncilName" InputProps={{ readOnly: true }} />
+                      </Grid>
+                    )}
+                  </>
+                )}
               </Grid>
             </StyledPaper>
+
+            {/* Company Information */}
             <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
-                Company Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Company Email *
-                  </Typography>
-                  <StyledRHFTextField name="companyEmail" InputProps={{ readOnly: !isEditable }} />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Company PAN Number*
-                  </Typography>
-                  <StyledRHFTextField name="companyPanNo" InputProps={{ readOnly: !isEditable }} />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Do you have a GST Number?*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.hasGstNumber"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    If Yes, Please Specify your GST Number*
-                  </Typography>
-                  <StyledRHFTextField name="companyGstin" InputProps={{ readOnly: !isEditable }} />
-                </Grid>
-                {/* <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Company Contact *
-                  </Typography>
-                  <RHFTextField
-                    name="companyContact"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Director Name
-                  </Typography>
-                  <RHFTextField
-                    name="directorName"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    MSME Udyog Number
-                  </Typography>
-                  <RHFTextField
-                    name="data.msmeUdyogNumber"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    TAN Number
-                  </Typography>
-                  <RHFTextField
-                    name="data.tanNumber"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid> */}
-              </Grid>
-            </StyledPaper>
-            <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
-                Company Address
+              <Typography variant="h6" gutterBottom>
+                Company Information
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Address Line 1*
+                    Company Name *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.addressLine1"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="companyName" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Address Line 2 (Optional)
+                    Website
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.addressLine2"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="website" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Address *
+                  </Typography>
+                  <RHFTextField name="address" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
                     Country *
                   </Typography>
-                  <StyledRHFTextField name="data.country" InputProps={{ readOnly: !isEditable }} />
+                  <RHFTextField name="country" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    State / Province / Region*
+                    City *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.stateProvinceRegion"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="city" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    City / Town*
+                    State *
                   </Typography>
-                  <StyledRHFTextField name="data.city" InputProps={{ readOnly: !isEditable }} />
+                  <RHFTextField name="state" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Postal Code / ZIP Code*
+                    Postal Code *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.postalCode"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="postalCode" InputProps={{ readOnly: true }} />
                 </Grid>
               </Grid>
             </StyledPaper>
-
-            {/* Billing Address Section */}
+            {/* Contact Person Details */}
             <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
-                Billing Address
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Address Line 1*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.billingAddressLine1"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Address Line 2 (Optional)
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.billingAddressLine2"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Country*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.billingCountry"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    State / Province / Region*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.billingStateProvinceRegion"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    City / Town*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.billingCity"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Postal Code / ZIP Code*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.billingPostalCode"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-              </Grid>
-            </StyledPaper>
-
-            <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
-                Communication Details
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Corporate Email Id*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.corporateEmail"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Corporate Phone Number*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="companyContact"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Corporate Website*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.corporateWebsite"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-              </Grid>
-            </StyledPaper>
-
-            {/* Contact Person Details Section */}
-            <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom>
                 Contact Person Details
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Primary Contact Person Name*
+                    Title *
                   </Typography>
-                  <StyledRHFTextField name="firstName" InputProps={{ readOnly: !isEditable }} />
+                  <RHFSelect name="contactPersonPrefix" disabled>
+                    <MenuItem value="">Select Title</MenuItem>
+                    <MenuItem value="Mr.">Mr.</MenuItem>
+                    <MenuItem value="Mrs.">Mrs.</MenuItem>
+                    <MenuItem value="Ms.">Ms.</MenuItem>
+                    <MenuItem value="Dr.">Dr.</MenuItem>
+                    <MenuItem value="Prof.">Prof.</MenuItem>
+                  </RHFSelect>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    First Name *
+                  </Typography>
+                  <RHFTextField name="contactPersonFirstName" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Middle Name
+                  </Typography>
+                  <RHFTextField name="contactPersonMiddleName" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Last Name *
+                  </Typography>
+                  <RHFTextField name="contactPersonLastName" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Primary Contact : Designation*
+                    Designation *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.primaryContactPersonDesignation"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="designation" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Primary Contact : Mobile Number*
+                    Email *
                   </Typography>
-                  <StyledRHFTextField name="phone" InputProps={{ readOnly: !isEditable }} />
+                  <RHFTextField name="email" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Primary Contact : Email*
+                    Mobile *
                   </Typography>
-                  <StyledRHFTextField name="email" InputProps={{ readOnly: !isEditable }} />
-                </Grid>
-
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Secondary Contact Person Name
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.secondaryContactPersonName"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Secondary Contact : Designation
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.secondaryContactPersonDesignation"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Secondary Contact : Mobile Number
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.secondaryContactPersonPhone"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Secondary Contact : Email
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.secondaryContactPersonEmail"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="mobile" InputProps={{ readOnly: true }} />
                 </Grid>
               </Grid>
             </StyledPaper>
 
+            {/* Billing Information */}
             <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
-                Accounts Person Details
+              <Typography variant="h6" gutterBottom>
+                Billing Information
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Accounts Person Name*
+                    Billing Company Name *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.accountsPersonName"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="billingCompanyName" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Billing Website Address
+                  </Typography>
+                  <RHFTextField name="billingWebsiteAddress" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Billing Address *
+                  </Typography>
+                  <RHFTextField name="billingAddress" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Accounts Person : Designation*
+                    Billing Country *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.accountsPersonDesignation"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="billingCountry" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Accounts Person : Mobile Number*
+                    Billing City *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.accountsPersonPhone"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="billingCity" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Accounts Person : Email*
+                    Billing State *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.accountsPersonEmail"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="billingState" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Fascia Name*
+                    Billing Postal Code *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.fasciaName"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="billingPostalCode" InputProps={{ readOnly: true }} />
                 </Grid>
               </Grid>
             </StyledPaper>
 
+            {/* Billing Contact Person */}
             <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
-                Business Information
+              <Typography variant="h6" gutterBottom>
+                Billing Contact Person Details
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Are you registered with MSME?*
+                    Title *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.hasMsmeNumber"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFSelect name="billingContactPersonPrefix" disabled>
+                    <MenuItem value="">Select Title</MenuItem>
+                    <MenuItem value="Mr.">Mr.</MenuItem>
+                    <MenuItem value="Mrs.">Mrs.</MenuItem>
+                    <MenuItem value="Ms.">Ms.</MenuItem>
+                    <MenuItem value="Dr.">Dr.</MenuItem>
+                    <MenuItem value="Prof.">Prof.</MenuItem>
+                  </RHFSelect>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    First Name *
+                  </Typography>
+                  <RHFTextField name="billingContactPersonFirstName" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Middle Name
+                  </Typography>
+                  <RHFTextField name="billingContactPersonMiddleName" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Last Name *
+                  </Typography>
+                  <RHFTextField name="billingContactPersonLastName" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Enter Udyog Aadhaar Number*
+                    Designation *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.msmeUdyogNumber"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="billingContactPersonDesignation" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    We are*
+                    Email *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.businessEntityType"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="billingEmail" InputProps={{ readOnly: true }} />
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Please Specify*
+                    Contact Number *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.otherBusinessEntityType"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    We Deal with*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.weProvide"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Please Specify*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.otherWeProvide"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Select the event you will be participating in*
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.participationInterest"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <RHFTextField name="billingContactNumber" InputProps={{ readOnly: true }} />
                 </Grid>
               </Grid>
             </StyledPaper>
 
-            {/* Nested data fields */}
-
+            {/* Step 2: Tax & Registration Information */}
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                mb: 3,
+                mx: 3,
+                pb: 2,
+                borderBottom: '1px solid',
+                borderColor: '#000000',
+                mt: 4,
+              }}
+            >
+              Company Details
+            </Typography>
+            {/* Tax Information */}
             <StyledPaper>
-              <Typography sx={{ pb: 1 }} variant="h6" gutterBottom>
-                Booth Type
+              <Typography variant="h6" gutterBottom>
+                Tax Information
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                {participationType === 'INDIAN_PARTICIPANT' && (
+                  <>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        PAN Number *
+                      </Typography>
+                      <RHFTextField name="panNumber" InputProps={{ readOnly: true }} />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        TAN Number *
+                      </Typography>
+                      <RHFTextField name="tanNumber" InputProps={{ readOnly: true }} />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        GST Number *
+                      </Typography>
+                      <RHFTextField name="gstNumber" InputProps={{ readOnly: true }} />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="subtitle2" gutterBottom>
+                      State(where GST is registered) *
+                      </Typography>
+                      <RHFTextField name="gstState" InputProps={{ readOnly: true }} />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Typography variant="subtitle2" gutterBottom>
+                      State Code(where GST is registered) *
+                      </Typography>
+                      <RHFTextField name="stateCode" InputProps={{ readOnly: true }} />
+                    </Grid>
+                  </>
+                )}
+                {participationType === 'OVERSEAS_PARTICIPANT' && (
+                  <Grid item xs={12} md={4}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      VAT Number *
+                    </Typography>
+                    <RHFTextField name="vatNumber" InputProps={{ readOnly: true }} />
+                  </Grid>
+                )}
+              </Grid>
+            </StyledPaper>
+
+            {/* Export Markets */}
+            <StyledPaper>
+              <Typography variant="h6" gutterBottom>
+                Export Markets
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Are you an exhibitor from India or an International exhibitor?*
+                    Export Markets
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.participationInterest"
-                    InputProps={{ readOnly: !isEditable }}
+                  <RHFMultiCheckbox
+                    name="exportMarkets"
+                    options={[
+                      { label: 'North America', value: 'North America' },
+                      { label: 'South America', value: 'South America' },
+                      { label: 'Europe', value: 'Europe' },
+                      { label: 'Asia', value: 'Asia' },
+                      { label: 'Oceania', value: 'Oceania' },
+                      { label: 'Africa', value: 'Africa' },
+                      { label: 'Others', value: 'Others' },
+                    ]}
+                    disabled
                   />
+                </Grid>
+                {Array.isArray(exportMarkets) && exportMarkets.includes('Others') && (
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Other Export Market *
+                    </Typography>
+                    <RHFTextField name="otherExportMarket" InputProps={{ readOnly: true }} />
+                  </Grid>
+                )}
+              </Grid>
+            </StyledPaper>
+
+            {/* Director Information */}
+            <StyledPaper>
+              <Typography variant="h6" gutterBottom>
+                Director Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Title *
+                  </Typography>
+                  <RHFSelect name="directorPrefix" disabled>
+                    <MenuItem value="">Select Title</MenuItem>
+                    <MenuItem value="Mr.">Mr.</MenuItem>
+                    <MenuItem value="Mrs.">Mrs.</MenuItem>
+                    <MenuItem value="Ms.">Ms.</MenuItem>
+                    <MenuItem value="Dr.">Dr.</MenuItem>
+                    <MenuItem value="Prof.">Prof.</MenuItem>
+                  </RHFSelect>
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    First Name *
+                  </Typography>
+                  <RHFTextField name="directorFirstName" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Middle Name
+                  </Typography>
+                  <RHFTextField name="directorMiddleName" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Last Name *
+                  </Typography>
+                  <RHFTextField name="directorLastName" InputProps={{ readOnly: true }} />
                 </Grid>
               </Grid>
-              <FormControl component="fieldset" fullWidth>
-                <FormLabel sx={{ pt: 2 }} component="legend">
-                  Select your booth type *
-                </FormLabel>
-                <TableContainer sx={{ mt: 2 }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <StyledTableCell></StyledTableCell>
-                        <StyledTableCell>Booth Type</StyledTableCell>
-                        <StyledTableCell>Min. Area</StyledTableCell>
-                        <StyledTableCell>Rate (INR/sqm)</StyledTableCell>
-                        <StyledTableCell>Rate (Euro/sqm)</StyledTableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        <StyledTableCell>
-                          <Radio
-                            value="Shell"
-                            checked={watch('data.areaType') === 'Shell'}
-                            onChange={(e) =>
-                              setValue('data.areaType', e.target.value, { shouldValidate: true })
-                            }
-                            name="boothType-radio"
-                            disabled={!isEditable}
-                          />
-                        </StyledTableCell>
-                        <StyledTableCell>Shell</StyledTableCell>
-                        <StyledTableCell>12 sqm</StyledTableCell>
-                        <StyledTableCell>₹10500</StyledTableCell>
-                        <StyledTableCell>€300</StyledTableCell>
-                      </TableRow>
-                      <TableRow>
-                        <StyledTableCell>
-                          <Radio
-                            value="Bare Space"
-                            checked={watch('data.areaType') === 'Bare Space'}
-                            onChange={(e) =>
-                              setValue('data.areaType', e.target.value, { shouldValidate: true })
-                            }
-                            name="boothType-radio"
-                            disabled={!isEditable}
-                          />
-                        </StyledTableCell>
-                        <StyledTableCell>Bare Space</StyledTableCell>
-                        <StyledTableCell>18 sqm</StyledTableCell>
-                        <StyledTableCell>₹10000</StyledTableCell>
-                        <StyledTableCell>€275</StyledTableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                {/* <FormLabel component="legend">
-                  * Premium location charges (2-side, 3-side, or 4-side open) will incur an
-                  additional 12.5% fee.
-                </FormLabel>
-                <FormLabel component="legend">* GST extra as applicable</FormLabel> */}
-              </FormControl>
-              <Grid container spacing={2} sx={{ mt: pdfGenerating ? 8 : 2 }}>
-                <Grid item xs={12} md={4}>
+            </StyledPaper>
+
+            {/* MSME Registration */}
+            <StyledPaper>
+              <Typography variant="h6" gutterBottom>
+                MSME Registration
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Do you want to buy a preferred location?*
+                    Registered with MSME? *
                   </Typography>
-                  <StyledRHFTextField
-                    name="data.buyPremiumLocation"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
+                  <Box sx={{ pointerEvents: 'none', opacity: 0.7 }}>
+                    <RHFRadioGroup
+                      name="isMsme"
+                      options={[
+                        { label: 'Yes', value: 'Yes' },
+                        { label: 'No', value: 'No' },
+                      ]}
+                    />
+                  </Box>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                {isMsme === 'Yes' && (
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      MSME Number *
+                    </Typography>
+                    <RHFTextField name="msmeNumber" InputProps={{ readOnly: true }} />
+                  </Grid>
+                )}
+              </Grid>
+            </StyledPaper>
+
+            {/* Company Bio */}
+            <StyledPaper>
+              <Typography variant="h6" gutterBottom>
+                Company Profile
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Preferred Location Charge
+                    Company Profile (max 300 words) *
                   </Typography>
-                  <StyledRHFTextField name="plcAmount" InputProps={{ readOnly: !isEditable }} />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Area Required? (sqm) *
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.areaRequired"
-                    InputProps={{ readOnly: !isEditable }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Currency
-                  </Typography>
-                  <StyledRHFTextField name="data.currency" InputProps={{ readOnly: !isEditable }} />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Estimated Total Cost
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.calculatedTotalCost"
-                    InputProps={{ readOnly: !isEditable }}
-                    value={amountPostPremium}
-                  />
-                  {premiumLocation === 'Yes' ? (
-                    <FormLabel component="legend" sx={{ mt: 2 }}>
-                      {/* * Premium location charges (2-side, 3-side, or 4-side open) will incur an
-                      additional 12.5% fee. */}
-                      *Price is inclusive of prefered location charges (2-side, 3-side, or 4-side
-                      open).
-                    </FormLabel>
-                  ) : null}
-                  <FormLabel component="legend" sx={{ mt: 2 }}>
-                    * GST extra as applicable
-                  </FormLabel>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    TDS Percentage*
-                  </Typography>
-                  <StyledRHFTextField name="data.tds" InputProps={{ readOnly: !isEditable }} />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle2" gutterBottom>
-                    TAN Number
-                  </Typography>
-                  <StyledRHFTextField
-                    name="data.tanNumber"
-                    InputProps={{ readOnly: !isEditable }}
+                  <RHFTextField
+                    name="companyBio"
+                    multiline
+                    rows={6}
                   />
                 </Grid>
               </Grid>
             </StyledPaper>
-            {/* {!pdfGenerating && (
-              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2, px: 3 }}>
+
+            {/* Step 3: Business & Product Information */}
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                mb: 3,
+                mx: 3,
+                pb: 2,
+                borderBottom: '1px solid',
+                borderColor: '#000000',
+                mt: 4,
+              }}
+            >
+              Business & Product Information
+            </Typography>
+
+            {/* Business Nature */}
+            <StyledPaper>
+              <Typography variant="h6" gutterBottom>
+                Nature of Business
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Nature of Business *
+                  </Typography>
+                  <RHFMultiCheckbox
+                    name="businessNature"
+                    options={[
+                      { label: 'Manufacturer', value: 'Manufacturer' },
+                      { label: 'Sole Agent', value: 'Sole Agent' },
+                      { label: 'Product Designer', value: 'Product Designer' },
+                      { label: 'Wholesaler', value: 'Wholesaler' },
+                      { label: 'Exporter', value: 'Exporter' },
+                      { label: 'Publisher', value: 'Publisher' },
+                      { label: 'Others', value: 'Others' },
+                    ]}
+                    disabled
+                  />
+                </Grid>
+                {Array.isArray(businessNature) && businessNature.includes('Others') && (
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Other Business Nature *
+                    </Typography>
+                    <RHFTextField name="otherBusinessNature" InputProps={{ readOnly: true }} />
+                  </Grid>
+                )}
+              </Grid>
+            </StyledPaper>
+
+            {/* Product Information */}
+            <StyledPaper>
+              <Typography variant="h6" gutterBottom>
+                Product Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Select Product Group *
+                  </Typography>
+                  <RHFSelect name="productGroupId" disabled>
+                    <MenuItem value="">Select Product Group</MenuItem>
+                    {Object.values(productCategories).map((group) => (
+                      <MenuItem key={group.id} value={group.id}>
+                        {group.id}. {group.name}
+                      </MenuItem>
+                    ))}
+                  </RHFSelect>
+                </Grid>
+                {productGroupId && selectedProductGroup && (
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Select Product Categories *
+                    </Typography>
+                    <RHFMultiCheckbox
+                      name="productCategory"
+                      options={productSubCategories.map((subCat) => ({
+                        label: subCat.label,
+                        value: subCat.value,
+                      }))}
+                      row
+                      disabled
+                    />
+                  </Grid>
+                )}
+                {productGroupId && selectedProductGroup && Array.isArray(productCategory) && 
+                 productSubCategories.some((subCat) => subCat.label.includes('Others') && productCategory.includes(subCat.value)) && (
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Other Product Category *
+                    </Typography>
+                    <RHFTextField name="otherProductCategory" InputProps={{ readOnly: true }} />
+                  </Grid>
+                )}
+              </Grid>
+            </StyledPaper>
+
+            {/* Step 4: Booth Preferences */}
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                mb: 3,
+                mx: 3,
+                pb: 2,
+                borderBottom: '1px solid',
+                borderColor: '#000000',
+                mt: 4,
+              }}
+            >
+              Booth Details
+            </Typography>
+
+            {/* Pricing Information Table */}
+            <StyledPaper>
+              <Typography variant="h6" gutterBottom>
+                Booth Pricing Information
+              </Typography>
+              <TableContainer sx={{ mt: 2 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableCell>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          Booth Type / Location
+                        </Typography>
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          Rate (per sqm)
+                        </Typography>
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          Additional Conditions
+                        </Typography>
+                      </StyledTableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <StyledTableCell>Shell Scheme - Ground Floor (One Side)</StyledTableCell>
+                      <StyledTableCell>₹ 11,000/sqm + Taxes</StyledTableCell>
+                      <StyledTableCell>Standard rate</StyledTableCell>
+                    </TableRow>
+                    <TableRow>
+                      <StyledTableCell>Shell Scheme - Upper Floor (One Side)</StyledTableCell>
+                      <StyledTableCell>₹ 8,500/sqm + Taxes</StyledTableCell>
+                      <StyledTableCell>Standard rate</StyledTableCell>
+                    </TableRow>
+                    <TableRow>
+                      <StyledTableCell>Ground / Upper Floor (Two Side Open)</StyledTableCell>
+                      <StyledTableCell>+ 15% additional on total space cost</StyledTableCell>
+                      <StyledTableCell>Applied after base calculation</StyledTableCell>
+                    </TableRow>
+                    <TableRow>
+                      <StyledTableCell>Ground / Upper Floor (Three Side Open)</StyledTableCell>
+                      <StyledTableCell>+ 25% additional on total space cost</StyledTableCell>
+                      <StyledTableCell>Applied after base calculation</StyledTableCell>
+                    </TableRow>
+                    <TableRow>
+                      <StyledTableCell>Island Booth (4 Side Open) (Min. 150 sqm)</StyledTableCell>
+                      <StyledTableCell>₹ 20,000/sqm + Taxes</StyledTableCell>
+                      <StyledTableCell>Priority to sponsors</StyledTableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Typography variant="body2" sx={{ mt: 2, fontStyle: 'italic' }}>
+                ** For Bare Space Rs. 500/sqm to be reduced (Min Size 18 sqm)
+              </Typography>
+            </StyledPaper>
+
+            {/* Booth Type & Preferences */}
+            <StyledPaper>
+              <Typography variant="h6" gutterBottom>
+                Booth Type & Preferences
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Select Booth Type *
+                  </Typography>
+                  <Box sx={{ pointerEvents: 'none', opacity: 0.7 }}>
+                    <RHFRadioGroup
+                      name="scheme"
+                      options={[
+                        { label: 'Shell Scheme', value: 'SHELL' },
+                        { label: 'Bare Space', value: 'BARE' },
+                      ]}
+                      row
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Select Booth Location Preference *
+                  </Typography>
+                  <Box sx={{ pointerEvents: 'none', opacity: 0.7 }}>
+                    <RHFRadioGroup
+                      name="preferredFloor"
+                      options={[
+                        { label: 'Ground Floor', value: 'GROUND_FLOOR' },
+                        { label: 'Upper Floor', value: 'UPPER_FLOOR' },
+                      ]}
+                      row
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Select Number of Open Sides *
+                  </Typography>
+                  <Box sx={{ pointerEvents: 'none', opacity: 0.7 }}>
+                    <RHFRadioGroup
+                      name="preferredStallSides"
+                      options={[
+                        { label: 'One Side', value: '1' },
+                        { label: 'Two Sides', value: '2' },
+                        { label: 'Three Sides', value: '3' },
+                        { label: 'Four Sides', value: '4' },
+                      ]}
+                      row
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Required Area (sqm) *
+                  </Typography>
+                  <RHFTextField name="area" placeholder="Enter Required Area" InputProps={{ readOnly: true }} />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Are you a TDS Deductor? *
+                  </Typography>
+                  <Box sx={{ pointerEvents: 'none', opacity: 0.7 }}>
+                    <RHFRadioGroup
+                      name="tds"
+                      options={[
+                        { label: 'Yes', value: 'Yes' },
+                        { label: 'No', value: 'No' },
+                      ]}
+                      row
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={methods.watch('termsAndConditions') || false}
+                        onChange={(e) => setValue('termsAndConditions', e.target.checked)}
+                        disabled
+                      />
+                    }
+                    label={
+                      <Typography variant="body2">
+                        I confirm that I agree to the terms and conditions of the exhibition *
+                      </Typography>
+                    }
+                  />
+                </Grid>
+              </Grid>
+            </StyledPaper>
+            {isEditable && (
+              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Button variant="outlined" onClick={toggleEditMode}>
+                  Cancel
+                </Button>
                 <LoadingButton
-                  disabled={!isEditable}
                   type="submit"
                   variant="contained"
                   size="large"
                   loading={isSubmitting}
                 >
-                  Submit Form
+                  Save Changes
                 </LoadingButton>
               </Box>
-            )} */}
+            )}
           </Box>
         </FormProvider>
       </div>

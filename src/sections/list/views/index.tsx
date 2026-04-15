@@ -59,7 +59,7 @@ export default function EventCardsGrid() {
     if (!eventsLoading && events && events.length > 0) {
       console.log('Events fetched being set:', events);
       eventData.setState(events[events.length - 1]); // Set the last event as the current event
-      if (events[events.length - 1]?.status === 'APPROVED') {
+      if (events[0]?.status === 'APPROVED') {
         router.push('/dashboard');
       } else {
         router.push(`/dashboard/status`);
@@ -69,7 +69,7 @@ export default function EventCardsGrid() {
 
   // const popOver = usePopover();
 
-  const [eventStatus, setEventStatus] = React.useState<string>('null'); 
+  const [eventStatus, setEventStatus] = React.useState<string>('null');
 
   const selectEvent = (event: IEventItem) => {
     console.log('Selected Event:', event);

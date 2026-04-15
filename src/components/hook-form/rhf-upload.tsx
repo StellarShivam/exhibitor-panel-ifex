@@ -2,6 +2,8 @@ import { Controller, useFormContext } from 'react-hook-form';
 
 import FormHelperText from '@mui/material/FormHelperText';
 
+import Stack from '@mui/material/Stack';
+
 import { Upload, UploadBox, UploadProps, UploadAvatar } from '../upload';
 
 // ----------------------------------------------------------------------
@@ -53,8 +55,9 @@ export function RHFUploadBox({ name, ...other }: Props) {
 
 // ----------------------------------------------------------------------
 
-export function RHFUpload({ name, multiple, helperText, ...other }: Props) {
+export function RHFUpload({ name, multiple, helperText, accept, ...other }: Props) {
   const { control } = useFormContext();
+  const defaultAccept = { 'image/*': [] };
 
   return (
     <Controller
@@ -64,29 +67,35 @@ export function RHFUpload({ name, multiple, helperText, ...other }: Props) {
         multiple ? (
           <Upload
             multiple
-            accept={{ 'image/*': [] }}
+            accept={accept || defaultAccept}
             files={field.value}
             error={!!error}
             helperText={
-              (!!error || helperText) && (
-                <FormHelperText error={!!error} sx={{ px: 2 }}>
-                  {error ? error?.message : helperText}
-                </FormHelperText>
-              )
+              <Stack spacing={1}>
+                {helperText}
+                {!!error && (
+                  <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
+                    {error?.message}
+                  </FormHelperText>
+                )}
+              </Stack>
             }
             {...other}
           />
         ) : (
           <Upload
-            accept={{ 'image/*': [] }}
+            accept={accept || defaultAccept}
             file={field.value}
             error={!!error}
             helperText={
-              (!!error || helperText) && (
-                <FormHelperText error={!!error} sx={{ px: 2 }}>
-                  {error ? error?.message : helperText}
-                </FormHelperText>
-              )
+              <Stack spacing={1}>
+                {helperText}
+                {!!error && (
+                  <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
+                    {error?.message}
+                  </FormHelperText>
+                )}
+              </Stack>
             }
             {...other}
           />

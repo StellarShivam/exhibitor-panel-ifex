@@ -27,6 +27,7 @@ import axios from 'axios';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { CircularProgress } from '@mui/material';
+import { BASE_URL } from 'src/config-global';
 
 // Define Zod schema for validation
 const phoneRegex = /^[+]?[0-9]{12}$/; // Basic phone regex, adjust as needed
@@ -590,7 +591,7 @@ const ExhibitorRegistration = () => {
         formData.append('file', blob, 'signature.png');
 
         const uploadResponse = await axios.post(
-          'https://sit.spicetrade.io/api/auth/api/file/upload',
+          `${BASE_URL}/auth/api/file/upload`,
           formData,
           {
             headers: {
@@ -969,7 +970,7 @@ const ExhibitorRegistration = () => {
       });
 
       const uploadFormData = new FormData();
-      const URL = `https://sit.spicetrade.io/api/auth/api/file/upload`;
+      const URL = `${BASE_URL}/auth/api/file/upload`;
       uploadFormData.append('file', file);
 
       proformaInvoice = await axios.post(URL, uploadFormData, {
@@ -1046,7 +1047,7 @@ const ExhibitorRegistration = () => {
         boothTypePreference: formData.boothTypePreference,
         totalAreaRequired: formData.totalAreaRequired, // Already a number due to Zod transform
         calculatedTotalCost: totalCost, // Send calculated cost
-        tds: formData.tds,
+        tds: 'nil',
         tanNumber: formData.tds !== 'nil' ? formData.tanNumber : undefined, // Only if TDS is not nil
         additionalDirectors: formData.additionalDirectors?.map((d) => d.name) || null,
         signatureUrl: signatureUrl || undefined, // Send signature URL if available
@@ -1067,7 +1068,7 @@ const ExhibitorRegistration = () => {
     console.log('Submitting payload:', JSON.stringify(payload, null, 2));
 
     try {
-      const response = await fetch('https://sit.spicetrade.io/api/auth/register/event', {
+      const response = await fetch(`${BASE_URL}/auth/register/event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -1100,9 +1101,8 @@ const ExhibitorRegistration = () => {
         console.error('Submission failed:', errorResult);
         setApiMessage({
           type: 'error',
-          text: `Registration Failed: ${
-            errorResult.message || 'Unknown error contact eventstrat.ai'
-          }`,
+          text: `Registration Failed: ${errorResult.message || 'Unknown error contact eventstrat.ai'
+            }`,
         });
         setIsSubmitting(false);
       }
@@ -1224,7 +1224,7 @@ const ExhibitorRegistration = () => {
   const checkEmailExists = async (email: string) => {
     try {
       const response = await axios.get(
-        'https://sit.spicetrade.io/api/auth/isRegistered?email=' + email + '&eventId=165'
+        `${BASE_URL}/auth/isRegistered?email=` + email + '&eventId=165'
       );
       if (response.status === 200) {
         const data = response.data;
@@ -1588,7 +1588,7 @@ const ExhibitorRegistration = () => {
   useEffect(() => {
     const fetchExhibitorCount = async () => {
       try {
-        const response = await fetch('https://sit.spicetrade.io/api/auth/exhibitorCount/165');
+        const response = await fetch(`${BASE_URL}/auth/exhibitorCount/165`);
         const data = await response.json();
         if (data && data.data.exhibitorCount !== undefined) {
           // Format the number to always be 4 digits with leading zeros
@@ -1689,7 +1689,7 @@ const ExhibitorRegistration = () => {
       }
 
       try {
-        await fetch('https://sit.spicetrade.io/api/auth/register/event', {
+        await fetch(`${BASE_URL}/auth/register/event`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -1711,7 +1711,7 @@ const ExhibitorRegistration = () => {
         <div className="flex flex-col lg:flex-row relative bg-[#F6F6F6] min-h-[90vh] rounded-2xl md:w-full xl:w-5/6 mx-auto my-8">
           {' '}
           {/* Centered form */}
-          <div className="flex flex-col justify-start gap-3 lg:gap-8 items-center lg:items-start lg:w-2/5 w-full bg-[#FF4421] rounded-t-2xl lg:rounded-2xl lg:pl-5 px-4 py-6 lg:py-12 text-white">
+          <div className="flex flex-col justify-start gap-3 lg:gap-8 items-center lg:items-start lg:w-2/5 w-full bg-[#ffa206] rounded-t-2xl lg:rounded-2xl lg:pl-5 px-4 py-6 lg:py-12 text-white">
             <h1 className="text-white text-2xl lg:text-3xl font-semibold px-4">Register Now</h1>
             <Timeline
               sx={{
@@ -1758,7 +1758,7 @@ const ExhibitorRegistration = () => {
                         justifyContent: 'center',
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        color: step.completed || currentStep.id === step.id ? '#FF4421' : 'white',
+                        color: step.completed || currentStep.id === step.id ? '#ffa206' : 'white',
                         backgroundColor:
                           step.completed || currentStep.id === step.id ? 'white' : 'transparent',
                         borderColor: 'white',
@@ -1771,8 +1771,8 @@ const ExhibitorRegistration = () => {
                             : 'not-allowed',
                         opacity:
                           step.completed ||
-                          currentStep.id === step.id ||
-                          steps.findIndex((s) => s.id === currentStep.id) >= index
+                            currentStep.id === step.id ||
+                            steps.findIndex((s) => s.id === currentStep.id) >= index
                             ? 1
                             : 0.5,
                         margin: { xs: 'none', lg: 0 }, // Remove default margin if any
@@ -1784,7 +1784,7 @@ const ExhibitorRegistration = () => {
                       }}
                     >
                       {step.completed && currentStep.id !== step.id ? (
-                        <CheckIcon sx={{ color: '#FF4421', fontSize: '20px' }} />
+                        <CheckIcon sx={{ color: '#ffa206', fontSize: '20px' }} />
                       ) : (
                         step.id
                       )}
@@ -1813,8 +1813,8 @@ const ExhibitorRegistration = () => {
                       fontWeight: step.completed || currentStep.id === step.id ? 'bold' : 'normal',
                       opacity:
                         step.completed ||
-                        currentStep.id === step.id ||
-                        steps.findIndex((s) => s.id === currentStep.id) >= index
+                          currentStep.id === step.id ||
+                          steps.findIndex((s) => s.id === currentStep.id) >= index
                           ? 1
                           : 0.5,
                       display: { xs: 'none', md: 'block' },
@@ -1832,7 +1832,7 @@ const ExhibitorRegistration = () => {
                         '&:hover': {
                           textDecoration:
                             step.completed ||
-                            steps.findIndex((s) => s.id === currentStep.id) >= index
+                              steps.findIndex((s) => s.id === currentStep.id) >= index
                               ? 'underline'
                               : 'none',
                         },
@@ -1866,9 +1866,8 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('nameOfExhibitor')}
                         placeholder="Enter Legal Business Name"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.nameOfExhibitor ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.nameOfExhibitor ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.nameOfExhibitor && (
                         <p className="text-red-500 text-sm mt-1">
@@ -1884,9 +1883,8 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('boothDisplayName')}
                         placeholder="Enter Booth Display Name"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.boothDisplayName ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.boothDisplayName ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.boothDisplayName && (
                         <p className="text-red-500 text-sm mt-1">
@@ -1908,9 +1906,8 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('addressLine1')}
                         placeholder="Enter Street Address"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.addressLine1 ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.addressLine1 ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.addressLine1 && (
                         <p className="text-red-500 text-sm mt-1">{errors.addressLine1.message}</p>
@@ -1924,7 +1921,7 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('addressLine2')}
                         placeholder="Enter Floor / Suite / Unit"
-                        className="w-full h-[54px] border bg-white border-gray-300 rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]"
+                        className="w-full h-[54px] border bg-white border-gray-300 rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]"
                       />
                     </div>
                   </div>
@@ -1966,10 +1963,10 @@ const ExhibitorRegistration = () => {
                                       borderColor: errors.country ? '#EF4444' : '#D1D5DB',
                                     },
                                     '&:hover fieldset': {
-                                      borderColor: '#FF4421',
+                                      borderColor: '#ffa206',
                                     },
                                     '&.Mui-focused fieldset': {
-                                      borderColor: '#FF4421',
+                                      borderColor: '#ffa206',
                                       borderWidth: '2px',
                                     },
                                   },
@@ -1977,7 +1974,7 @@ const ExhibitorRegistration = () => {
                                     padding: '15.5px 14px !important',
                                   },
                                   '& .MuiFormHelperText-root.Mui-error': {
-                                    color: '#FF4421',
+                                    color: '#ffa206',
                                   },
                                 }}
                               />
@@ -2029,10 +2026,10 @@ const ExhibitorRegistration = () => {
                                         : '#D1D5DB',
                                     },
                                     '&:hover fieldset': {
-                                      borderColor: '#FF4421',
+                                      borderColor: '#ffa206',
                                     },
                                     '&.Mui-focused fieldset': {
-                                      borderColor: '#FF4421',
+                                      borderColor: '#ffa206',
                                       borderWidth: '2px',
                                     },
                                   },
@@ -2040,7 +2037,7 @@ const ExhibitorRegistration = () => {
                                     padding: '15.5px 14px !important',
                                   },
                                   '& .MuiFormHelperText-root.Mui-error': {
-                                    color: '#FF4421',
+                                    color: '#ffa206',
                                   },
                                 }}
                               />
@@ -2090,10 +2087,10 @@ const ExhibitorRegistration = () => {
                                       borderColor: errors.city ? '#EF4444' : '#D1D5DB',
                                     },
                                     '&:hover fieldset': {
-                                      borderColor: '#FF4421',
+                                      borderColor: '#ffa206',
                                     },
                                     '&.Mui-focused fieldset': {
-                                      borderColor: '#FF4421',
+                                      borderColor: '#ffa206',
                                       borderWidth: '2px',
                                     },
                                   },
@@ -2101,7 +2098,7 @@ const ExhibitorRegistration = () => {
                                     padding: '15.5px 14px !important',
                                   },
                                   '& .MuiFormHelperText-root.Mui-error': {
-                                    color: '#FF4421',
+                                    color: '#ffa206',
                                   },
                                 }}
                               />
@@ -2135,9 +2132,8 @@ const ExhibitorRegistration = () => {
                         placeholder="Enter Postal or ZIP Code"
                         // maxLength={6}
                         max="999999"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.postalCode ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.postalCode ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.postalCode && (
                         <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>
@@ -2151,7 +2147,7 @@ const ExhibitorRegistration = () => {
                         type="checkbox"
                         checked={billingAddressSame}
                         onChange={(e) => setBillingAddressSame(e.target.checked)}
-                        className="mr-2 h-5 w-5 accent-[#FF4421]"
+                        className="mr-2 h-5 w-5 accent-[#ffa206]"
                       />
                       <span className="font-medium">Billing address same as above</span>
                     </label>
@@ -2170,9 +2166,8 @@ const ExhibitorRegistration = () => {
                             type="text"
                             {...register('billingAddressLine1')}
                             placeholder="Enter Street Address"
-                            className={`w-full h-[54px] border bg-white ${
-                              errors.billingAddressLine1 ? 'border-red-500' : 'border-gray-300'
-                            } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                            className={`w-full h-[54px] border bg-white ${errors.billingAddressLine1 ? 'border-red-500' : 'border-gray-300'
+                              } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                           />
                           {errors.billingAddressLine1 && (
                             <p className="text-red-500 text-sm mt-1">
@@ -2188,7 +2183,7 @@ const ExhibitorRegistration = () => {
                             type="text"
                             {...register('billingAddressLine2')}
                             placeholder="Enter Floor / Suite / Unit"
-                            className="w-full h-[54px] border bg-white border-gray-300 rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]"
+                            className="w-full h-[54px] border bg-white border-gray-300 rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]"
                           />
                         </div>
                       </div>
@@ -2232,10 +2227,10 @@ const ExhibitorRegistration = () => {
                                             : '#D1D5DB',
                                         },
                                         '&:hover fieldset': {
-                                          borderColor: '#FF4421',
+                                          borderColor: '#ffa206',
                                         },
                                         '&.Mui-focused fieldset': {
-                                          borderColor: '#FF4421',
+                                          borderColor: '#ffa206',
                                           borderWidth: '2px',
                                         },
                                       },
@@ -2243,7 +2238,7 @@ const ExhibitorRegistration = () => {
                                         padding: '15.5px 14px !important',
                                       },
                                       '& .MuiFormHelperText-root.Mui-error': {
-                                        color: '#FF4421',
+                                        color: '#ffa206',
                                       },
                                     }}
                                   />
@@ -2297,10 +2292,10 @@ const ExhibitorRegistration = () => {
                                             : '#D1D5DB',
                                         },
                                         '&:hover fieldset': {
-                                          borderColor: '#FF4421',
+                                          borderColor: '#ffa206',
                                         },
                                         '&.Mui-focused fieldset': {
-                                          borderColor: '#FF4421',
+                                          borderColor: '#ffa206',
                                           borderWidth: '2px',
                                         },
                                       },
@@ -2308,7 +2303,7 @@ const ExhibitorRegistration = () => {
                                         padding: '15.5px 14px !important',
                                       },
                                       '& .MuiFormHelperText-root.Mui-error': {
-                                        color: '#FF4421',
+                                        color: '#ffa206',
                                       },
                                     }}
                                   />
@@ -2361,10 +2356,10 @@ const ExhibitorRegistration = () => {
                                           borderColor: errors.billingCity ? '#EF4444' : '#D1D5DB',
                                         },
                                         '&:hover fieldset': {
-                                          borderColor: '#FF4421',
+                                          borderColor: '#ffa206',
                                         },
                                         '&.Mui-focused fieldset': {
-                                          borderColor: '#FF4421',
+                                          borderColor: '#ffa206',
                                           borderWidth: '2px',
                                         },
                                       },
@@ -2372,7 +2367,7 @@ const ExhibitorRegistration = () => {
                                         padding: '15.5px 14px !important',
                                       },
                                       '& .MuiFormHelperText-root.Mui-error': {
-                                        color: '#FF4421',
+                                        color: '#ffa206',
                                       },
                                     }}
                                   />
@@ -2389,9 +2384,8 @@ const ExhibitorRegistration = () => {
                             type="text"
                             {...register('billingPostalCode')}
                             placeholder="Enter Postal or ZIP Code"
-                            className={`w-full h-[54px] border bg-white ${
-                              errors.billingPostalCode ? 'border-red-500' : 'border-gray-300'
-                            } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                            className={`w-full h-[54px] border bg-white ${errors.billingPostalCode ? 'border-red-500' : 'border-gray-300'
+                              } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                           />
                           {errors.billingPostalCode && (
                             <p className="text-red-500 text-sm mt-1">
@@ -2413,9 +2407,8 @@ const ExhibitorRegistration = () => {
                         type="email"
                         {...register('companyEmailInput')}
                         placeholder="Enter Company Email"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.companyEmailInput ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.companyEmailInput ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.companyEmailInput && (
                         <p className="text-red-500 text-sm mt-1">
@@ -2462,7 +2455,7 @@ const ExhibitorRegistration = () => {
                             }}
                             inputProps={{
                               onFocus: (e) => {
-                                e.target.style.borderColor = '#ff4421';
+                                e.target.style.borderColor = '#ffa206';
                                 e.target.style.boxShadow = '0 0 0 2px rgba(255, 140, 0, 1)';
                               },
                               onBlur: (e) => {
@@ -2490,9 +2483,8 @@ const ExhibitorRegistration = () => {
                         {...register('companyPanNoInput')}
                         placeholder="Enter Company PAN"
                         maxLength={10}
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.companyPanNoInput ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.companyPanNoInput ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.companyPanNoInput && (
                         <p className="text-red-500 text-sm mt-1">
@@ -2516,9 +2508,8 @@ const ExhibitorRegistration = () => {
                             type="text"
                             {...register('directorNameInput')}
                             placeholder="Enter Director Name"
-                            className={`w-full h-[54px] border bg-white ${
-                              errors.directorNameInput ? 'border-red-500' : 'border-gray-300'
-                            } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                            className={`w-full h-[54px] border bg-white ${errors.directorNameInput ? 'border-red-500' : 'border-gray-300'
+                              } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                           />
                         </div>
 
@@ -2528,11 +2519,10 @@ const ExhibitorRegistration = () => {
                               type="text"
                               {...register(`additionalDirectors.${index}.name` as const)}
                               placeholder={`Enter Director Name`}
-                              className={`w-full h-[54px] border bg-white ${
-                                errors.additionalDirectors?.[index]?.name
-                                  ? 'border-red-500'
-                                  : 'border-gray-300'
-                              } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                              className={`w-full h-[54px] border bg-white ${errors.additionalDirectors?.[index]?.name
+                                ? 'border-red-500'
+                                : 'border-gray-300'
+                                } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                             />
                             <input
                               type="hidden"
@@ -2553,7 +2543,7 @@ const ExhibitorRegistration = () => {
                         <button
                           type="button"
                           onClick={addDirector}
-                          className="bg-[#FF4421] text-white px-4 py-2 rounded-full hover:scale-105 duration-300"
+                          className="bg-[#ffa206] text-white px-4 py-2 rounded-full hover:scale-105 duration-300"
                         >
                           Add More Director
                         </button>
@@ -2596,10 +2586,10 @@ const ExhibitorRegistration = () => {
                                   borderColor: errors.billingCountry ? '#EF4444' : '#D1D5DB',
                                 },
                                 '&:hover fieldset': {
-                                  borderColor: '#FF4421',
+                                  borderColor: '#ffa206',
                                 },
                                 '&.Mui-focused fieldset': {
-                                  borderColor: '#FF4421',
+                                  borderColor: '#ffa206',
                                   borderWidth: '2px',
                                 },
                               },
@@ -2607,7 +2597,7 @@ const ExhibitorRegistration = () => {
                                 padding: '15.5px 14px !important',
                               },
                               '& .MuiFormHelperText-root.Mui-error': {
-                                color: '#FF4421',
+                                color: '#ffa206',
                               },
                             }}
                           >
@@ -2629,9 +2619,8 @@ const ExhibitorRegistration = () => {
                           type="text"
                           {...register('gstNumber')}
                           placeholder="Enter Your GST Number"
-                          className={`w-full h-[54px] border bg-white ${
-                            errors.gstNumber ? 'border-red-500' : 'border-gray-300'
-                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                          className={`w-full h-[54px] border bg-white ${errors.gstNumber ? 'border-red-500' : 'border-gray-300'
+                            } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                         />
                         {errors.gstNumber && (
                           <p className="text-red-500 text-sm mt-1">{errors.gstNumber.message}</p>
@@ -2670,9 +2659,8 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('contactPersonFirstName')}
                         placeholder="Enter First Name"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.contactPersonFirstName ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.contactPersonFirstName ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.contactPersonFirstName && (
                         <p className="text-red-500 text-sm mt-1">
@@ -2688,9 +2676,8 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('contactPersonLastName')}
                         placeholder="Enter Last Name"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.contactPersonLastName ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.contactPersonLastName ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.contactPersonLastName && (
                         <p className="text-red-500 text-sm mt-1">
@@ -2740,7 +2727,7 @@ const ExhibitorRegistration = () => {
                             }}
                             inputProps={{
                               onFocus: (e) => {
-                                e.target.style.borderColor = '#ff4421';
+                                e.target.style.borderColor = '#ffa206';
                                 e.target.style.boxShadow = '0 0 0 2px rgba(255, 140, 0, 1)';
                               },
                               onBlur: (e) => {
@@ -2795,7 +2782,7 @@ const ExhibitorRegistration = () => {
                             }}
                             inputProps={{
                               onFocus: (e) => {
-                                e.target.style.borderColor = '#ff4421';
+                                e.target.style.borderColor = '#ffa206';
                                 e.target.style.boxShadow = '0 0 0 2px rgba(255, 140, 0, 1)';
                               },
                               onBlur: (e) => {
@@ -2821,9 +2808,8 @@ const ExhibitorRegistration = () => {
                         type="email"
                         {...register('emailAddress')}
                         placeholder="Enter Email Address"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.emailAddress ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.emailAddress ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.emailAddress && (
                         <p className="text-red-500 text-sm mt-1">{errors.emailAddress.message}</p>
@@ -2837,9 +2823,8 @@ const ExhibitorRegistration = () => {
                         type="email"
                         {...register('alternateEmailAddress')}
                         placeholder="Enter Alternate Email Address"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.alternateEmailAddress ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.alternateEmailAddress ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.alternateEmailAddress && (
                         <p className="text-red-500 text-sm mt-1">
@@ -2858,9 +2843,8 @@ const ExhibitorRegistration = () => {
                         type="url"
                         {...register('website')}
                         placeholder="https://example.com"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.website ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.website ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.website && (
                         <p className="text-red-500 text-sm mt-1">{errors.website.message}</p>
@@ -2874,9 +2858,8 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('contactPersonDesignation')}
                         placeholder="Enter Contact Person Designation"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.contactPersonDesignation ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.contactPersonDesignation ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.contactPersonDesignation && (
                         <p className="text-red-500 text-sm mt-1">
@@ -2896,7 +2879,7 @@ const ExhibitorRegistration = () => {
                         type="checkbox"
                         checked={sameAsContact}
                         onChange={(e) => setSameAsContact(e.target.checked)}
-                        className="mr-2 h-5 w-5 accent-[#FF4421]"
+                        className="mr-2 h-5 w-5 accent-[#ffa206]"
                       />
                       <span className="font-medium">Same as Contact Person Details</span>
                     </label>
@@ -2913,11 +2896,9 @@ const ExhibitorRegistration = () => {
                         {...register('accountPersonFirstName')}
                         placeholder="Enter First Name"
                         disabled={sameAsContact}
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.accountPersonFirstName ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421] ${
-                          sameAsContact ? 'bg-gray-100' : ''
-                        }`}
+                        className={`w-full h-[54px] border bg-white ${errors.accountPersonFirstName ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206] ${sameAsContact ? 'bg-gray-100' : ''
+                          }`}
                       />
                       {errors.accountPersonFirstName && (
                         <p className="text-red-500 text-sm mt-1">
@@ -2934,11 +2915,9 @@ const ExhibitorRegistration = () => {
                         {...register('accountPersonLastName')}
                         placeholder="Enter Last Name"
                         disabled={sameAsContact}
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.accountPersonLastName ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421] ${
-                          sameAsContact ? 'bg-gray-100' : ''
-                        }`}
+                        className={`w-full h-[54px] border bg-white ${errors.accountPersonLastName ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206] ${sameAsContact ? 'bg-gray-100' : ''
+                          }`}
                       />
                       {errors.accountPersonLastName && (
                         <p className="text-red-500 text-sm mt-1">
@@ -2991,7 +2970,7 @@ const ExhibitorRegistration = () => {
                             inputProps={{
                               onFocus: (e) => {
                                 if (!sameAsContact) {
-                                  e.target.style.borderColor = '#ff4421';
+                                  e.target.style.borderColor = '#ffa206';
                                   e.target.style.boxShadow = '0 0 0 2px rgba(255, 140, 0, 1)';
                                 }
                               },
@@ -3016,11 +2995,9 @@ const ExhibitorRegistration = () => {
                         {...register('accountPersonEmailAddress')}
                         placeholder="Enter Email Address"
                         disabled={sameAsContact}
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.accountPersonEmailAddress ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421] ${
-                          sameAsContact ? 'bg-gray-100' : ''
-                        }`}
+                        className={`w-full h-[54px] border bg-white ${errors.accountPersonEmailAddress ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206] ${sameAsContact ? 'bg-gray-100' : ''
+                          }`}
                       />
                       {errors.accountPersonEmailAddress && (
                         <p className="text-red-500 text-sm mt-1">
@@ -3065,10 +3042,10 @@ const ExhibitorRegistration = () => {
                                   borderColor: errors.bookingViaAssociation ? '#EF4444' : '#D1D5DB',
                                 },
                                 '&:hover fieldset': {
-                                  borderColor: '#FF4421',
+                                  borderColor: '#ffa206',
                                 },
                                 '&.Mui-focused fieldset': {
-                                  borderColor: '#FF4421',
+                                  borderColor: '#ffa206',
                                   borderWidth: '2px',
                                 },
                               },
@@ -3076,7 +3053,7 @@ const ExhibitorRegistration = () => {
                                 padding: '15.5px 14px !important',
                               },
                               '& .MuiFormHelperText-root.Mui-error': {
-                                color: '#FF4421',
+                                color: '#ffa206',
                               },
                             }}
                           >
@@ -3104,9 +3081,8 @@ const ExhibitorRegistration = () => {
                           type="number"
                           {...register('associationName')}
                           placeholder="Enter Association Number"
-                          className={`w-full h-[54px] border bg-white ${
-                            errors.associationName ? 'border-red-500' : 'border-gray-300'
-                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                          className={`w-full h-[54px] border bg-white ${errors.associationName ? 'border-red-500' : 'border-gray-300'
+                            } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                         />
                         {errors.associationName && (
                           <p className="text-red-500 text-sm mt-1">
@@ -3142,10 +3118,10 @@ const ExhibitorRegistration = () => {
                                   borderColor: errors.registeredWithMsme ? '#EF4444' : '#D1D5DB',
                                 },
                                 '&:hover fieldset': {
-                                  borderColor: '#FF4421',
+                                  borderColor: '#ffa206',
                                 },
                                 '&.Mui-focused fieldset': {
-                                  borderColor: '#FF4421',
+                                  borderColor: '#ffa206',
                                   borderWidth: '2px',
                                 },
                               },
@@ -3153,7 +3129,7 @@ const ExhibitorRegistration = () => {
                                 padding: '15.5px 14px !important',
                               },
                               '& .MuiFormHelperText-root.Mui-error': {
-                                color: '#FF4421',
+                                color: '#ffa206',
                               },
                             }}
                           >
@@ -3182,9 +3158,8 @@ const ExhibitorRegistration = () => {
                           type="text"
                           {...register('msmeNumber')}
                           placeholder="Enter Udyog Aadhaar Number"
-                          className={`w-full h-[54px] border bg-white ${
-                            errors.msmeNumber ? 'border-red-500' : 'border-gray-300'
-                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                          className={`w-full h-[54px] border bg-white ${errors.msmeNumber ? 'border-red-500' : 'border-gray-300'
+                            } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                         />
                         {errors.msmeNumber && (
                           <p className="text-red-500 text-sm mt-1">{errors.msmeNumber.message}</p>
@@ -3218,10 +3193,10 @@ const ExhibitorRegistration = () => {
                                   borderColor: errors.participatedEarlier ? '#EF4444' : '#D1D5DB',
                                 },
                                 '&:hover fieldset': {
-                                  borderColor: '#FF4421',
+                                  borderColor: '#ffa206',
                                 },
                                 '&.Mui-focused fieldset': {
-                                  borderColor: '#FF4421',
+                                  borderColor: '#ffa206',
                                   borderWidth: '2px',
                                 },
                               },
@@ -3229,7 +3204,7 @@ const ExhibitorRegistration = () => {
                                 padding: '15.5px 14px !important',
                               },
                               '& .MuiFormHelperText-root.Mui-error': {
-                                color: '#FF4421',
+                                color: '#ffa206',
                               },
                             }}
                           >
@@ -3274,10 +3249,10 @@ const ExhibitorRegistration = () => {
                                     borderColor: errors.participationYear ? '#EF4444' : '#D1D5DB',
                                   },
                                   '&:hover fieldset': {
-                                    borderColor: '#FF4421',
+                                    borderColor: '#ffa206',
                                   },
                                   '&.Mui-focused fieldset': {
-                                    borderColor: '#FF4421',
+                                    borderColor: '#ffa206',
                                     borderWidth: '2px',
                                   },
                                 },
@@ -3285,7 +3260,7 @@ const ExhibitorRegistration = () => {
                                   padding: '15.5px 14px !important',
                                 },
                                 '& .MuiFormHelperText-root.Mui-error': {
-                                  color: '#FF4421',
+                                  color: '#ffa206',
                                 },
                               }}
                             >
@@ -3343,10 +3318,10 @@ const ExhibitorRegistration = () => {
                                     borderColor: errors.departmentCategory ? '#EF4444' : '#D1D5DB',
                                   },
                                   '&:hover fieldset': {
-                                    borderColor: '#FF4421',
+                                    borderColor: '#ffa206',
                                   },
                                   '&.Mui-focused fieldset': {
-                                    borderColor: '#FF4421',
+                                    borderColor: '#ffa206',
                                     borderWidth: '2px',
                                   },
                                 },
@@ -3354,7 +3329,7 @@ const ExhibitorRegistration = () => {
                                   padding: '15.5px 14px !important',
                                 },
                                 '& .MuiFormHelperText-root.Mui-error': {
-                                  color: '#FF4421',
+                                  color: '#ffa206',
                                 },
                               }}
                             />
@@ -3374,9 +3349,8 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('otherDepartmentCategory')}
                         placeholder="Enter your department category"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.otherDepartmentCategory ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.otherDepartmentCategory ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.otherDepartmentCategory && (
                         <p className="text-red-500 text-sm mt-1">
@@ -3414,10 +3388,10 @@ const ExhibitorRegistration = () => {
                                     borderColor: errors.productCategory ? '#EF4444' : '#D1D5DB',
                                   },
                                   '&:hover fieldset': {
-                                    borderColor: '#FF4421',
+                                    borderColor: '#ffa206',
                                   },
                                   '&.Mui-focused fieldset': {
-                                    borderColor: '#FF4421',
+                                    borderColor: '#ffa206',
                                     borderWidth: '2px',
                                   },
                                 },
@@ -3425,7 +3399,7 @@ const ExhibitorRegistration = () => {
                                   padding: '15.5px 14px !important',
                                 },
                                 '& .MuiFormHelperText-root.Mui-error': {
-                                  color: '#FF4421',
+                                  color: '#ffa206',
                                 },
                               }}
                             />
@@ -3445,9 +3419,8 @@ const ExhibitorRegistration = () => {
                         type="text"
                         {...register('otherProductCategory')}
                         placeholder="Enter your product category"
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.otherProductCategory ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.otherProductCategory ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       />
                       {errors.otherProductCategory && (
                         <p className="text-red-500 text-sm mt-1">
@@ -3468,7 +3441,7 @@ const ExhibitorRegistration = () => {
                             type="radio"
                             {...register('interestedInSponsorship')}
                             value={value}
-                            className="mr-2 h-5 w-5 accent-[#FF4421]"
+                            className="mr-2 h-5 w-5 accent-[#ffa206]"
                           />
                           {value.charAt(0).toUpperCase() + value.slice(1)}
                         </label>
@@ -3483,7 +3456,7 @@ const ExhibitorRegistration = () => {
 
                   <div className="mb-6 w-full">
                     <label className="block text-gray-700 font-medium mb-2">
-                      What are your main objectives for exhibiting at UPITS 2025?* (Select all that
+                      What are your main objectives for exhibiting at IFEX 2025?* (Select all that
                       apply)
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
@@ -3516,7 +3489,7 @@ const ExhibitorRegistration = () => {
                             type="checkbox"
                             {...register('mainObjectives')}
                             value={obj.value}
-                            className="mr-2 mt-1 h-5 w-5 accent-[#FF4421] flex-shrink-0" // Added mt-1 for alignment & flex-shrink-0
+                            className="mr-2 mt-1 h-5 w-5 accent-[#ffa206] flex-shrink-0" // Added mt-1 for alignment & flex-shrink-0
                           />
                           <span>{obj.label}</span>{' '}
                           {/* Wrapped label text in span for better control if needed */}
@@ -3535,7 +3508,7 @@ const ExhibitorRegistration = () => {
                       type="text"
                       {...register('otherObjective')}
                       placeholder="Input Text"
-                      className="w-full h-[54px] border bg-white border-gray-300 rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]"
+                      className="w-full h-[54px] border bg-white border-gray-300 rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]"
                     />
                   </div>
                 </div>
@@ -3580,7 +3553,7 @@ const ExhibitorRegistration = () => {
                                   type="radio"
                                   {...register('boothTypePreference')}
                                   value="pre_fitted"
-                                  className="mr-2 h-5 w-5 accent-[#FF4421]"
+                                  className="mr-2 h-5 w-5 accent-[#ffa206]"
                                 />
                                 Pre-fitted
                               </label>
@@ -3599,7 +3572,7 @@ const ExhibitorRegistration = () => {
                                   type="radio"
                                   {...register('boothTypePreference')}
                                   value="space_only"
-                                  className="mr-2 h-5 w-5 accent-[#FF4421]"
+                                  className="mr-2 h-5 w-5 accent-[#ffa206]"
                                 />
                                 Space&nbsp;Only
                               </label>
@@ -3671,10 +3644,10 @@ const ExhibitorRegistration = () => {
                                             : '#D1D5DB',
                                         },
                                         '&:hover fieldset': {
-                                          borderColor: '#FF4421',
+                                          borderColor: '#ffa206',
                                         },
                                         '&.Mui-focused fieldset': {
-                                          borderColor: '#FF4421',
+                                          borderColor: '#ffa206',
                                           borderWidth: '2px',
                                         },
                                       },
@@ -3682,7 +3655,7 @@ const ExhibitorRegistration = () => {
                                         padding: '15.5px 14px !important',
                                       },
                                       '& .MuiFormHelperText-root.Mui-error': {
-                                        color: '#FF4421',
+                                        color: '#ffa206',
                                       },
                                     }}
                                   />
@@ -3700,9 +3673,8 @@ const ExhibitorRegistration = () => {
                           min={36}
                           // max="240"
                           step="3"
-                          className={`w-full h-[54px] border bg-white ${
-                            errors.totalAreaRequired ? 'border-red-500' : 'border-gray-300'
-                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                          className={`w-full h-[54px] border bg-white ${errors.totalAreaRequired ? 'border-red-500' : 'border-gray-300'
+                            } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                         />
                       )}
 
@@ -3739,9 +3711,8 @@ const ExhibitorRegistration = () => {
                       <select
                         {...register('tds')}
                         defaultValue=""
-                        className={`w-full h-[54px] border bg-white ${
-                          errors.tds ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        className={`w-full h-[54px] border bg-white ${errors.tds ? 'border-red-500' : 'border-gray-300'
+                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       >
                         <option value="" disabled>
                           Select TDS
@@ -3763,9 +3734,8 @@ const ExhibitorRegistration = () => {
                           {...register('tanNumber')}
                           placeholder="Enter TAN Number"
                           maxLength={10}
-                          className={`w-full h-[54px] border bg-white ${
-                            errors.tanNumber ? 'border-red-500' : 'border-gray-300'
-                          } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                          className={`w-full h-[54px] border bg-white ${errors.tanNumber ? 'border-red-500' : 'border-gray-300'
+                            } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                         />
                         {errors.tanNumber && (
                           <p className="text-red-500 text-sm mt-1">{errors.tanNumber.message}</p>
@@ -3807,10 +3777,10 @@ const ExhibitorRegistration = () => {
                       <li>
                         Please read the{' '}
                         <a
-                          href="https://upinternationaltradeshow.com/wp-content/uploads/2025/05/UPITS-2025-General-Rules-and-Regulations.pdf" // Update this to the path of your PDF file
+                          href="https://upinternationaltradeshow.com/wp-content/uploads/2025/05/IFEX-2025-General-Rules-and-Regulations.pdf" // Update this to the path of your PDF file
                           target="_blank" // Opens the PDF in a new tab
                           rel="noopener noreferrer" // Adds security for external links
-                          className="text-[#FF4421] underline"
+                          className="text-[#ffa206] underline"
                         >
                           Terms and Conditions
                         </a>{' '}
@@ -3830,9 +3800,8 @@ const ExhibitorRegistration = () => {
                         </label>
 
                         <div
-                          className={`w-full h-[200px] border border-gray-300 rounded-md overflow-hidden ${
-                            !isSaved ? '' : 'fixed top-[9999] left-[9999]'
-                          }`}
+                          className={`w-full h-[200px] border border-gray-300 rounded-md overflow-hidden ${!isSaved ? '' : 'fixed top-[9999] left-[9999]'
+                            }`}
                         >
                           <SignatureCanvas
                             penColor="black"
@@ -3890,13 +3859,12 @@ const ExhibitorRegistration = () => {
             {/* API Message Display */}
             {apiMessage.text && (
               <div
-                className={`mt-4 p-3 rounded-md text-center ${
-                  apiMessage.type === 'success'
-                    ? 'bg-green-100 text-green-700'
-                    : apiMessage.type === 'error'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-blue-100 text-blue-700'
-                }`}
+                className={`mt-4 p-3 rounded-md text-center ${apiMessage.type === 'success'
+                  ? 'bg-green-100 text-green-700'
+                  : apiMessage.type === 'error'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-blue-100 text-blue-700'
+                  }`}
               >
                 {apiMessage.text}
               </div>
@@ -3906,7 +3874,7 @@ const ExhibitorRegistration = () => {
               {currentStep.id > 1 && !isSubmitting && (
                 <button
                   type="button"
-                  className="bg-[#FF4421] self-start w-full lg:w-40 h-14 text-xl cursor-pointer text-white rounded-full px-4 py-2 hover:scale-105 duration-300 disabled:opacity-50 transition-all ease-out"
+                  className="bg-[#ffa206] self-start w-full lg:w-40 h-14 text-xl cursor-pointer text-white rounded-full px-4 py-2 hover:scale-105 duration-300 disabled:opacity-50 transition-all ease-out"
                   onClick={handleGoToPrevStep}
                   disabled={isSubmitting}
                 >
@@ -3920,7 +3888,7 @@ const ExhibitorRegistration = () => {
                   // <div className="flex justify-end w-full mt-auto pt-6">
                   <button
                     type="button"
-                    className="bg-[#FF4421] ml-auto w-full lg:w-40 h-14 text-xl cursor-pointer text-white rounded-full px-4 py-2 hover:scale-105 disabled:hover:scale-100 disabled:opacity-50 transition-all duration-300 ease-out"
+                    className="bg-[#ffa206] ml-auto w-full lg:w-40 h-14 text-xl cursor-pointer text-white rounded-full px-4 py-2 hover:scale-105 disabled:hover:scale-100 disabled:opacity-50 transition-all duration-300 ease-out"
                     onClick={handleGoToNextStep}
                     disabled={isSubmitting || !isEmailUnique || verificationError}
                   >
@@ -3933,7 +3901,7 @@ const ExhibitorRegistration = () => {
                   {!isSubmitting ? (
                     <button
                       type="submit"
-                      className="bg-[#FF4421] ml-auto w-full lg:w-40 h-14 text-xl cursor-pointer text-white rounded-full px-4 py-2 hover:scale-105 disabled:hover:scale-100 disabled:opacity-50 transition-all duration-300 ease-out"
+                      className="bg-[#ffa206] ml-auto w-full lg:w-40 h-14 text-xl cursor-pointer text-white rounded-full px-4 py-2 hover:scale-105 disabled:hover:scale-100 disabled:opacity-50 transition-all duration-300 ease-out"
                       disabled={isSubmitting || !allowCheckout}
                     >
                       {isSubmitting ? 'Submitting...' : 'Checkout'}
@@ -3945,7 +3913,7 @@ const ExhibitorRegistration = () => {
                         size={34}
                         thickness={5}
                         sx={{
-                          color: '#FF4421',
+                          color: '#ffa206',
                           '& .MuiCircularProgress-circle': {
                             strokeLinecap: 'round',
                           },

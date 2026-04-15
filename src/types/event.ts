@@ -1,5 +1,4 @@
 export type IEventItem = {
-  firstName: string;
   exhibitorUserId: number;
   eventName: string;
   exhibitorId: number;

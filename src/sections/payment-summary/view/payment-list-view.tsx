@@ -6,7 +6,7 @@ import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import { Button, Container } from '@mui/material';
+import { Button, Container, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -34,10 +34,13 @@ import { useParams } from 'react-router';
 import { use } from 'i18next';
 import { set } from 'lodash';
 import { IPaymentSummaryTransaction } from 'src/types/payment-summary';
-import { usePaymentByExhibitorID } from 'src/api/payment-summary';
+import { useGetPaymentDetails, usePaymentByExhibitorID, useTransactionsByExhibitorID } from 'src/api/payment-summary';
 import { useGetExhibitor } from 'src/api/exhibitor-profile';
 import { useEventContext } from 'src/components/event-context';
-import { useExhibitorForm, updateRegistrationDetails } from 'src/api/form';
+import { TransactionTableRow } from '../transaction-table-row';
+import PaymentDialog from '../payment-dialog';
+import { fCurrencyWithType } from 'src/utils/format-number';
+import { useExhibitorForm } from 'src/api/form';
 
 // ----------------------------------------------------------------------
 
@@ -61,57 +64,31 @@ export default function PaymentSummaryListView() {
   //   const { spaces, spacesLoading } = useSpacesByEventID(eventData.state.eventId);
   const { eventData } = useEventContext();
   const exhibitorId = eventData.state.exhibitorId;
-  const { payment, paymentLoading, refetchPayment } = usePaymentByExhibitorID(exhibitorId);
-  const { exhibitor } = useGetExhibitor(exhibitorId);
+  const { payment, paymentLoading, refetchPayment } = usePaymentByExhibitorID();
+  const { paymentDetails, paymentDetailsLoading, refetchPaymentDetails } = useGetPaymentDetails();
   const [finalAmountInput, setFinalAmountInput] = useState('');
   const [finalAmountError] = useState('');
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState<boolean>(false);
+  const { exhibitorForm } = useExhibitorForm();
 
-  const table = useTable({ defaultOrderBy: 'companyName' });
+  const table = useTable({ defaultOrderBy: 'transactionDate', defaultOrder: 'desc' });
+  console.log(payment)
 
-  const [tableData, setTableData] = useState<IPaymentSummaryTransaction[]>(
-    payment?.paymentTransactions ?? []
-  );
-  const [openPaymentModal, setOpenPaymentModal] = useState(false);
-  const [manualOrderId, setManualOrderId] = useState('');
 
-  const { exhibitorForm, exhibitorFormLoading } = useExhibitorForm(
-    exhibitor?.supportEmail,
-    eventData.state.eventId
+  const [tableData, setTableData] = useState<any>(
+    payment?.transactions ?? []
   );
 
-  const csvHeaders = TABLE_HEAD.map((header) => ({
-    label: header.label,
-    key: header.id,
-  }));
-
-  const csvData = tableData.map((row) => {
-    const rowData: Record<string, any> = {};
-    TABLE_HEAD.forEach((header) => {
-      // For button columns, leave blank or add a placeholder
-      if (header.id === 'viewForm' || header.id === 'viewPayment') {
-        rowData[header.id] = '';
-      } else {
-        rowData[header.id] = row[header.id as keyof IPaymentSummaryTransaction] || '';
-      }
-    });
-    return rowData;
-  });
-
   useEffect(() => {
-    if (!paymentLoading) {
-      setTableData(payment?.paymentTransactions ?? []); // Update table data when spaces are loaded
-    }
-  }, [payment, paymentLoading]);
-  useEffect(() => {
-    console.log('Exhibitor ID:', exhibitorId);
-    console.log('Payment Data:', payment);
-    console.log('Exhibitor Details:', exhibitor);
-  }, [payment, exhibitor]);
+    setTableData(payment?.transactions ?? []);
+  }, [payment]);
+
+  console.log(paymentDetails, 'paymentDetails*****');
 
   // Update: Add all filter fields to initial state
   const filters = useSetState({
     status: 'All',
-    paymentOption: '',
+    paymentMode: '',
     paymentMethod: '',
     paymentReferenceNumber: '',
   });
@@ -119,7 +96,7 @@ export default function PaymentSummaryListView() {
   const handleFilterReset = useCallback(() => {
     filters.setState({
       status: filters.state.status,
-      paymentOption: '',
+      paymentMode: '',
       paymentMethod: '',
       paymentReferenceNumber: '',
     });
@@ -135,6 +112,8 @@ export default function PaymentSummaryListView() {
     filters: filters.state,
   });
 
+  console.log(dataFiltered, 'dataFiltered*****');
+
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
       table.onResetPage();
@@ -148,7 +127,8 @@ export default function PaymentSummaryListView() {
   const isOfflineTxnPending = (payment?.paymentTransactions ?? []).some(
     (txn) =>
       txn?.paymentStatus?.toLowerCase() === 'pending' &&
-      txn?.paymentOption?.toLowerCase() === 'offline'
+      (txn?.paymentMode?.toLowerCase() === 'offline' ||
+        txn?.paymentOption?.toLowerCase() === 'offline')
   );
 
   const [pendingAmount, setPendingAmount] = useState(0);
@@ -156,66 +136,42 @@ export default function PaymentSummaryListView() {
 
   const [tdsAmount, setTdsAmount] = useState(0);
   const [gstAmount, setGstAmount] = useState(0);
-  const [premiumLocationAmount, setPremiumLocationAmount] = useState(0);
 
   useEffect(() => {
-    const amount = Number(payment?.paymentData.calculatedTotalCost || 0);
-    let tds = Number(payment?.paymentData?.tds);
-    let isPremium = payment?.paymentData.buyPremiumLocation === 'Yes' ? 1 : 0;
-    const premiumCharge = Number((isPremium ? payment?.paymentData?.plcAmount : 0).toFixed(2));
-
-    if (isNaN(tds)) {
-      tds = 0;
-    }
 
     // Calculate total paid amount using fold (reduce)
-    const paid = (payment?.paymentTransactions ?? []).reduce(
+    const paid = (payment?.metaData?.data ?? []).reduce(
       (sum, transaction) =>
-        transaction?.paymentStatus?.toLowerCase().includes('captured') ||
-        transaction?.paymentStatus?.toLowerCase().includes('approved')
-          ? sum + Number(transaction.finalAmount || 0)
+        transaction?.paymentStatus?.includes('SUCCESS')
+          ? sum + Number(transaction.totalAmount || 0)
           : sum,
       0
     );
 
-    const pending = (payment?.paymentTransactions ?? []).reduce(
+    const pending = (payment?.metaData?.data ?? []).reduce(
       (sum, transaction) =>
-        transaction?.paymentStatus?.toLowerCase().includes('pending')
-          ? sum + Number(transaction.finalAmount || 0)
+        transaction?.paymentStatus?.toUpperCase?.() === 'INITIATED' &&
+          transaction?.paymentMode?.toUpperCase?.() === 'OFFLINE'
+          ? sum + Number(transaction.totalAmount || 0)
           : sum,
       0
     );
+    setPaidAmount(paid);
+    setPendingForApproval(pending);
+    setPendingAmount(paymentDetails?.totalAmount - paid);
 
-    // GST and TDS calculations (unchanged)
-    const gst = Number((payment?.paymentData.gstAmount || 0).toFixed(2));
-    const postGst = amount + premiumCharge + gst;
-    const tdsValue = Number((payment?.paymentData.tdsAmount || 0).toFixed(2));
-    const postTdsAmount = Number((postGst - tdsValue).toFixed(2));
 
-    // Round all values to 2 decimals
-    setTdsAmount(Number(tdsValue.toFixed(2)));
-    setGstAmount(Number(gst.toFixed(2)));
-    setPremiumLocationAmount(Number(premiumCharge.toFixed(2)));
+  }, [payment, paymentDetails]);
 
-    setPendingForApproval(Number(pending.toFixed(2)));
-    setTotalAmount(Number(postTdsAmount.toFixed(2)));
-    setPaidAmount(Number(paid.toFixed(2)));
-    setPendingAmount(Number((postTdsAmount - paid).toFixed(2)));
-  }, [payment]);
-
-  const getCurrencySymbol = () => {
-    const currency = exhibitorForm?.data?.currency || 'INR';
-    console.log(currency);
-    switch (currency.toUpperCase()) {
-      case 'EUR':
-        return '€';
-      case 'INR':
-      default:
-        return '₹';
-    }
+  const getMembershipAmount = () => {
+    const calculatedAmount = paymentDetails?.calculatedAmount || 0;
+    const gst = paymentDetails?.gstAmount || 0;
+    const total = paymentDetails?.totalAmount || 0;
+    const membershipAmount = total - (calculatedAmount + gst);
+    return membershipAmount > 0 ? membershipAmount : 0;
   };
 
-  const currencySymbol = getCurrencySymbol();
+  const membershipAmount = getMembershipAmount();
 
   return (
     <Container
@@ -227,26 +183,19 @@ export default function PaymentSummaryListView() {
       }}
     >
       <CustomBreadcrumbs
-        // heading={payment?.paymentData?.boothDisplayName ?? exhibitor?.companyName ?? 'Payment Details'}
+        heading='Transactions'
         links={[{ name: '', href: '' }]}
         action={
           <Box display="flex" gap={1}>
-            {/* <Button
+            <Button
               variant="contained"
               color="inherit"
               startIcon={<Iconify icon="material-symbols:payments-rounded" />}
-              // onClick={() => setOpenPaymentModal(true)}
-              disabled={isOfflineTxnPending || pendingAmount <= 0}
-              onClick={() =>
-                window.open(
-                  'https://register.upinternationaltradeshow.com/payment?email=' +
-                    exhibitor?.supportEmail,
-                  '_blank'
-                )
-              }
+              disabled={pendingForApproval > 0 || pendingAmount <= 0}
+              onClick={() => setPaymentDialogOpen(true)}
             >
               Pay Now
-            </Button> */}
+            </Button>
             {/* <Button
               variant="contained"
               color="inherit"
@@ -271,7 +220,7 @@ export default function PaymentSummaryListView() {
         flexDirection={{ xs: 'column', sm: 'row' }}
         justifyContent="space-between"
         gap={2}
-        my={3}
+        my={1}
       >
         <Card
           sx={{
@@ -288,29 +237,47 @@ export default function PaymentSummaryListView() {
               Total&nbsp;Payment
             </Box>
             <Box fontSize={20} fontWeight="bold">
-              {currencySymbol}
-              {Number(payment?.paymentData?.totalAmount || 0).toFixed(2)}
+              {fCurrencyWithType(paymentDetails?.totalAmount, paymentDetails?.currency || "INR").formatted}
             </Box>
+            {/* <Box fontSize={12} color="text.secondary">
+              {paymentDetails?.preferredFloor ? paymentDetails?.preferredFloor === 'GROUND_FLOOR' ? 'Location - Ground Floor' : 'Location - First Floor' : ''}
+            </Box> */}
           </Box>
           <Box>
-            <Box fontWeight={'bold'} fontSize={10} color="text.primary">
-              Base Amount : {currencySymbol}
-              {Number(payment?.paymentData.calculatedTotalCost || 0).toFixed(2)}{' '}
+            <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+              Base Amount : {fCurrencyWithType(paymentDetails?.calculatedAmount, paymentDetails?.currency || "INR").formatted}{' '}
             </Box>
-            <Box fontWeight={'bold'} fontSize={10} color="text.primary">
-              GST: {currencySymbol}
-              {Number(payment?.paymentData.gstAmount || 0).toFixed(2)}{' '}
+
+            <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+              GST: {fCurrencyWithType(paymentDetails?.gstAmount, paymentDetails?.currency || "INR").formatted}{' '}
             </Box>
-            <Box fontWeight={'bold'} fontSize={10} color="text.primary">
-              TDS : {currencySymbol}
-              {Number(payment?.paymentData.tdsAmount || 0).toFixed(2)}{' '}
-            </Box>
-            {payment?.paymentData.buyPremiumLocation === 'Yes' && (
-              <Box fontWeight={'bold'} fontSize={10} color="text.primary">
-                Prefered Location Charge : {currencySymbol}
-                {Number(payment?.paymentData?.plcAmount || 0).toFixed(2)}{' '}
+
+            {membershipAmount > 0 && (
+              <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+                Membership Amount :{' '}
+                {fCurrencyWithType(membershipAmount, paymentDetails?.currency || 'INR').formatted}{' '}
               </Box>
             )}
+
+            {
+              exhibitorForm?.metaData?.data?.formData?.hallNumber &&
+              exhibitorForm?.metaData?.data?.formData?.stallNumber &&
+              <>
+                <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+                  PLC Amount : {fCurrencyWithType(paymentDetails?.plcAmount, paymentDetails?.currency || "INR").formatted}{' '}
+                </Box>
+
+                <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+                  GST (PLC Amount) : {fCurrencyWithType(paymentDetails?.gstAmountPlc || 0, paymentDetails?.currency || "INR").formatted}{' '}
+                </Box>
+              </>
+            }
+
+
+            <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+              TDS : {fCurrencyWithType(paymentDetails?.tdsAmount || 0, paymentDetails?.currency || "INR").formatted}{' '}
+            </Box>
+
           </Box>
           <Iconify icon="solar:bill-list-bold-duotone" width={46} color="#3ec1f3" />
         </Card>
@@ -329,8 +296,7 @@ export default function PaymentSummaryListView() {
               Paid
             </Box>
             <Box fontSize={20} fontWeight="bold">
-              {currencySymbol}
-              {paidAmount.toFixed(2)}
+              {fCurrencyWithType(paidAmount, paymentDetails?.currency || "INR").formatted}
             </Box>
           </Box>
           <Iconify icon="eva:checkmark-circle-2-fill" width={32} color="#61e294" />
@@ -350,8 +316,7 @@ export default function PaymentSummaryListView() {
               Pending
             </Box>
             <Box fontSize={20} fontWeight="bold">
-              {currencySymbol}
-              {pendingForApproval.toFixed(2)}
+              {fCurrencyWithType(pendingForApproval, paymentDetails?.currency || "INR").formatted}
             </Box>
           </Box>
           <Iconify icon="eva:clock-outline" width={32} color="#ffcf77" />
@@ -371,15 +336,14 @@ export default function PaymentSummaryListView() {
               Outstanding
             </Box>
             <Box fontSize={20} fontWeight="bold">
-              {currencySymbol}
-              {pendingAmount.toFixed(2)}
+              {fCurrencyWithType(pendingAmount, paymentDetails?.currency || "INR").formatted}
             </Box>
           </Box>
           <Iconify icon="solar:wallet-money-outline" width={32} color="#A400FF" />
         </Card>
       </Box>
 
-      <Card>
+      <Card sx={{ mt: 1 }}>
         {/* <Tabs
           value={filters.state.status}
           onChange={handleFilterStatus}
@@ -413,12 +377,12 @@ export default function PaymentSummaryListView() {
               rowCount={dataFiltered.length}
               numSelected={table.selected.length}
               onSort={table.onSort}
-              //   onSelectAllRows={(checked) =>
-              //     table.onSelectAllRows(
-              //       checked,
-              //       dataFiltered.map((row) => row.eventId.toString())
-              //     )
-              //   }
+            //   onSelectAllRows={(checked) =>
+            //     table.onSelectAllRows(
+            //       checked,
+            //       dataFiltered.map((row) => row.eventId.toString())
+            //     )
+            //   }
             />
 
             <TableBody>
@@ -430,12 +394,11 @@ export default function PaymentSummaryListView() {
                 .map((row) => (
                   <PaymentSummaryTableRow
                     key={row.eventId}
-                    currencySymbol={currencySymbol}
                     row={row}
                     refetch={() => {
                       refetchPayment(); // Refetch payment data when needed
                     }}
-                    // onSelectRow={() => table.onSelectRow(row.eventId.toString())}
+                  // onSelectRow={() => table.onSelectRow(row.eventId.toString())}
                   />
                 ))}
 
@@ -449,11 +412,11 @@ export default function PaymentSummaryListView() {
           </Table>
           <TablePaginationCustom
             page={table.page}
-            dense={table.dense}
+            // dense={table.dense}
             count={dataFiltered.length}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
+            // onChangeDense={table.onChangeDense}
             onRowsPerPageChange={table.onChangeRowsPerPage}
           />
         </Box>
@@ -462,34 +425,53 @@ export default function PaymentSummaryListView() {
             <Box fontWeight="bold" fontSize={18}>
               Payment Terms & Conditions for Exhibitors
             </Box>
-            <Button
+            {/* <Button
               variant="contained"
               color="inherit"
               startIcon={<Iconify icon="material-symbols:payments-rounded" />}
-              disabled={isOfflineTxnPending || pendingAmount <= 0}
-              onClick={() =>
-                window.open(
-                  'https://register.ifexindia.com/payment?email=' + exhibitor?.supportEmail,
-                  '_blank'
-                )
-              }
+              disabled={pendingForApproval > 0 || pendingAmount <= 0}
+              onClick={() => setPaymentDialogOpen(true)}
             >
               Pay Now
-            </Button>
+            </Button> */}
           </Box>
           <Box fontSize={14} color="text.secondary">
             To ensure a smooth and confirmed participation, all exhibitors are required to adhere to
             the following payment milestones:
           </Box>
-          <Box component="ol" sx={{ pl: 3, mt: 1, mb: 0 }}>
-            <li className="list-disc mt-1">25% at the time of booking</li>
-            <li className="list-disc mt-1">25% before 20/Jul/2025</li>
-            <li className="list-disc mt-1">25% before 18/Oct/2025</li>
-            <li className="list-disc mt-1">25% before 16/Dec/2025</li>
-          </Box>
+          <ul className="space-y-2 w-full">
+            <li>
+              <strong className="text-lg ">First Payment – 25%</strong>
+              <br />
+              <span className="text-gray-600">
+                At the time of booking
+              </span>
+            </li>
+            <li>
+              <strong className="text-lg">Second Payment – 25%</strong>
+              <br />
+              <span className="text-gray-600">
+                Due By: 20 July 2026
+              </span>
+            </li>
+            <li>
+              <strong className="text-lg">Third Payment – 25%</strong>
+              <br />
+              <span className="text-gray-600">Due By: 20 Oct 2026</span>
+            </li>
+            <li>
+              <strong className="text-lg">Fourth Payment – 25%</strong>
+              <br />
+              <span className="text-gray-600">Due By: 16 Dec 2026</span>
+            </li>
+          </ul>
         </Box>
       </Card>
-      <Dialog
+
+      {/* <Typography variant="h4" sx={{ mt: 5}}>Service Request Transactions</Typography>
+      <TransactionTable exhibitorId={exhibitorId} /> */}
+
+      {/* <Dialog
         open={openPaymentModal}
         onClose={() => setOpenPaymentModal(false)}
         maxWidth="xs"
@@ -504,7 +486,7 @@ export default function PaymentSummaryListView() {
             fullWidth
           />
           <TextField
-            label={`Maximum Amount: ${currencySymbol}${pendingAmount.toFixed(2)}`}
+            label={`Maximum Amount: ₹${pendingAmount.toFixed(2)}`}
             type="number"
             value={finalAmountInput}
             onChange={(e) => setFinalAmountInput(e.target.value)}
@@ -555,17 +537,157 @@ export default function PaymentSummaryListView() {
             Submit
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
+      <PaymentDialog
+        open={paymentDialogOpen}
+        onClose={() => setPaymentDialogOpen(false)}
+        paymentDetails={paymentDetails}
+        reFetchPayment={refetchPayment}
+        reFetchPaymentDetails={refetchPaymentDetails}
+        exhibitorForm={exhibitorForm}
+        isOffline={true}
+      // exhibitorFormDetailId={currentForm?.exhibitorFormId}
+      // email={values?.email}
+      // reFetchFormData={reFetchFormData}
+      />
     </Container>
   );
 }
 
-// ----------------------------------------------------------------------
+// const TXN_TABLE_HEAD = [
+//   { id: 'date', label: 'Date' },
+//   { id: 'form', label: 'Form Name' },
+//   { id: 'paymentMode', label: 'Payment Mode' },
+//   { id: 'paymentMethod', label: 'Payment Method' },
+//   { id: 'paymentReferenceNumber', label: 'Transaction ID' },
+//   { id: 'amount', label: 'Amount' },
+//   { id: 'status', label: 'Status' },
+//   { id: 'action', label: 'Action' },
+//   // { id: 'viewForm', label: 'View Form' },
+//   // { id: 'viewPayment', label: 'View Payment' },
+// ];
+
+// function TransactionTable({exhibitorId} : {exhibitorId : number}) {
+
+//   const { payment, paymentLoading, refetchPayment } = useTransactionsByExhibitorID(exhibitorId);
+//   const filters = useSetState({
+//     status: 'All',
+//     paymentOption: '', // was paymentMode
+//     paymentMethod: '',
+//     paymentReferenceNumber: '',
+//   });
+
+//   const table = useTable({ defaultOrderBy: 'date', defaultOrder: 'desc' });
+
+//   const [tableData, setTableData] = useState(
+//     payment?.transactions ?? []
+//   );
+
+//   useEffect(() => {
+//     if (!paymentLoading) {
+//       const transformedData = (payment?.transactions ?? []).map((item) => ({
+//         ...item,
+//         date: item.data?.transactionDate ? item.data?.transactionDate : item.createdAt,
+//       }));
+//       setTableData(transformedData);
+//     }
+//   }, [payment, paymentLoading]);
+
+//   const handleFilterReset = useCallback(() => {
+//     filters.setState({
+//       status: filters.state.status,
+//       paymentOption: '', // was paymentMode
+//       paymentMethod: '',
+//       paymentReferenceNumber: '',
+//     });
+//     table.onResetPage();
+//   }, [table, filters]);
+
+// const dataFiltered = applyFilter({
+//   inputData: tableData,
+//   comparator: getComparator<keyof IPaymentTransaction>(
+//     table.order,
+//     table.orderBy as keyof IPaymentTransaction
+//   ),
+//   filters: filters.state,
+// });
+
+//   return (
+//     <Card sx={{ mt: 2 }}>
+//       {/* <PaymentTableToolbar filters={filters} onResetPage={table.onResetPage} /> */}
+//       {/* <PaymentTableFiltersResult
+//         filters={filters}
+//         onResetPage={handleFilterReset}
+//         totalResults={dataFiltered.length}
+//         sx={{ p: 2.5, pt: 0 }}
+//       /> */}
+
+//       <Box sx={{ position: 'relative', overflowX: 'auto' }}>
+//         {' '}
+//         {/* Add overflowX: 'auto' */}
+//         <Table>
+//           <TableHeadCustom
+//             order={table.order}
+//             orderBy={table.orderBy}
+//             headLabel={TXN_TABLE_HEAD}
+//             rowCount={dataFiltered.length}
+//             numSelected={table.selected.length}
+//             onSort={table.onSort}
+//           //   onSelectAllRows={(checked) =>
+//           //     table.onSelectAllRows(
+//           //       checked,
+//           //       dataFiltered.map((row) => row.eventId.toString())
+//           //     )
+//           //   }
+//           />
+
+//           <TableBody>
+//             {dataFiltered
+//               .slice(
+//                 table.page * table.rowsPerPage,
+//                 table.page * table.rowsPerPage + table.rowsPerPage
+//               )
+//               .map((row) => (
+//                 <TransactionTableRow
+//                   key={row.eventId}
+//                   row={row}
+//                   // setOpenPaymentModal={handleOpenPaymentModal}
+//                   refetch={() => {
+//                     refetchPayment();
+//                   }}
+//                   showFormName
+//                 // onSelectRow={() => table.onSelectRow(row.eventId.toString())}
+//                 />
+//               ))}
+
+//             <TableEmptyRows
+//               height={56}
+//               emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+//             />
+
+//             <TableNoData notFound={!dataFiltered.length} />
+//           </TableBody>
+//         </Table>
+//         <TablePaginationCustom
+//           page={table.page}
+//           dense={table.dense}
+//           count={dataFiltered.length}
+//           rowsPerPage={table.rowsPerPage}
+//           onPageChange={table.onChangePage}
+//           onChangeDense={table.onChangeDense}
+//           onRowsPerPageChange={table.onChangeRowsPerPage}
+//         />
+//       </Box>
+//     </Card>
+//   )
+// }
+
+// // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }: any) {
   // Destructure all possible filter fields with fallback to empty string
   const {
-    paymentOption = '',
+    paymentMode = '',
     paymentMethod = '',
     paymentReferenceNumber = '',
     status = '',
@@ -581,45 +703,22 @@ function applyFilter({ inputData, comparator, filters }: any) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  // Fix: Normalize status for comparison and handle undefined/null
-  const normalizedStatus = (status || '').toLowerCase();
-  switch (normalizedStatus) {
-    case 'pending':
-      inputData = inputData.filter(
-        (payment: IPaymentSummaryTransaction) =>
-          (payment.paymentStatus || '').toLowerCase() === 'pending'
-      );
-      break;
-    case 'non-pending':
-      inputData = inputData.filter(
-        (payment: IPaymentSummaryTransaction) =>
-          (payment.paymentStatus || '').toLowerCase() !== 'pending'
-      );
-      break;
-    default:
-    // No status filter
-  }
-
-  if (paymentOption) {
-    inputData = inputData.filter(
-      (payment: IPaymentSummaryTransaction) => (payment.paymentOption || '') === paymentOption
+  if (paymentMode) {
+    inputData = inputData.filter((payment: IPaymentSummaryTransaction) =>
+      (payment.paymentMode?.toLowerCase() || '') === paymentMode?.toLowerCase()
     );
   }
+
   if (paymentMethod) {
-    inputData = inputData.filter((payment: IPaymentSummaryTransaction) => {
-      // Handle both null and string "null" for Pre-Paid
-      if (paymentMethod === 'null') {
-        return payment.paymentMethod === null || payment.paymentMethod === 'null';
-      }
-      // Normalize both sides for comparison
-      const filterValue = (paymentMethod || '').toLowerCase().trim();
-      const dataValue = (payment.paymentMethod || '').toLowerCase().trim();
-      return dataValue === filterValue;
-    });
-  }
-  if (paymentReferenceNumber) {
     inputData = inputData.filter((payment: IPaymentSummaryTransaction) =>
-      (payment.orderId || '').toLowerCase().includes(paymentReferenceNumber.toLowerCase())
+      (payment.paymentMethod?.toLowerCase() || '') === paymentMethod?.toLowerCase()
+    );
+  }
+
+  if (paymentReferenceNumber) {
+    const query = paymentReferenceNumber.toLowerCase();
+    inputData = inputData.filter((payment: IPaymentSummaryTransaction) =>
+      (payment.orderId?.toLowerCase() || '').includes(query)
     );
   }
 

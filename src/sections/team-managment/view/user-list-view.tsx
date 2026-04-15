@@ -23,7 +23,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useGetExhibitorUsers } from 'src/api/team-management';
+import { useGetExhibitorUsers, useDeleteExhibitorUser } from 'src/api/team-management';
 
 import { useEventContext } from 'src/components/event-context';
 
@@ -50,8 +50,6 @@ import { IUserItem, IUserTableFilters, IUserTableFilterValue } from 'src/types/u
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import { useGetEventList1 } from 'src/api/event';
-import { useGetExhibitor } from 'src/api/exhibitor-profile';
-import { useExhibitorForm } from 'src/api/forms';
 
 // ----------------------------------------------------------------------
 
@@ -61,10 +59,10 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Team Member' },
   { id: 'designation', label: 'Designation' },
   { id: 'phone', label: 'Phone' },
+  { id: 'action', label: 'Action', width: 80, align: 'right' },
   // { id: 'status', label: 'Status' },
-  { id: 'lastUpdated', label: 'Last updated' },
+  // { id: 'lastUpdated', label: 'Last updated' },
   // { id: 'permissions', label: 'Permissions', width: 320 },
-  // { id: '', label: 'Action', width: 80 },
 ];
 
 const defaultFilters: IUserTableFilters = {
@@ -86,14 +84,9 @@ export default function UserListView() {
 
   const confirm = useBoolean();
 
-  const { eventData } = useEventContext();
+  const { exhibitorUsers, exhibitorUsersMemberCapping, exhibitorUsersLoading, reFetchExhibitorUsers } = useGetExhibitorUsers();
 
-  const { exhibitorUsers, exhibitorUsersLoading, reFetchExhibitorUsers } = useGetExhibitorUsers(
-    eventData?.state.exhibitorId
-  );
-
-  const { exhibitor } = useGetExhibitor(eventData?.state.exhibitorId);
-  const { exhibitorForm } = useExhibitorForm(exhibitor?.supportEmail, eventData?.state.eventId);
+  const { deleteExhibitorUser } = useDeleteExhibitorUser();
 
   const [tableData, setTableData] = useState<IUserItem[]>([]);
 
@@ -136,16 +129,23 @@ export default function UserListView() {
   // }, []);
 
   const handleDeleteRow = useCallback(
-    (id: number) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+    async (id: number) => {
+      try {
+        const response = await deleteExhibitorUser(id);
 
-      enqueueSnackbar('Delete success!');
+        if (response.status !== 200 && response.status !== 'success') {
+          throw new Error('Failed to delete member');
+        }
 
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+        enqueueSnackbar('Member deleted successfully!');
+        reFetchExhibitorUsers();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar('Failed to delete member', { variant: 'error' });
+        console.error('Delete error:', error);
+      }
     },
-    [dataInPage.length, enqueueSnackbar, table, tableData]
+    [dataInPage.length, enqueueSnackbar, table, reFetchExhibitorUsers, deleteExhibitorUser]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -203,46 +203,15 @@ export default function UserListView() {
           }}
         />
 
-<Stack
-        direction="row"
-        // alignItems="center"
-        gap={2}
-        // justifyContent="space-between"
-        sx={{
-          backgroundColor: '#00B8D929',
-          color: 'info.main',
-          border: '2px solid #00B8D920',
-          borderRadius: 1,
-          px: 2,
-          py: 1,
-          mb: 1,
-          width: '100%',
-        }}
-      >
-        <Stack direction="row" alignItems="start" spacing={1}>
-          <Iconify icon="fa7-solid:people-group" />
-          <Typography variant="subtitle2" sx={{ color: 'info.main' }}>
-            Total Members Allowed : <strong>{exhibitorForm?.totalBadgeCount}</strong>
-          </Typography>
-        </Stack>
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ ml: 4 }}>
-          <Iconify icon="ic:twotone-add-box" />
-          <Typography variant="subtitle2" sx={{ color: 'info.main'}}>
-            Members Added: <strong>{exhibitorForm?.usedBadgeCount}</strong>
-          </Typography>
-        </Stack>
-      </Stack>
-
-      {exhibitorForm?.totalBadgeCount > 0 && exhibitorForm?.usedBadgeCount >= exhibitorForm?.totalBadgeCount && (
         <Stack
           direction="row"
           // alignItems="center"
           gap={2}
           // justifyContent="space-between"
           sx={{
-            backgroundColor: 'warning.lighter',
+            backgroundColor: '#00B8D929',
             color: 'info.main',
-            border: '2px solid #ffdb91',
+            border: '2px solid #00B8D920',
             borderRadius: 1,
             px: 2,
             py: 1,
@@ -250,11 +219,22 @@ export default function UserListView() {
             width: '100%',
           }}
         >
-          <Typography variant="subtitle2" sx={{ color: 'warning.main' }}>
-            Your Badge limit has been exhausted, to increase the limit contact: Ritesh Bhati (Email: dba1@indiaexpocentre.com)
+          <Stack direction="row" alignItems="start" spacing={1}>
+            {/* <InfoIcon sx={{ color: 'info.main' }} /> */}
+            <Typography variant="subtitle2" sx={{ color: 'info.main' }}>
+              <strong>•</strong> Total Members Allowed :{' '}
+              <strong>
+                {exhibitorUsersMemberCapping}
+              </strong>
+            </Typography>
+          </Stack>
+          <Typography variant="subtitle2" sx={{ color: 'info.main', ml: 4 }}>
+            <strong>•</strong> Members Added:{' '}
+            <strong>
+              {exhibitorUsers?.length}
+            </strong>
           </Typography>
         </Stack>
-      )}
 
         <Card>
           {/* <Tabs
@@ -356,12 +336,12 @@ export default function UserListView() {
                     )
                     .map((row) => (
                       <UserTableRow
-                        key={row.id}
+                        key={row.urn}
                         row={row}
-                        selected={table.selected.includes(String(row.id))}
-                        onSelectRow={() => table.onSelectRow(String(row.id))}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
+                        selected={table.selected.includes(String(row.urn))}
+                        onSelectRow={() => table.onSelectRow(String(row.urn))}
+                        onDeleteRow={() => handleDeleteRow(row.urn)}
+                        onEditRow={() => handleEditRow(row.urn)}
                       />
                     ))}
 
@@ -440,7 +420,14 @@ function applyFilter({
 
   if (name) {
     inputData = inputData.filter(
-      (user) => user.fullName?.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (user) => {
+        const searchTerm = name.toLowerCase();
+        const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+        const email = (user.email || '').toLowerCase();
+        const phone = (user.phone || '').toLowerCase();
+        const designation = (user.designation || '').toLowerCase();
+        return fullName.includes(searchTerm) || email.includes(searchTerm) || phone.includes(searchTerm) || designation.includes(searchTerm);
+      }
     );
   }
 

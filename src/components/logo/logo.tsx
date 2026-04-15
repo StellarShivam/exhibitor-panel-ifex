@@ -25,7 +25,7 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
       <Box
         ref={ref}
         sx={{
-          width: 100,
+          width: 150,
           height: 100,
           display: 'inline-flex',
           position: 'relative',
@@ -34,14 +34,14 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
         {...other}
       >
         <Image
-          src="/logo/logo-header.webp"
-          alt="Logo"
+          src="/IFEX_LOGO.png"
+          alt="IFEX Logo"
           fill
           priority
           // sizes="250px"
           style={{
             objectFit: 'contain',
-            filter,
+            filter: 'none',
           }}
         />
       </Box>

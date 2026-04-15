@@ -1,8 +1,8 @@
 import { TableRow, TableCell, Button, styled } from '@mui/material';
 import Label from 'src/components/label';
-import { fDateTime } from 'src/utils/format-time';
+import { fDate, fDateTime } from 'src/utils/format-time';
 import { IPaymentSummaryTransaction } from 'src/types/payment-summary';
-import { updatePaymentDetails } from 'src/api/payment-summary';
+import { generateReceipt, updatePaymentDetails } from 'src/api/payment-summary';
 import { enqueueSnackbar } from 'notistack';
 
 // Styled components for slimmer rows and truncated content
@@ -16,25 +16,36 @@ const SlimTableCell = styled(TableCell)(({ theme }) => ({
 
 type Props = {
   row: IPaymentSummaryTransaction;
-  currencySymbol: string;
   refetch: () => void;
 };
 
-export const PaymentSummaryTableRow: React.FC<Props> = ({ row, currencySymbol, refetch }) => {
-  const status = (row.paymentStatus || '').toLowerCase();
+export const PaymentSummaryTableRow: React.FC<Props> = ({ row, refetch }) => {
+  const status = (row?.paymentStatus || '');
 
   const handlePaymenStatus = (status: string, orderId: string) => {
     updatePaymentDetails(status, orderId);
   };
 
-  const handleDownloadReceipt = () => {
-    if (row.paymentRecieptUrl && row.paymentRecieptUrl.trim() !== '') {
-      window.open(row.paymentRecieptUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      enqueueSnackbar('Payment receipt not available.', { variant: 'warning' });
+  const handleDownloadReceipt = async () => {
+    enqueueSnackbar('Processing receipt...', { variant: 'info' });
+    try {
+      if (typeof row.id === 'number') {
+        const res = await generateReceipt(row.id);
+
+        enqueueSnackbar('Receipt processed!!', { variant: 'success' });
+        console.log(res, 'res*****');
+
+        if (res?.receiptUrl) {
+          window.open(res?.receiptUrl, '_blank', 'noopener,noreferrer');
+        }
+      } else {
+        enqueueSnackbar('Failed to generate receipt!', { variant: 'error' });
+      }
+    } catch (error) {
+      console.error('Failed to generate receipt:', error);
+      enqueueSnackbar('Failed to generate receipt!', { variant: 'error' });
     }
   };
-
   return (
     <TableRow>
       {/* <SlimTableCell>
@@ -55,46 +66,57 @@ export const PaymentSummaryTableRow: React.FC<Props> = ({ row, currencySymbol, r
           View&nbsp;Payment
         </Button>
       </SlimTableCell> */}
-      <SlimTableCell>{fDateTime(row.createdAt)}</SlimTableCell>
+      <SlimTableCell>{row.transactionDate ? fDate(row.transactionDate) : ''}</SlimTableCell>
       <SlimTableCell sx={{ textDecoration: 'capitalize' }}>
-        {row.paymentOption.toLowerCase().includes('ppd') ? 'Online' : 'Offline'}
+        {row.paymentMode}
       </SlimTableCell>
       <SlimTableCell sx={{ textDecoration: 'capitalize' }}>
-        {row.paymentMethod === null
+        {row?.paymentMethod === null
           ? 'Pre-Paid'
-          : row.paymentMethod.toLowerCase().includes('bank_transfer')
+          : row?.paymentMethod?.toLowerCase().includes('bank_transfer')
             ? 'Bank Transfer'
-            : row.paymentMethod.toLowerCase().includes('cheque')
+            : row?.paymentMethod?.toLowerCase().includes('cheque')
               ? 'Cheque'
-              : row.paymentMethod.toLowerCase().includes('upi')
+              : row?.paymentMethod?.toLowerCase().includes('upi')
                 ? 'UPI'
-                : row.paymentMethod.toLowerCase().includes('neft / rtgs')
+                : row?.paymentMethod?.toLowerCase().includes('neft / rtgs')
                   ? 'NEFT/RTGS'
-                  : row.paymentMethod.toLowerCase().includes('demand_draft')
+                  : row?.paymentMethod?.toLowerCase().includes('demand_draft')
                     ? 'Demand Draft'
                     : 'Pre-Paid'}
       </SlimTableCell>
       <SlimTableCell>{row.orderId}</SlimTableCell>
+      <SlimTableCell>{row.totalAmount}</SlimTableCell>
       <SlimTableCell>
-        {currencySymbol}
-        {Number(row.finalAmount).toFixed(2)}
-      </SlimTableCell>
-      <SlimTableCell>
-        <Label
-          color={
-            status === 'approved' || status === 'captured'
-              ? 'success'
-              : status === 'pending'
-                ? 'warning'
-                : 'error'
+        {(() => {
+          const isOnlineAndInitiated =
+            (row.paymentMode?.toUpperCase?.() === 'ONLINE' ||
+              row.paymentMode?.toLowerCase?.() === 'online') &&
+            (status === 'INITIATED' || row.paymentStatus === 'INITIATED');
+          const finalStatus = isOnlineAndInitiated
+            ? 'FAILED'
+            : status || row.paymentStatus;
+
+          let color: 'warning' | 'success' | 'error';
+          let label: string;
+
+          if (finalStatus === 'INITIATED') {
+            color = 'warning';
+            label = 'Pending';
+          } else if (finalStatus === 'SUCCESS') {
+            color = 'success';
+            label = 'Approved';
+          } else {
+            color = 'error';
+            label = 'Failed';
           }
-        >
-          {row.paymentStatus === 'captured'
-            ? 'Approved'
-            : row.paymentStatus === 'failed'
-              ? 'Failed'
-              : 'Pending'}
-        </Label>
+
+          return (
+            <Label color={color}>
+              {label}
+            </Label>
+          );
+        })()}
       </SlimTableCell>
       <SlimTableCell>
         {/* {status === 'pending' && (
@@ -129,7 +151,7 @@ export const PaymentSummaryTableRow: React.FC<Props> = ({ row, currencySymbol, r
             </Button>
           </>
         )} */}
-        {(status === 'approved' || status === 'captured') && (
+        {(status === 'SUCCESS') && (
           <Button
             variant="outlined"
             color="primary"

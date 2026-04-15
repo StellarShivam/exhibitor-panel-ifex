@@ -40,19 +40,26 @@ export const tokenExpired = (exp: number) => {
 
   // Test token expires after 10s
   // const timeLeft = currentTime + 10000 - currentTime; // ~10s
-  const timeLeft = exp * 1000 - currentTime;
+
+  const timeLeft = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+  console.log('timeLeft', timeLeft);
 
   clearTimeout(expiredTimer);
 
-  expiredTimer = setTimeout(() => {
+  expiredTimer = setTimeout(async () => {
     const tokenUUID = sessionStorage.getItem('tokenUUID');
 
     tokenManager.setTokenUUID(tokenUUID ?? '');
 
     try {
-      tokenManager.refreshToken();
-    } finally {
-      setSession(tokenManager.getToken());
+      const newToken = await tokenManager.refreshToken();
+      if (newToken) {
+        setSession(newToken);
+      }
+    } catch (error) {
+      console.error('Token refresh failed, logging out:', error);
+      setSession(null);
+      // The refreshToken function already redirects to login, so we don't need to do it here
     }
   }, timeLeft);
 };
@@ -67,6 +74,7 @@ export const setSession = (accessToken: string | null) => {
 
     // This function below will handle when token is expired
     const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
+    console.log('exp', exp);
     tokenExpired(exp);
   } else {
     sessionStorage.removeItem('accessToken');

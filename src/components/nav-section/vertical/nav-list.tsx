@@ -34,11 +34,20 @@ export default function NavList({ data, depth, slotProps }: NavListProps) {
     setOpenMenu(false);
   }, []);
 
+  const handleClick = useCallback(() => {
+    // If there's a custom onClick handler, use it; otherwise use the toggle menu handler
+    if (data.onClick) {
+      data.onClick();
+    } else {
+      handleToggleMenu();
+    }
+  }, [data.onClick, handleToggleMenu]);
+
   return (
     <>
       <NavItem
         open={openMenu}
-        onClick={handleToggleMenu}
+        onClick={data.onClick || (data.children ? handleToggleMenu : undefined)}
         //
         title={data.title}
         path={data.path}

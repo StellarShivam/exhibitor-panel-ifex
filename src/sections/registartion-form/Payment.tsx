@@ -22,12 +22,13 @@ import CheckIcon from '@mui/icons-material/Check';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useEventContext } from 'src/components/event-context';
 import { useGetEventList1 } from 'src/api/event';
+import { BASE_URL } from 'src/config-global';
 
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Receipt from './reciept';
 
-const API_URL = 'https://sit.spicetrade.io/api/';
+const API_URL = BASE_URL;
 
 interface PaymentDetails {
   amount: number;
@@ -359,7 +360,7 @@ const PaymentPage = ({ id }: Props) => {
         email: email,
       },
       theme: {
-        color: '#FF4421',
+        color: '#ffa206',
       },
     };
 
@@ -522,7 +523,7 @@ const PaymentPage = ({ id }: Props) => {
 
     try {
       const uploadRes = await axios.post(
-        'https://sit.spicetrade.io/api/auth/api/file/upload',
+        `${BASE_URL}/auth/api/file/upload`,
         uploadFormData,
         {
           headers: {
@@ -535,7 +536,7 @@ const PaymentPage = ({ id }: Props) => {
       console.log('Receipt PDF URL:', uploadRes.data.data.storeUrl);
       if (purchaseId && pdfUrl) {
         await axios.post(
-          'https://sit.spicetrade.io/api/pub/savePaymentReciept',
+          `${BASE_URL}/pub/savePaymentReciept`,
           {
             purchaseId: purchaseId,
             paymentRecieptUrl: pdfUrl,
@@ -681,7 +682,7 @@ const PaymentPage = ({ id }: Props) => {
       <></>
       <div className="p-5 lg:p-10 pb-32 lg:pb-32 flex items-center justify-center">
         <div className="flex flex-col lg:flex-row relative bg-[#F6F6F6] min-h-[90vh] rounded-2xl w-full xl:w-5/6 my-8">
-          <div className="flex flex-col justify-start gap-3 lg:gap-8 items-center lg:items-start lg:w-2/5 w-full bg-[#FF4421] rounded-t-2xl lg:rounded-2xl lg:pl-5 px-4 py-6 lg:py-12 text-white">
+          <div className="flex flex-col justify-start gap-3 lg:gap-8 items-center lg:items-start lg:w-2/5 w-full bg-[#ffa206] rounded-t-2xl lg:rounded-2xl lg:pl-5 px-4 py-6 lg:py-12 text-white">
             <h1 className="text-white text-2xl lg:text-3xl font-semibold px-4">Register Now</h1>
             <Timeline
               sx={{
@@ -728,7 +729,7 @@ const PaymentPage = ({ id }: Props) => {
                         justifyContent: 'center',
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        color: step.completed || currentStep.id === step.id ? '#FF4421' : 'white',
+                        color: step.completed || currentStep.id === step.id ? '#ffa206' : 'white',
                         backgroundColor:
                           step.completed || currentStep.id === step.id ? 'white' : 'transparent',
                         borderColor: 'white',
@@ -747,7 +748,7 @@ const PaymentPage = ({ id }: Props) => {
                       variant={step.completed || currentStep.id === step.id ? 'filled' : 'outlined'}
                     >
                       {step.completed && currentStep.id !== step.id ? (
-                        <CheckIcon sx={{ color: '#FF4421', fontSize: '20px' }} />
+                        <CheckIcon sx={{ color: '#ffa206', fontSize: '20px' }} />
                       ) : (
                         step.id
                       )}
@@ -1011,7 +1012,7 @@ const PaymentPage = ({ id }: Props) => {
                     <input
                       type="number"
                       className={`w-full mt-3 lg:w-1/2 h-13 border bg-gray-100 ${amountError ? 'border-red-500' : 'border-gray-300'
-                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF4421]`}
+                        } rounded-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ffa206]`}
                       placeholder={
                         'Enter amount to pay (min.' + formatCurrency(postGstPrice * 0.25) + ')'
                       }
@@ -1038,7 +1039,7 @@ const PaymentPage = ({ id }: Props) => {
                       !onlineAmount ||
                       paymentStatus === 'pending'
                     } // Disable if submitting or details not loaded
-                    className={`bg-[#FF4421] w-full lg:w-40 h-11 text-lg text-white rounded-full self-end px-4 py-1 disabled:opacity-50 disabled:cursor-not-allowed 
+                    className={`bg-[#ffa206] w-full lg:w-40 h-11 text-lg text-white rounded-full self-end px-4 py-1 disabled:opacity-50 disabled:cursor-not-allowed 
                       ${paymentStatus === 'pending' || amountError
                         ? 'cursor-not-allowed'
                         : 'cursor-pointer hover:scale-105 duration-300'
@@ -1065,12 +1066,12 @@ const PaymentPage = ({ id }: Props) => {
                   </div>
                   <button
                     onClick={() => setShowOfflineForm(!showOfflineForm)}
-                    className={`border-[#FF4421] border-2 text-xl cursor-pointer rounded-full p-1 hover:scale-105 duration-300 disabled:opacity-50`}
+                    className={`border-[#ffa206] border-2 text-xl cursor-pointer rounded-full p-1 hover:scale-105 duration-300 disabled:opacity-50`}
                   >
                     {/* {showOfflineForm ? 'Hide Details' : 'Add Details'} */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className={`h-5 w-5 transform transition-transform text-[#FF4421] duration-300 ${showOfflineForm ? 'rotate-180' : ''
+                      className={`h-5 w-5 transform transition-transform text-[#ffa206] duration-300 ${showOfflineForm ? 'rotate-180' : ''
                         }`}
                       viewBox="0 0 20 20"
                       fill="currentColor"
@@ -1100,14 +1101,14 @@ const PaymentPage = ({ id }: Props) => {
                           id="ifscCode"
                           value={ifscCode}
                           onChange={(e) => setIfscCode(e.target.value)}
-                          className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#FF4421] focus:border-[#FF4421] sm:text-sm "
+                          className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#ffa206] focus:border-[#ffa206] sm:text-sm "
                           placeholder="e.g., FDRL0001340"
                         />
                         <button
                           onClick={handleVerifyIFSC}
                           disabled={ifscCode.length != 11}
                           type="button"
-                          className={`bg-[#FF4421] text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${isLoading
+                          className={`bg-[#ffa206] text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${isLoading
                             ? 'opacity-50 cursor-not-allowed'
                             : 'hover:scale-105 duration-300'
                             }`}
@@ -1179,7 +1180,7 @@ const PaymentPage = ({ id }: Props) => {
                                 >
                                   <ContentCopyIcon
                                     sx={{
-                                      color: '#FF4421',
+                                      color: '#ffa206',
                                       cursor: 'pointer',
                                     }}
                                     fontSize="small"
@@ -1207,7 +1208,7 @@ const PaymentPage = ({ id }: Props) => {
                                 >
                                   <ContentCopyIcon
                                     sx={{
-                                      color: '#FF4421',
+                                      color: '#ffa206',
                                       cursor: 'pointer',
                                     }}
                                     fontSize="small"
@@ -1233,7 +1234,7 @@ const PaymentPage = ({ id }: Props) => {
                                 >
                                   <ContentCopyIcon
                                     sx={{
-                                      color: '#FF4421',
+                                      color: '#ffa206',
                                       cursor: 'pointer',
                                     }}
                                     fontSize="small"
@@ -1261,7 +1262,7 @@ const PaymentPage = ({ id }: Props) => {
                                   type="radio"
                                   {...register('paymentMode')}
                                   value={mode}
-                                  className="form-radio h-4 w-4 text-[#FF4421] focus:ring-[#FF4421] border-gray-300"
+                                  className="form-radio h-4 w-4 text-[#ffa206] focus:ring-[#ffa206] border-gray-300"
                                 />
                                 <span className="ml-2 text-sm text-gray-600 capitalize">
                                   {mode?.replace('_', ' ')}
@@ -1289,7 +1290,7 @@ const PaymentPage = ({ id }: Props) => {
                                   type="text"
                                   id="orderId"
                                   {...register('orderId')}
-                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#FF4421] focus:border-[#FF4421] sm:text-sm"
+                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#ffa206] focus:border-[#ffa206] sm:text-sm"
                                   placeholder="e.g., UTR No, Cheque No."
                                 />
                                 {errors.orderId && (
@@ -1312,7 +1313,7 @@ const PaymentPage = ({ id }: Props) => {
                                     setValueAs: (value) =>
                                       value === '' ? undefined : Number(value), // Convert to number
                                   })}
-                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#FF4421] focus:border-[#FF4421] sm:text-sm"
+                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#ffa206] focus:border-[#ffa206] sm:text-sm"
                                   placeholder={'e.g. ' + formatCurrency(postGstPrice)}
                                   onPaste={(e) => e.preventDefault()} // Disable pasting
                                   disabled
@@ -1335,7 +1336,7 @@ const PaymentPage = ({ id }: Props) => {
                                   type="date"
                                   id="transactionDate"
                                   {...register('transactionDate')}
-                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#FF4421] focus:border-[#FF4421] sm:text-sm"
+                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#ffa206] focus:border-[#ffa206] sm:text-sm"
                                   placeholder="e.g., UTR No, Cheque No."
                                 />
                                 {errors.transactionDate && (
@@ -1357,7 +1358,7 @@ const PaymentPage = ({ id }: Props) => {
                                   type="text"
                                   id="confirmOrderId"
                                   {...register('confirmOrderId')}
-                                  className="mt-1 w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#FF4421] focus:border-[#FF4421] sm:text-sm"
+                                  className="mt-1 w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#ffa206] focus:border-[#ffa206] sm:text-sm"
                                   placeholder="e.g., UTR No, Cheque No."
                                 />
                                 {errors.confirmOrderId && (
@@ -1380,7 +1381,7 @@ const PaymentPage = ({ id }: Props) => {
                                     setValueAs: (value) =>
                                       value === '' ? undefined : Number(value), // Convert to number
                                   })}
-                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#FF4421] focus:border-[#FF4421] sm:text-sm"
+                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#ffa206] focus:border-[#ffa206] sm:text-sm"
                                   placeholder={'e.g. ' + formatCurrency(postGstPrice)}
                                   onPaste={(e) => e.preventDefault()} // Disable pasting
                                   disabled
@@ -1406,7 +1407,7 @@ const PaymentPage = ({ id }: Props) => {
                                     setValueAs: (value) =>
                                       value === '' ? undefined : Number(value), // Convert to number
                                   })}
-                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#FF4421] focus:border-[#FF4421] sm:text-sm"
+                                  className="mt-1 block w-full lg:w-80 px-3 py-2 border border-gray-300 h-13 rounded-sm focus:outline-none focus:ring-[#ffa206] focus:border-[#ffa206] sm:text-sm"
                                   placeholder={'e.g. ' + formatCurrency(postGstPrice)}
                                   disabled
                                   value={postGstPrice * 0.25}
@@ -1423,7 +1424,7 @@ const PaymentPage = ({ id }: Props) => {
                           <button
                             type="submit"
                             disabled={isSubmitting || paymentStatus === 'pending'}
-                            className={`bg-white w-full lg:w-40 h-11 self-end text-lg text-[#FF4421] border-[#FF4421] border rounded-full px-4 py-1 ${paymentStatus === 'pending'
+                            className={`bg-white w-full lg:w-40 h-11 self-end text-lg text-[#ffa206] border-[#ffa206] border rounded-full px-4 py-1 ${paymentStatus === 'pending'
                               ? 'cursor-not-allowed disabled:opacity-50'
                               : 'cursor-pointer hover:scale-105 duration-300'
                               } `}

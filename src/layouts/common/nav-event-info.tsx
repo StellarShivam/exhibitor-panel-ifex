@@ -23,22 +23,22 @@ export default function NavEventInfo() {
     >
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
         <img
-          src={eventData?.state.eventLogo}
-          alt={eventData?.state.eventName}
+          src={'/IFEX_LOGO.png'}
+          alt={'IFEX'}
           width={40}
           height={40}
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'contain' }}
         />
-        <Typography variant="h6">{eventData?.state.eventName || 'Event Name'}</Typography>
+        <Typography variant="h6">IFEX 2027</Typography>
       </Stack>
 
       <Stack spacing={1}>
         <Stack direction="row" alignItems="center" spacing={0.8}>
           <Iconify icon="mdi:calendar-month-outline" color="primary" width={20} height={20} />
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {eventData?.state.startDate && format(new Date(eventData?.state.startDate), 'dd MMM')}
+            {format(new Date('2027-02-08'), 'dd MMM')}
             &nbsp;-&nbsp;
-            {eventData?.state.endDate && format(new Date(eventData?.state.endDate), 'dd MMM yy')}
+            {format(new Date('2027-02-10'), 'dd MMM')}
           </Typography>
         </Stack>
 
@@ -49,10 +49,11 @@ export default function NavEventInfo() {
           </Typography>
         </Stack> */}
 
-        <Stack direction="row" alignItems="center" spacing={0.8}>
+        <Stack direction="row" alignItems="start" spacing={0.8}>
           <Iconify icon="mdi:map-marker-outline" color="primary" minWidth={20} minHeight={20} />
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {eventData?.state.location || 'Location'}
+            India Expo Centre and Mart<br />
+            Plot No. 23-25 & 27-29, Knowledge Park-II, Gautam Buddha Nagar, Greater Noida - 201306
           </Typography>
         </Stack>
       </Stack>

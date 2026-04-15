@@ -7,6 +7,7 @@ import axios, { endpoints, apiEndpoints, tokenManager } from 'src/utils/axios';
 import { BASE_URL } from 'src/config-global';
 
 import { AuthContext } from './auth-context';
+import { JWTContextType } from '../../types';
 import { setSession, isValidToken } from './utils';
 import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
 
@@ -142,41 +143,82 @@ export function AuthProvider({ children }: Props) {
 
   // LOGIN
 
-  const login = useCallback(async (email: string, password: string) => {
-    const data = {
-      email,
-      password,
+  const login = useCallback(async (email: string, mobile: string, otp: string, admin?: boolean) => {
+    const data: any = {
+      otp: otp,
     };
+    if (email) {
+      data.identifier = email;
+    } else {
+      data.identifier = mobile;
+    }
+    if (admin) {
+      data.admin = admin;
+    }
 
     // const res = await axios.post(endpoints.auth.login, data);
     const res = await axios.post(`${BASE_URL}${apiEndpoints.auth.login}`, data);
 
     console.log('********* The response is : ', res);
 
-    if (
-      !res.data.data.roles?.includes('EXHIBITOR_ADMIN') &&
-      !res.data.data.roles?.includes('EXHIBITOR_USER')
-    ) {
+    // Handle response structure from verify endpoint
+    const responseData = res.data.data;
+
+    if (!responseData) {
+      throw new Error('Invalid response structure');
+    }
+
+    // Check roles from userInfo
+    const roles = responseData.userInfo?.roles || [];
+
+
+    if (roles.length > 0 && roles?.[0] !== 'BUYER' && roles?.[0] !== 'EXHIBITOR' && roles?.[0] !== 'SPONSOR') {
       throw new Error('Access denied');
     }
 
-    tokenManager.setTokenUUID(res.data.data.token);
-    sessionStorage.setItem(TOKEN_UUID_STORAGE_KEY, res.data.data.token);
-    await tokenManager.refreshToken();
+    const deployedDomain = typeof window !== 'undefined' ? window.location.origin : '';
 
-    const access = tokenManager.getToken();
+    // if (deployedDomain !== 'https://exhibitor.bharat-tex.com' && roles?.[0] === 'EXHIBITOR') {
+    //   throw new Error('Access denied');
+    // }
 
-    setSession(access);
+    // if (deployedDomain !== 'https://buyer.bharat-tex.com' && roles?.[0] === 'BUYER') {
+    //   throw new Error('Access denied');
+    // }
+
+    // if (deployedDomain !== 'https://sponsor.bharat-tex.com' && roles?.[0] === 'SPONSOR') {
+    //   throw new Error('Access denied');
+    // }
+
+
+
+    // Get accessToken and refreshToken from response
+    const accessToken = responseData.accessToken;
+    const refreshToken = responseData.refreshToken;
+
+    if (!accessToken) {
+      throw new Error('Access token not found in response');
+    }
+
+    // Store refreshToken for future use (if needed for token refresh)
+    if (refreshToken) {
+      sessionStorage.setItem('refreshToken', refreshToken);
+    }
+
+    // Store accessToken directly (no need to call refreshToken since we already have it)
+    tokenManager.setToken(accessToken);
+    setSession(accessToken);
 
     dispatch({
       type: Types.LOGIN,
       payload: {
         user: {
-          // ...user,
-          access,
+          ...responseData.userInfo,
+          access: accessToken,
         },
       },
     });
+    return responseData;
   }, []);
 
   // REGISTER
@@ -222,7 +264,7 @@ export function AuthProvider({ children }: Props) {
 
   const status = state.loading ? 'loading' : checkAuthenticated;
 
-  const memoizedValue = useMemo(
+  const memoizedValue: JWTContextType = useMemo(
     () => ({
       user: state.user,
       method: 'jwt',

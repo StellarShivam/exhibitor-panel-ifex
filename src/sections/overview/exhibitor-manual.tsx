@@ -8,16 +8,17 @@ import Iconify from 'src/components/iconify';
 
 export default function ExhibitorManual() {
   const dummyLink =
-    'https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1767611198208_IFEX-2026-Exhibitors_final_manual.pdf';
+    'https://sit-event-backend-public.s3.amazonaws.com/event/img/ad_ur/1/1757415182221_IFEX2025_Exhibitor_Mannual_03_September_2025.pdf';
 
   return (
     <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
       <CardContent>
         <Typography variant="h5" fontWeight={700} gutterBottom>
-          Exhibitor Manual
+          Exhibition Instruction Manual
         </Typography>
         <Typography variant="body2" color="text.secondary" mb={3}>
-          The official exhibitor manual for IFEX 2026 is now available here.
+          The official exhibition instruction manual for UP International Trade Show 2025 is now
+          available here.
         </Typography>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={3}>
           <Button
@@ -30,7 +31,7 @@ export default function ExhibitorManual() {
             startIcon={<Iconify icon="eva:cloud-download-fill" width={24} />}
             sx={{ width: '100%' }}
           >
-            Download Exhibitor Manual
+            Download Exhibition Instruction Manual
           </Button>
         </Stack>
       </CardContent>

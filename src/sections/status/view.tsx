@@ -39,6 +39,22 @@ export default function StatusView() {
   const [postGstPrice, setPostGstPrice] = useState(0);
   const [tdsAmout, setTdsAmount] = useState<number>();
 
+  const [isApproved, setIsApproved] = useState(false);
+
+  useEffect(() => {
+    const paid = (payment?.paymentTransactions ?? []).reduce(
+      (sum, transaction) =>
+        transaction?.paymentStatus?.toLowerCase().includes('captured') ||
+        transaction?.paymentStatus?.toLowerCase().includes('approved')
+          ? sum + Number(transaction.finalAmount || 0)
+          : sum,
+      0
+    );
+
+    const isApprove = paid >= payment?.paymentData?.totalAmount;
+    setIsApproved(isApprove);
+  }, [payment?.paymentTransactions]);
+
   useEffect(() => {
     const updateEventContext = async () => {
       // await reFetchEventList();
@@ -152,10 +168,10 @@ export default function StatusView() {
     .map((inst) => inst.installmentType);
 
   // If status is approved, or matches nearestInstallment or any higher, skip this screen
-  const isApproved =
-    status === 'APPROVED' ||
-    status === 'AUTO_APPROVED' ||
-    (allowedInstallmentTypes && allowedInstallmentTypes.includes(status));
+  // const isApproved =
+  //   status === 'APPROVED' ||
+  //   status === 'AUTO_APPROVED' ||
+  //   (allowedInstallmentTypes && allowedInstallmentTypes.includes(status));
 
   if (isApproved) {
     router.push(`/dashboard`);
@@ -183,8 +199,8 @@ export default function StatusView() {
         >
           <Box
             sx={{
-              width: 900,
-              height: 480,
+              width: 600,
+              height: 350,
               borderRadius: 2,
               bgcolor: (theme) => alpha(theme.palette.primary.light, 0.3),
               boxShadow: 0,
@@ -202,7 +218,7 @@ export default function StatusView() {
                   👋
                 </span>
                 <br />
-                {eventData.state.firstName}
+                {eventData.state.fullName}
               </Typography>
               <Chip
                 label={
@@ -229,7 +245,7 @@ export default function StatusView() {
                 payment?.paymentTransactions[payment?.paymentTransactions.length - 1]
                   ?.paymentStatus === 'pending'
                   ? `Your payment for this installment has been received and is pending approval from the admin.`
-                  : `Thank you for filling out the form, ${status === 'ACTIVE' ? '' : 'To enable all the functionalities of the Exhibitor Panel,'} please make a payment of  ${nearestInstallment.installmentPart}% of the total amount.`}
+                  : `Thank you for filling out the form, To enable all the functionalities of the Exhibitor Panel, please make a payment of 100% of the total amount.`}
               </Typography>
               {!hasTransactions && (
                 <Button
@@ -237,7 +253,8 @@ export default function StatusView() {
                   size="large"
                   onClick={() => {
                     window.open(
-                      'https://register.ifexindia.com/payment?email=' + exhibitor?.supportEmail,
+                      'https://register.upinternationaltradeshow.com/payment?email=' +
+                        exhibitor?.supportEmail,
                       '_blank'
                     );
                   }}
@@ -254,7 +271,7 @@ export default function StatusView() {
                 </Button>
               )}
             </Stack>
-            <Box
+            {/* <Box
               sx={{
                 flex: 1,
                 display: 'flex',
@@ -268,7 +285,7 @@ export default function StatusView() {
                 alt="Illustration"
                 style={{ maxWidth: 320, width: '100%', height: 'auto' }}
               />
-            </Box>
+            </Box> */}
           </Box>
         </Box>
         {/* Show payment table if transaction list is not empty */}
@@ -286,7 +303,7 @@ export default function StatusView() {
     chipLabel = 'Registration Complete';
     chipColor = 'info';
     messageText =
-      'Thank you for filling out the form. To enable all the functionalities of the Exhibitor Panel, please make a payment of 25% of the total amount.';
+      'Thank you for filling out the form. To enable all the functionalities of the Exhibitor Panel, please make a payment of 100% of the total amount.';
   } else if (isToBeApproved) {
     chipLabel = 'To Be Approved';
     chipColor = 'secondary';
@@ -418,7 +435,7 @@ export default function StatusView() {
                   if (isCompleted) {
                     // router.push(`/payment/${exhibitor.supportEmail}`);
                     window.open(
-                      'https://ifexindia.registration.eventstrat.ai/payment?email=' +
+                      'https://register.upinternationaltradeshow.com/payment?email=' +
                         exhibitor?.supportEmail,
                       '_blank'
                     );

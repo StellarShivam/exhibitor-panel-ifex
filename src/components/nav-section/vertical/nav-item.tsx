@@ -23,6 +23,7 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
       disabled,
       caption,
       roles,
+      onClick,
       //
       open,
       depth,
@@ -44,6 +45,7 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
         depth={depth}
         active={active}
         disabled={disabled}
+        onClick={onClick}
         {...other}
       >
         {!subItem && icon && (
@@ -98,6 +100,11 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
     }
 
     if (hasChild) {
+      return renderContent;
+    }
+
+    // Handle custom onClick (when no children and onClick is provided)
+    if (onClick) {
       return renderContent;
     }
 

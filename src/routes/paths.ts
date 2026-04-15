@@ -84,5 +84,24 @@ export const paths = {
       detail: (id: string) => `${ROOTS.DASHBOARD}/forms/${id}/detail`,
     },
     formsTransactions: `${ROOTS.DASHBOARD}/forms-transactions`,
+    networking: `${ROOTS.DASHBOARD}/networking`,
+    schedule: `${ROOTS.DASHBOARD}/schedule`,
+    inauguralCeremony: {
+      form: `${ROOTS.DASHBOARD}/inaugural-ceremony/form`,
+      list: `${ROOTS.DASHBOARD}/inaugural-ceremony/list`,
+    },
+
+    buyer: {
+      root: `${ROOTS.DASHBOARD}/buyer`,
+      form: `${ROOTS.DASHBOARD}/buyer/form`,
+      overview: `${ROOTS.DASHBOARD}/buyer/overview`,
+      planYourVisit: `${ROOTS.DASHBOARD}/buyer/plan-your-visit`,
+      exhibitorDirectory: `${ROOTS.DASHBOARD}/buyer/exhibitor-directory`,
+    },
+    sponsor: {
+      root: `${ROOTS.DASHBOARD}/sponsor`,
+      form: `${ROOTS.DASHBOARD}/sponsor/form`,
+      overview: `${ROOTS.DASHBOARD}/sponsor/overview`,
+    }
   },
 };

@@ -267,12 +267,10 @@ export default function FormsEditView({ id }: Props) {
         </Stack>
       ) : (
         <>
-          {currentForm?.formId !== 2 &&
+          {currentForm?.formId !== 8 &&
             currentForm?.formId !== 5 &&
-            currentForm?.formId !== 8 &&
             currentForm?.formId !== 7 &&
-            currentForm?.formId !== 11 &&
-            currentForm?.formId !== 12 &&
+            currentForm?.formId !== 9 &&
             latestLog &&
             !currentForm?.isAutoApproved && (
               <FormStatusMessage
@@ -282,13 +280,10 @@ export default function FormsEditView({ id }: Props) {
               />
             )}
 
-          {(currentForm?.formId === 2 ||
+          {(currentForm?.formId === 8 ||
             currentForm?.formId === 5 ||
-            currentForm?.formId === 8 ||
             currentForm?.formId === 7 ||
-            currentForm?.formId === 11 ||
-            currentForm?.formId === 12
-          ) &&
+            currentForm?.formId === 9) &&
             latestLog && (
               <PaymentStatusMessage changeType={formDataMain?.formDetail?.paymentStatus} />
             )}

@@ -12,11 +12,14 @@ import { useMockedUser } from 'src/hooks/use-mocked-user';
 import Logo from 'src/components/logo';
 import Scrollbar from 'src/components/scrollbar';
 import { NavSectionVertical } from 'src/components/nav-section';
+import SponsorContactDialog from 'src/components/sponsor-contact-dialog';
 
 import { NAV } from '../config-layout';
 import { useNavData } from './config-navigation';
 import NavEventInfo from '../common/nav-event-info';
 import NavToggleButton from '../common/nav-toggle-button';
+import SocialMediaIcons from '../common/social-media-icons';
+import BuyerInviteDialog from 'src/components/buyer-invite-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +35,7 @@ export default function NavVertical({ openNav, onCloseNav }: Props) {
 
   const lgUp = useResponsive('up', 'lg');
 
-  const navData = useNavData();
+  const { data: navData, sponsorDialog, buyerDialog } = useNavData();
 
   useEffect(() => {
     if (openNav) {
@@ -69,6 +72,22 @@ export default function NavVertical({ openNav, onCloseNav }: Props) {
       <Box sx={{ flexGrow: 1 }} />
 
       {/* <NavUpgrade /> */}
+      {/* Sticky Follow Us Box */}
+      {/* <Box
+        sx={{
+          position: 'sticky',
+          bottom: 0,
+          py: 1.5,
+          px: 3,
+          bgcolor: 'background.paper',
+          borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+          textAlign: 'left',
+          fontWeight: 'bold',
+          color: 'text.secondary',
+        }}
+      >
+        <SocialMediaIcons />
+      </Box> */}
     </Scrollbar>
   );
 
@@ -105,6 +124,9 @@ export default function NavVertical({ openNav, onCloseNav }: Props) {
           {renderContent}
         </Drawer>
       )}
+      
+      <SponsorContactDialog open={sponsorDialog.value} onClose={sponsorDialog.onFalse} />
+      <BuyerInviteDialog open={buyerDialog.value} onClose={buyerDialog.onFalse} />
     </Box>
   );
 }

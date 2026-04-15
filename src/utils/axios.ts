@@ -4,7 +4,6 @@ import Cookies from 'js-cookie';
 import { paths } from 'src/routes/paths';
 
 import { HOST_API, BASE_URL } from 'src/config-global';
-import { Details } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
 
@@ -73,12 +72,37 @@ export const fetcher = async (url: string) => {
   }
 };
 
+export const fetcherWithMeta = async (url: string) => {
+  try {
+    const AUTH_TOKEN = tokenManager.getToken();
+
+    const response = await axiosInstance2.get<ApiResponse>(url, {
+      headers: {
+        Authorization: `Bearer ${AUTH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('Axios Data Response:', response);
+
+    if (response.data.status === 'failure') {
+      throw new Error(response?.data?.message || 'Failed to fetch data');
+    }
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching data:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch');
+  }
+};
+
 // ----------------------------------------------------------------------
 export const apiEndpoints = {
   base: BASE_URL,
   auth: {
     refresh: '/auth/refreshToken',
-    login: '/auth/login',
+    login: '/api/v1/auth/verify',
+    sendOtp: '/api/v1/auth/login',
   },
   invitationCoupon: {
     listing: '/exhibitorCoupons/',
@@ -102,10 +126,11 @@ export const apiEndpoints = {
     checkout: '/checkout?eventId=',
   },
   teamManagement: {
-    listing: '/exhibitorUsers/',
-    create: '/createExhibitorUser',
+    listing: '/api/v1/exhibitors/members',
+    create: '/api/v1/exhibitors/member',
     update: '/updateExhibitorUser',
     details: '/exhibitorUser/',
+    delete: '/api/v1/exhibitors/member/',
   },
   helpAndSupport: {
     listing: '/tickets/email/',
@@ -143,13 +168,20 @@ export const apiEndpoints = {
     detail: '/event/',
     userCohorts: '/eventusercohorts/',
   },
-  form:{
-    list:'/exhibitorUserData/',
-    exhibitorForm: '/exhibitorForm/',
+  space: {
+    viewForm: '/api/v1/exhibitors/view-form',
+  },
+  form: {
+    list: '/exhibitorUserData/',
+    exhibitorForm: '/api/v1/exhibitors/view-form',
     updateForm: '/updateRegistrationDetails',
     updatePaymentStatus: '/updatePaymentStatus',
     payment: '/exhibitorPaymentDetails/',
-    generateProforma: '/generateProformaInvoice/',
+    generateProforma: '/api/v1/exhibitors/generate/proforma?urn=',
+    generateSponsorsProforma: '/api/v1/sponsors/generate/proforma?urn=',
+    editForm:'/api/v1/exhibitors/edit-form',
+    buyerForm: '/api/v1/buyer/view-form',
+    sponsorForm: '/api/v1/sponsors/view-form',
   },
   forms: {
     exhibitorForm: '/exhibitorForm/',
@@ -157,7 +189,6 @@ export const apiEndpoints = {
     saveForm: '/exhibitorForm/exhibitor/saveForm',
     formData: '/exhibitorForm/exhibitor/formDetail?formDetailId=',
     resubmit: '/exhibitorForm/exhibitor/resubmit',
-    generatePerformaInvoice: '/generateServiceFormPI?exhibitorFormDetailId=',
   },
   pricing: {
     detail: '/eventpricing/',
@@ -240,14 +271,53 @@ export const apiEndpoints = {
     getEventMediaUpload: '/eventmedia/',
   },
   paymentSummary: {
+    sponsorPayment: '/api/v1/sponsors/transactions',
     updatePaymentStatus: '/updatePaymentStatus',
-    payment: '/exhibitorPaymentDetails/',
+    payment: '/api/v1/exhibitors/transactions',
+    generateReceipt: '/api/v1/exhibitors/advance/receipt?paymentId=',
+    generateSponsorReceipt: '/api/v1/sponsors/advance/receipt?paymentId=',
+    getPaymentDetails: '/api/v1/exhibitors/pricing',
     generateMultiReceipt: '/generateMultiReceipt?purchaseId=',
+    transactionList: '/exhibitorForm/payment/transactions/exhibitor/',
+  },
+  networking: {
+    listing: '/event/usersList/',
+  },
+  meeting: {
+    allEventSlots: '/meeting/slots/',
+    allUserSlots: '/meeting/user-slots/',
+    blockTimeSlot: '/meeting/block-time',
+    unblockTimeSlot: '/meeting/unblock-time',
+    dropDownSlots: '/meeting/member-slots',
+    dropDownMembers: '/meeting/member-users',
+    bookMeeting: '/meeting/book-meet',
+    updateStatus: '/meeting/update-meet',
+    rescheduleMeeting: '/meeting/reschedule-meet',
   },
   requestFormPayments: {
     createPayment: '/exhibitorForm/payment/create',
     verifyPayment: '/exhibitorForm/payment/verify',
     formTransactions: '/exhibitorForm/payment/transactions/exhibitor/',
+  },
+  inauguralAttendee: {
+    addAttendee: '/nominees/create',
+    checkAttendee: '/nominees/check',
+    getAttendees: '/nominees/exhibitor/',
+  },
+  planYourVisit: {
+    get: '/api/v1/visa-letter',
+    submit: '/api/v1/visa-letter',
+    update: '/api/v1/visa-letter',
+  },
+  exhibitorDirectory: {
+    list: '/api/v1/buyer/exhibitor-list',
+    matchmaking: '/api/v1/buyer/matchmaking-list',
+    productGroups: '/api/v1/exhibitor/product-groups',
+  },
+  leadWallet: {
+    get: '/api/v1/lead-wallet/favourites',
+    add: '/api/v1/lead-wallet/add',
+    exportFavourites: '/api/v1/lead-wallet/export-favourites',
   },
 };
 
@@ -311,23 +381,30 @@ export const tokenManager = {
           },
         }
       );
+      console.log('Response:', response);
 
       // const data = await response.json();
-      // if (response.ok) {
-      tokenManager.setToken(response.data.data.accessToken); // Update the token globally
-      console.log('Token refreshed successfully');
-      Cookies.set('templateToken', response.data.data.accessToken, {
-        domain: 'localhost',
-        secure: true,
-        sameSite: 'None',
-      });
-      console.log(response.data.data.accessToken);
-      // } else {
+      if (response.status && response.data?.data?.accessToken) {
+        tokenManager.setToken(response.data.data.accessToken); // Update the token globally
+        console.log('Token refreshed successfully');
+        Cookies.set('templateToken', response.data.data.accessToken, {
+          domain: 'localhost',
+          secure: true,
+          sameSite: 'None',
+        });
+        console.log(response.data.data.accessToken);
+        return response.data.data.accessToken;
+      }
       //   console.error('Failed to refresh token', data.message);
-      // }
+      console.error('Failed to refresh token - invalid response');
+      sessionStorage.clear();
+      window.location.href = paths.auth.jwt.login;
+      throw new Error('Token refresh failed');
     } catch (error) {
       console.error('Error refreshing token:', error);
+      sessionStorage.clear();
       window.location.href = paths.auth.jwt.login;
+      throw error;
     }
   },
 };

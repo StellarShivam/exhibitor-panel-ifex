@@ -1,4 +1,14 @@
 /* eslint-disable perfectionist/sort-imports */
+
+// Global error handler for ChunkLoadError (production hotfix)
+if (typeof window !== 'undefined') {
+  window.addEventListener('error', (e) => {
+    if (e?.message?.includes('Loading chunk') || e?.message?.includes('ChunkLoadError')) {
+      window.location.reload();
+    }
+  });
+}
+
 import 'src/global.css';
 
 // ----------------------------------------------------------------------
@@ -32,10 +42,8 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: 'IFEX',
-  description:
-    'IFEX Exhibitor Panel',
-  keywords: 'IFEX, Exhibitor, Panel, Event Management',
+  title: 'IFEX 2026',
+  keywords: 'IFEX 2026, IFEX, UP Internation Trade Show, IEML',
   manifest: '/manifest.json',
   icons: [
     { rel: 'icon', url: '/IFEX_LOGO.png' },
@@ -61,7 +69,7 @@ export default function RootLayout({ children }: Props) {
                 themeDirection: 'ltr', //  'rtl' | 'ltr'
                 themeContrast: 'default', // 'default' | 'bold'
                 themeLayout: 'vertical', // 'vertical' | 'horizontal' | 'mini'
-                themeColorPresets: 'blue', // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
+                themeColorPresets: 'orange', // 'default' | 'cyan' | 'purple' | 'blue' | 'orange' | 'red'
                 themeStretch: false,
               }}
             >

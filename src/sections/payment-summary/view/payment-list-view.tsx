@@ -267,9 +267,9 @@ export default function PaymentSummaryListView() {
             }
 
 
-            <Box fontWeight={'bold'} fontSize={12} color="text.primary">
+            {paymentDetails?.tdsAmount > 0 && <Box fontWeight={'bold'} fontSize={12} color="text.primary">
               TDS : {fCurrencyWithType(paymentDetails?.tdsAmount || 0, paymentDetails?.currency || "INR").formatted}{' '}
-            </Box>
+            </Box>}
 
             {paymentDetails?.calculatedAmountIifMember > 0 && (
               <Box fontWeight={'bold'} fontSize={12} color="text.primary">
